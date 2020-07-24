@@ -1,0 +1,120 @@
+
+————
+gcc on mac location
+	/Users/admin1/.stack/programs/x86_64-osx/ghc-8.8.3/bin
+
+————
+build exe using ghc
+   	stack ghc -- Main.hs -o testprogram2
+	stack ghc first_prog.hs
+
+—————
+show/hide hidden files in finder
+in terminal type:
+	defaults write com.apple.finder AppleShowAllFiles YES
+right click on finder window in launch bar holding car-alt, choose “Relanch”
+
+:set prompt "λ> "
+:set prompt "\x03BB> "
+:set prompt "%s\n\x03BB> "
+:set prompt "\955>"
+:set prompt "%s--------------------------------------------\nλ>"
+:set prompt “%s_____________________________________________\nλ>"
+
+—————
+create a new project from template
+stack new prRio3 rio
+
+—————
+create a new project from default new template
+stack new prNew1
+
+—————
+$ghc templates.hs -XTemplateHaskell
+{-# LANGUAGE TemplateHaskell -#}
+
+—————
+stack build --test
+stack build --test --bench --haddock
+
+Common flags
+--file-watch will run build in file-watch mode, where it will wait for changes to files and then automatically rebuild. This can be very convenient to run in a terminal while simulatenously editing in another window.
+--fast will disable optimizations
+--pedantic turns on -Wall -Werror for GHC (all warnings on, and warnings treated as errors)
+So throwing a few of these together:
+stack build --test --file-watch --fast --pedantic
+stack test
+
+————-
+root of the Project
+stack install hint 
+Installation path /Users/admin1/.local/bin
+to check all hs files
+  /Users/admin1/.local/bin/hlint src --report >> rep5.txt
+for a single file
+  /Users/admin1/.local/bin/hlint Lib.hs >> rep5.txt
+
+
+——————————————————
+vs code terminal colors settings change
+
+
+/Users/admin1/Library/Application Support/Code/User/settings.json
+
+{
+    "workbench.colorTheme": "Visual Studio Light",
+    "editor.fontSize": 14,
+    "terminal.integrated.fontSize": 14,
+    "window.zoomLevel": 0,
+    "editor.tabCompletion": "on",
+    "editor.tabSize": 2,
+    "terminal.integrated.automationShell.osx": ""
+
+    "workbench.colorCustomizations": {
+        "terminal.background":"#05010a",
+        "terminal.foreground":"#00caaf",
+        
+        ...
+      }
+ }
+
+
+
+    "workbench.colorCustomizations": {
+        "terminal.background":"#05010a",
+        "terminal.foreground":"#12be12",
+        "terminal.ansiGreen": "#ff0000",
+        "terminal.selectionBackground": "#c591f5",
+        "terminal.selectionForeground": "#05010a",
+        ...
+      }
+    
+
+———————————————————
+change colors in terminal on mac
+https://www.google.ca/search?q=how+to+customize+prompt+color+in+terminal+mac&source=lmns&bih=885&biw=1012&hl=en-US&ved=2ahUKEwiNpKDbseHqAhVCTK0KHS8PBEUQ_AUoAHoECAEQAA
+
+1. create file .bash_profile (could be in your home dir /Users/admin1)
+place there this code
+——
+export CLICOLOR=1
+#LSCOLORS=exfxcxdxbxegedabagacad
+export LSCOLORS=GxFxCxDxBxegedabagaced
+———
+
+run in terminal command
+source ~./bash_termnial
+relaunch terminal
+
+—————————————————
+change colors in terminal other way
+.bash_terminal
+use nano editor 
+——
+export PS1="________________________________________________________________________________\n| \w @ \h (\u) \n| => "
+export PS2="| => "
+
+------------------------------------------------------------
+export CLICOLOR=1
+export LSCOLORS=ExFxBxDxCxegedabagacad
+
