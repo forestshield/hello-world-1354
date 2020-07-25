@@ -20,6 +20,21 @@ right click on finder window in launch bar holding car-alt, choose “Relanch”
 :set prompt "\955>"
 :set prompt "%s--------------------------------------------\nλ>"
 :set prompt “%s_____________________________________________\nλ>"
+:set prompt "%s ------------------ \x03BB> "
+:set prompt "\ESC[1;34m%s\n\ESC[0;34mλ> \ESC[m"
+-- this one sets color to red -----
+:set prompt "\ESC[1;31m%s ---------------------------------\n\ESC[0;31mλ> \ESC[m"
+
+
+SET REPL PROMPT PERMANENTLY (WHEN STACK IS INSTALLED
+put this line “:set prompt "\ESC[1;34m%s\n\ESC[0;34mλ> \ESC[m" in a file
+ghci.conf
+put this file into directory :
+~.ghc
+N.B. “\ESC[m” reverts everything back to normal
+
+
+
 
 —————
 create a new project from template
@@ -118,3 +133,105 @@ export PS2="| => "
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
+----------------------------------------------
+Repl stuff -----
+----------------------------------------------
+:reload	:r	Code reload
+:type	:t	Type inspection
+:kind	:k	Kind inspection
+:info	:i	Information
+:print	:p	Print the expression
+:edit	:e	Load file in system editor
+:load	:l	Set the active Main module in the REPL
+:module	:m	Add modules to imports
+:add	:ad	Load a file into the REPL namespace
+:instances	:in	Show instances of a typeclass
+:browse	:bro	Browse all available symbols in the REPL namespace
+----------------------------------------------
+The introspection commands are an essential part of debugging 
+and interacting with Haskell code:
+----------------------------------------------
+λ: :type 3
+3 :: Num a => a
+
+λ: :kind Either
+Either :: * -> * -> *
+
+λ: :info Functor
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+  (<$) :: a -> f b -> f a
+        -- Defined in `GHC.Base'
+  ...
+λ: :i (:)
+data [] a = ... | a : [a]       -- Defined in `GHC.Types'
+infixr 5 :
+
+----------------------------------------------
+Querying the current state of the global environment in the shell is also possible. 
+For example, to view module-level bindings and types in GHCi, run:
+λ: :browse
+λ: :show bindings
+
+----------------------------------------------
+To examine module-level imports, execute:
+λ: :show imports
+import Prelude -- implicit
+import Data.Eq
+import Control.Monad
+
+----------------------------------------------
+Language extensions can be set at the repl.
+:set -XNoImplicitPrelude
+:set -XFlexibleContexts
+:set -XFlexibleInstances
+:set -XOverloadedStrings
+
+----------------------------------------------
+To see compiler-level flags and pragmas, use:
+λ: :set
+options currently set: none.
+base language is: Haskell2010
+with the following modifiers:
+  -XNoDatatypeContexts
+  -XNondecreasingIndentation
+
+----------------------------------------------
+GHCi-specific dynamic flag settings:
+other dynamic, non-language, flag settings:
+  -fimplicit-import-qualified
+
+----------------------------------------------
+warning settings:
+λ: :showi language
+base language is: Haskell2010
+with the following modifiers:
+  -XNoDatatypeContexts
+  -XNondecreasingIndentation
+  -XExtendedDefaultRules
+
+----------------------------------------------
+Language extensions and compiler pragmas can be set at the prompt. 
+See the Flag Reference for the vast collection of compiler flag options.
+Several commands for the interactive shell have shortcuts:
+
+Function
++t	Show types of evaluated expressions
++s	Show timing and memory usage
++m	Enable multi-line expression delimited by :{ and :}.
+λ: :set +t
+λ: []
+[]
+it :: [a]
+λ: :set +s
+λ: foldr (+) 0 [1..25]
+325
+it :: Prelude.Integer
+(0.02 secs, 4900952 bytes)
+λ: :set +m
+λ: :{
+λ:| let foo = do
+λ:|           putStrLn "hello ghci"
+λ:| :}
+λ: foo
+"hello ghci"
