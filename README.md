@@ -8,3 +8,5 @@ taken from Martín Valdés de León git
 "https://github.com/mvaldesdeleon/haskell-book/blob/master/ch02/exercises.md"
 Many Thanks for that
 
+file ghci.conf goes to this directory ~./ghc  
+It sets ghci prompt to red and Lambda.   (at least it works on MacOS)
