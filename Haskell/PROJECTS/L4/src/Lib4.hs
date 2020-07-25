@@ -22,7 +22,11 @@ someFuncLib4 = do
   print (myAbs (-4))
   putStrLn ".......myAbs2 5 ..............." 
   print (myAbs2 5)
-
+  putStrLn ".......simpliest func with Lambda syntaxis .........." 
+  print $ id3 "xxx"
+  print $ id3 5
+  print $ id2 [1,2,4]
+  print $ id2 (5, "tuples")
 
 
 --working with Lists
@@ -59,4 +63,13 @@ myAbs2 x = do
   else 
     negate x
 
+--simpliest function
+id3 :: a -> a
+id3 x = x
+
+--simpliest function, lambda notation
+id2 :: a -> a
+id2  = \x -> x
+
+--
 
