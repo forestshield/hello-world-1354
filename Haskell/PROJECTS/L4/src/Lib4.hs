@@ -88,14 +88,56 @@ id2  = \x -> x
 applyTwice :: (a -> a) -> a -> a
 applyTwice f x = f (f x)
 
--- add
-add :: (Num a) => a -> a -> a 
-add x y = x + y
-
--- add1
-add1 :: Int -> Int
-add1 x = x + (1 :: Int)
-
 -- applyThree
 applyThree :: (a -> a) -> a -> a
 applyThree f x = f (f (f x))
+
+-- add
+add :: Num a => a -> a -> a 
+add x y = x + y
+
+-- add1
+arg1 = 3 :: Int
+arg2 = 5 :: Int
+--
+add1 :: Int -> Int
+add1 x = x + (1 :: Int)
+--add1 = add 1
+
+--addTupl
+addTupl :: (Int, Int) -> Int
+--addTupl :: Num a => (a, a) -> a
+addTupl (a, b) = add a b
+
+--curry and uncurry
+curry'        :: ((a, b) -> c) -> a -> b -> c
+curry' f x y  =  f (x, y)
+uncurry'      :: (a -> b -> c) -> (a, b) -> c
+uncurry' f p  =  f (fst p) (snd p)
+
+--uncurryAdd
+uncurryAdd :: (Int, Int) -> Int
+uncurryAdd = uncurry add
+--
+example :: Int
+example = uncurryAdd (1, 2)
+
+curryAddTupl :: ((Int, Int) -> Int) -> Int -> Int -> Int
+curryAddTupl = undefined
+--curryAddTupl = curry addTupl
+
+
+--Algebraic Datatypes ----------
+--see Cards.hs
+
+--Algebraic Datatypes ----------
+--data Point
+data Point  = Point Int Int deriving (Eq, Show, Read)
+data Point2 = Point2 { x :: Int, y :: Int} deriving Show
+
+--addPoint
+--addPoint          :: (Point, Point) -> Point
+--addPoint (p1, p2) = p1 + p2 
+
+--data Shape
+--data Shape

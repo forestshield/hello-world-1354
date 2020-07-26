@@ -1,0 +1,1107 @@
+{-
+--https://hackage.haskell.org/package/game-probability-1.1/src/Numeric/Probability/Game/PlayingCards.hs
+--#######################################################################
+--PlayingCards.hs
+-- | A module containing some simple data definitions for a deck of playing cards.
+module Numeric.Probability.Game.PlayingCards (PlayingCard(..),Suit(..),Rank(..),AceLowRank(..),deck,
+  sameSuit, sameRank) where
+
+import Data.Function (on)
+
+import Numeric.Probability.Game.Cards
+
+-- | The rank of playing cards.  The ranking is specified ace-high, as this is
+-- how many games operate.  If you wish to have an ace-low ordering you can use
+-- the 'AceLowRank' newtype.
+data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack
+  | Queen | King | Ace
+  deriving (Bounded, Enum, Eq, Ord, Show, Read)
+
+-- | A wrapper for 'Rank' where the Ord, Enum and Bounded instances are adjusted
+-- to list Ace as the lowest item rather than the highest.
+newtype AceLowRank = AceLow {alRank :: Rank}
+  deriving (Eq, Show, Read)
+
+instance Bounded AceLowRank where
+  minBound = AceLow Ace
+  maxBound = AceLow King
+
+instance Enum AceLowRank where
+  fromEnum (AceLow Ace) = 0
+  fromEnum (AceLow x) = fromEnum x + 1
+  toEnum 0 = AceLow Ace
+  toEnum n = AceLow $ toEnum (n - 1)
+
+instance Ord AceLowRank where
+  compare = compare `on` fromEnum
+
+-- | The standard four suits of playing cards.  The ordering on them is arbitrary
+-- (alphabetical, in fact).
+data Suit = Clubs | Diamonds | Hearts | Spades
+  deriving (Eq, Ord, Show, Read)
+
+-- | A playing card with a rank and suit.  The ordering on them is arbitrary (by
+-- rank then by suit).
+data PlayingCard = PlayingCard {rank :: Rank, suit :: Suit}
+  deriving (Eq, Ord, Show, Read)
+
+-- | The standard full deck of 52 playing cards.
+deck :: Cards PlayingCard
+deck = makeCards [PlayingCard r s | r <- [minBound .. maxBound], s <- [Clubs,Diamonds,Hearts,Spades]]
+
+-- | Checks if the two cards have the same suit.
+sameSuit :: PlayingCard -> PlayingCard -> Bool
+sameSuit = (==) `on` suit
+
+-- | Checks if the two cards have the same rank.
+sameRank :: PlayingCard -> PlayingCard -> Bool
+sameRank = (==) `on` rank
+-}
+
+{-
+--#######################################################################
+--Cards.hs
+module Numeric.Probability.Game.Cards (
+  -- * Cards datatype
+  Cards,
+  -- ** Accessing
+  cardsMap, sortedCards, cardCount,
+  -- ** Creating
+  makeCards, makeCardsMap,
+  -- ** Modifying
+  addCard, removeArbitrary, removeOneCard, mapCards, minusCards,
+  -- * Drawing Cards
+  drawOne, drawReplace, drawNoReplace) where
+
+import Control.Applicative ((<$>))
+import Control.Arrow (first)
+import Control.Monad (replicateM)
+import Data.Function (on)
+import Data.Map as M (Map, update, toAscList, update, empty, filter, insert,
+  toList, differenceWith, mapKeysWith, unionWith, insertWith, minViewWithKey)
+import Data.Monoid (Monoid(..))
+import qualified Data.Foldable as F (sum)
+
+import Numeric.Probability.Game.Event (EventM, makeEventProb)
+
+-- | A collection\/deck of cards.  The collection of cards has no implicit order,
+-- and each card is deemed to be equally likely to be drawn.
+--
+-- So, for example, @makeCards [\"a\",\"a\",\"a\",\"b\",\"c\"]@ is a collection of cards
+-- with a 3\/5 chance of drawing an @\"a\"@.
+--
+-- Note that in 'Cards' and all functions using it, the 'Ord' instance is considered
+-- to be authoritative.  Imagine you have some type like:
+--
+-- > data MyCard = MyCard {cardType :: String, cardDescription :: String}
+-- > instance Ord MyCard where compare = comparing cardType
+--
+-- If you then create a collection of cards, all those with the same @cardType@ will
+-- be considered the same, and differences in @cardDescription@ will be collapsed.  So,
+-- for example you may find that:
+--
+-- > cardsMap (makeCards [MyCard "Sword" "Long Sword", MyCard "Sword" "Legendary Sword of the Ancient King of Rak'Tharr", MyCard "Shield" "Buckler"])
+-- >  == fromList [(MyCard "Sword" "Long Sword", 2), (MyCard "Shield" Buckler", 1)]
+--
+-- The two sword cards are indistinguishable from each other by the Ord
+-- instance, so an arbitrary card for the two is kept in the collection to
+-- represent them both -- the legendary sword is treated the same as the long
+-- sword (so, equally, you might get two legendary swords in the deck and no
+-- long sword).
+--
+-- If you want the difference to matter, use an 'Ord' instance that recognises
+-- the difference.  If you want the difference to matter some of the time, and
+-- not matter at other times, you may want to use 'mapCards' to either pick
+-- out just the aspects you are interested in, or to use a default value
+-- (e.g. empty description) for the aspects you are not interested in.
+-- 
+-- The 'Monoid' instance can be used to get an empty 'Cards' object, and to add
+-- two collections of cards together.
+data Cards a = Cards {
+  -- | Gets a map from card to frequency for the given 'Cards' item.
+  cardsMap :: Map a Int, cacheCardsSize :: Int }
+
+instance Ord a => Eq (Cards a) where
+  (==) = (==) `on` cardsMap
+
+instance Ord a => Ord (Cards a) where
+  compare = compare `on` cardsMap
+
+instance Show a => Show (Cards a) where
+  show = show . sortedCards
+
+instance Ord a => Monoid (Cards a) where
+  mempty = Cards M.empty 0
+  mappend (Cards mx nx) (Cards my ny) = Cards (unionWith (+) mx my) (nx + ny)
+
+-- | Makes a 'Cards' item using a 'Map' from card to frequency.  Any card with
+-- a frequency of 0 or less will be ignored.
+makeCardsMap :: Ord a => Map a Int -> Cards a
+makeCardsMap m = Cards m' s
+  where
+    s = F.sum m'
+    m' = M.filter (> 0) m
+
+-- Used internally when you know there's no non-positive frequencies
+makeCardsMap' :: Map a Int -> Cards a
+makeCardsMap' m = Cards m s
+  where
+    s = F.sum m
+
+
+-- | Gets a sorted list of cards.  For example:
+--
+-- > ["a","a","a","b","c","c"] == sortedCards (makeCardsMap (fromList [("c", 2), ("b", 1), ("a", 3)]))
+sortedCards :: Cards a -> [a]
+sortedCards = makeList . toAscList . cardsMap
+
+-- | Removes the cards in the second parameter from the cards in the first parameter.
+-- If the frequency of a card in the second parameter is greater than or equal
+-- to the frequency of a card in the first parameter, all of them are removed.
+--  Negative frequencies are not possible.
+--
+-- Example:
+--
+-- > makeCardsMap (fromList [("a", 3), ("b", 1), ("c", 2)]) `minusCards` (makeCards ["a","b","b","c"]) == makeCards ["a","a","c"]
+minusCards :: Ord a => Cards a -> Cards a -> Cards a
+minusCards c d = makeCardsMap' $ differenceWith maybeMinus (cardsMap c) (cardsMap d)
+
+-- Nothing if the result would be 0 or less
+maybeMinus :: Int -> Int -> Maybe Int
+maybeMinus x y | x <= y = Nothing
+               | otherwise = Just (x - y)
+
+-- | Applies a function to the cards.  Like 'fmap' for 'Cards', but we can't use
+-- 'Functor' because of the 'Ord' constraint.
+--
+-- If this function maps two old cards to the same single new card, their frequencies
+-- are added together, but otherwise the frequencies are left untouched.
+--
+-- This function is particularly useful for narrowing the number of distinct cards;
+-- see functions in the "Numeric.Probability.Game.Cards.Hand" module.
+--
+-- Example:
+--
+-- > mapCards (map toUpper) (makeCardsMap (fromList [("a", 2), ("A", 3), ("b", 2)])) == makeCardsMap (fromList [("A", 5), ("B", 2)])
+mapCards :: (Ord b) => (a -> b) -> Cards a -> Cards b
+mapCards f (Cards m s) = Cards (mapKeysWith (+) f m) s
+
+--makeCardsAsc :: Eq a => [a] -> Cards a
+--makeCardsAsc = makeCardsMap . fromAscList . map (head &&& length) . group
+
+-- | Makes a collection of cards from the given list.  The order of the list does
+-- not matter, but duplicates are important: if a card occurs multiple times in
+-- the list, it will appear multiple times in the collection.  So @makeCards ["a","b"]@
+-- has one card named \"a\" and one named \"b\", but @makeCards ["a","a","b","a"]@
+-- has three cards named \"a\" and one named \"b\".
+makeCards :: Ord a => [a] -> Cards a
+makeCards = makeCardsMap' . foldr add M.empty
+  where
+    add k m = insertWith (+) k 1 m
+
+-- | Removes one of the given cards from the collection.  This only reduces the
+-- frequency by one; it does not remove all of the given card from the collection.
+--  If the card is not in the collection, this has no effect.
+--
+-- Example:
+--
+-- > removeOneCard "a" (makeCards ["a","a","a","b"]) == makeCards ["a","a","b"]
+-- > removeOneCard "c" (makeCards ["a","a","a","b"]) == makeCards ["a","a","a","b"]
+removeOneCard :: Ord a => a -> Cards a -> Cards a
+removeOneCard x (Cards m s) = Cards (update (`maybeMinus` 1) x m) (s - 1)
+
+-- | Removes a given number of cards that match the given criteria.
+--
+-- As the name suggests, the choice of cards removed is arbitrary.  This function
+-- is mainly useful if you later want to check for the odds of finding a card that /does/
+-- match the given criteria, but first want to express that you know of many cards
+-- that don't meet the criteria that aren't in the deck.
+--
+-- If not enough cards meet the criteria in the collection, all that don't
+-- meet the criteria will be removed.
+removeArbitrary :: Ord a => (a -> Bool) -> Int -> Cards a -> Cards a
+removeArbitrary f total = makeCardsMap . remove total . cardsMap
+  where
+    remove n m = case minViewWithKey m of
+      Just ((k, v), m') -> if f k
+                             then case compare v n of
+                                    LT -> remove (n-v) m'
+                                    EQ -> m'
+                                    GT -> insert k (v-n) m'
+                             else insert k v $ remove n m'
+      Nothing -> M.empty
+
+-- | Adds the given card and frequency to the collection of cards.  If the card
+-- is already in the collection, the frequencies are added.
+--
+-- Example:
+--
+-- > addCard ("c", 2) (makeCards ["a","a","b"]) == makeCards ["a","a","b","c","c"]
+-- > addCard ("b", 1) (makeCards ["a","a","b"]) == makeCards ["a","a","b","b"]
+addCard :: Ord a => (a, Int) -> Cards a -> Cards a
+addCard (c, n) (Cards m s) = Cards (insertWith (+) c n m) (s + n)
+
+makeList :: [(a, Int)] -> [a]
+makeList [] = []
+makeList ((x,n):xs)
+  | n <= 0 = makeList xs
+  | otherwise = x : makeList ((x, n-1):xs)
+
+-- | Draws one card from the given collection of cards at random.  Returns the
+-- card, and the collection of cards after the card has been drawn (i.e. with one
+-- of that card removed).  If the collection is empty, the result is undefined.
+--
+-- Note that using this function repeatedly to draw a hand of cards can be quite
+-- computationally intensive; for more efficient methods, see the "Numeric.Probability.Game.Cards.Hand"
+-- module.
+--
+-- Example:
+--
+-- > outcomes (drawOne (makeCards ["a","a","a","b"])) == [(("a", makeCards ["a","a","b"]), 3 % 4), (("b", makeCards ["a","a","a"]), 1 % 4)]
+drawOne :: Ord a => Cards a -> EventM (a, Cards a)
+drawOne cards = makeEventProb [((c, removeOneCard c cards), n) | (c, n) <- toList $ cardsMap cards]
+
+-- TODO could probably be a bit cleverer about calculating drawReplace and drawNoReplace
+
+-- | Draws the given number of cards from the given deck of cards at random,
+-- without replacement.  Returns the collection of cards that were drawn (the
+-- first part of the result pait), and the corresponding remaining deck of
+-- cards.  If the deck is empty or does not contain enough cards to draw the
+-- specified number, the result is undefined.
+--
+-- Note that using this function to draw a hand of cards can be quite
+-- computationally intensive; for more efficient methods, see the "Numeric.Probability.Game.Cards.Hand"
+-- module.
+--
+-- Note that @makeCards n cards == swap \<$\> makeCards (cardCount cards - n) cards@;
+-- this method will be much more efficient with a smaller number as parameter than
+-- a larger number. 
+-- 
+-- Example:
+--
+-- > outcomes (drawNoReplace 2 (makeCards ["a","a","a","a", "b"])) ==
+-- >   [((makeCards ["a","a"], makeCards ["a","a", "b"]), 3 % 5), ((makeCards ["a","b"], makeCards ["a,"a","a"]), 2 % 5)]
+drawNoReplace :: Ord a => Int -> Cards a -> EventM (Cards a, Cards a)
+drawNoReplace n cards
+  | n <= 0 = return (mempty, cards)
+  | otherwise = do (c, rest) <- drawOne cards
+                   first (addCard (c, 1)) <$> drawNoReplace (n-1) rest
+
+-- | Draws the given number of cards from the given collection with replacement.
+--  Returns the collection of cards that will be drawn (and thus you can be sure
+-- that: @cardsCount \<$\> drawReplace n cards@ will be @n@, provided @cards@ is not
+-- empty).  If the given collection of cards is empty, the result is undefined.
+--
+-- Note that using this function to draw a hand of cards can be quite
+-- computationally intensive; for more efficient methods, see the "Numeric.Probability.Game.Cards.Hand"
+-- module.
+--
+-- Example:
+--
+-- > outcomes (drawReplace 2 (makeCards ["a","a","a","b"])) ==
+-- >   [(makeCards ["a","a"], 9 % 16), (makeCards ["a","b"], 3 % 8), (makeCards ["b","b"], 1 % 16)]
+drawReplace :: Ord a => Int -> Cards a -> EventM (Cards a)
+drawReplace n cards = makeCards . map fst <$> replicateM n (drawOne cards)
+
+-- | Counts the number of cards (i.e. the sum of the frequencies of each distinct
+-- card) in the collection.  @cardCount cards == length (sortedCards count)@
+--
+-- If you want the number of distinct cards in a collection, use @size . cardsMap@.
+cardCount :: Cards a -> Int
+cardCount = cacheCardsSize
+-}
+
+
+
+{-
+--#######################################################################
+--Dice.hs
+-- | A module containing various definitions of dice as random events, and a few
+-- associated helper functions.  See 'DieRoll', which is really a synonym for 'EventM'
+-- Int.
+module Numeric.Probability.Game.Dice (
+  -- * Main die roll type
+  DieRoll, roll,
+  -- * Dice definitions
+  d4, d6, d8, z10, d10, d12, d20, d100, z100, d, z,
+  -- * Dice helper functions
+  rerollOn) where
+
+import Numeric.Probability.Game.Event (EventM, enact, makeEvent, makeEventProb, outcomes)
+
+-- | A type synonym for events with an integer outcome (i.e. all standard die rolls).
+--
+-- The 'Num' instance for @EventM Int@ allows you to add the results of two die
+-- rolls, or subtract them (if it helps, @(+) = liftA2 (+)@).
+--
+-- Multiplication works as follows.  @d * e@ evaluates the first die roll,
+-- then sums that many rolls of the second.  So @2 * d6@ rolls two d6 and adds
+-- the outcomes.  However, this definition means that @d6 * 2@ rolls one d6,
+-- then effectively scales the result by 2.  And @d6 * d4@ rolls one d6, then
+-- rolls that number of @d4@, adding their results together.  The simple rule
+-- when one of the terms is a constant is: use the constant on the left-hand
+-- side to get more dice, and use the constant on the right-hand side to scale
+-- the result.
+type DieRoll = EventM Int
+
+
+-- | A die with an equal chance of rolling 1, 2, 3 or 4.
+d4 :: DieRoll
+d4 = d 4
+
+-- | A die with an equal chance of rolling 1, 2, 3, 4, 5 or 6.
+d6 :: DieRoll
+d6 = d 6
+
+-- | A die with an equal chance of rolling 1, 2, 3, 4, 5, 6, 7 or 8.
+d8 :: DieRoll
+d8 = d 8
+
+-- | A die with an equal chance of rolling 0, 1, 2, 3, 4, 5, 6, 7, 8 or 9.
+z10 :: DieRoll
+z10 = z 10
+
+-- | A die with an equal chance of rolling 1, 2, 3, 4, 5, 6, 7, 8, 9 or 10.
+d10 :: DieRoll
+d10 = d 10
+
+-- | A die with an equal chance of rolling 1 to 12 inclusive.
+d12 :: DieRoll
+d12 = d 12
+
+-- | A die with an equal chance of rolling 1 to 20 inclusive.
+d20 :: DieRoll
+d20 = d 20
+
+-- | A die with an equal chance of rolling 1 to 100 inclusive.
+d100 :: DieRoll
+d100 = d 100
+
+-- | A die with an equal chance of rolling 0 to 99 inclusive.
+z100 :: DieRoll
+z100 = z 100
+
+-- | Makes a die that has an equal chance of achieving the numbers 1 through the
+-- number given.  @d 4@ has an equal chance of producing the outcomes 1, 2, 3 and
+-- 4, @d 1@ is equivalent to @return 1@ (a certain result of 1), and
+-- @d@ is undefined for any number below 1.  For convenience, all the standard dice are
+-- provided, e.g. @d6 = d 6@.
+d :: Int -> DieRoll
+d n = makeEvent [1..n]
+
+-- | Makes a die that has an equal chance of achieving the numbers 0 through
+-- the one less than the number given.  @z 4@ has an equal chance of producing
+-- the outcomes 0, 1, 2 and 3, while @z 1@ is equivalent to @return 0@ (a
+-- certain result of 0), and @z@ is undefined for any number below 1.  For
+-- convenience, several standard dice that can be interpreted with a lower
+-- result of 0 are provided, e.g. @z10 = z 10@.
+z :: Int -> DieRoll
+z n = makeEvent [0 .. (n - 1)]
+
+-- | Rerolls the die when the specified outcome(s) occur.  This has the effect
+-- of removing the outcomes from the set of outcomes and rescaling all the other
+-- probabilities linearly to sum to 1.  For example:
+--
+-- > d6 `rerollOn` [5,6] == d4
+-- > chancePred (== 12) ((2*d6) `rerollOn` [7]) == 1/30
+--
+-- With the latter example, the standard chance of 12 on 2d6 is 1\/36, which
+-- is rescaled by 36\/30, the reciprocal of the chance of /not/ hitting
+-- a 7.
+rerollOn :: DieRoll -> [Int] -> DieRoll
+rerollOn dc ns = makeEventProb $ filter ((`notElem` ns) . fst) $ outcomes dc
+
+-- | A nice synonym for 'enact': actually rolls the die and produces a single result according to the probabilities
+-- in the @EventM a@ parameter.
+roll :: DieRoll -> IO Int
+roll = enact
+-}
+
+
+{-
+--#######################################################################
+--Events.hs
+-- | A module containing the central type of the library, 'EventM', and various
+-- related helper functions.
+module Numeric.Probability.Game.Event (EventM, makeEvent, makeEventProb, outcomes, enact,
+  coinToss, subst, compareEvent) where
+
+import Control.Applicative (Applicative(..), (<$>), liftA2)
+import Control.Arrow (second)
+import Control.Monad (ap, replicateM)
+import Data.Map (Map, fromListWith)
+import Data.Ratio (denominator)
+import Numeric.Probability.Distribution (T(..), certainly, decons, fromFreqs, norm, selectP, uniform)
+import System.Random (randomRIO)
+
+-- | A probabilistic event with an outcome of type 'a'.  See the 'enact' function
+-- to actually run the event and randomly pick an outcome. 
+--
+-- For an explanation of the 'Num' instance, see the DieRoll type in the "Numeric.Probability.Game.Dice"
+-- module.
+--
+-- The 'Eq' instance compares the two distributions to see if they are equal.
+-- This looks at all the outcomes and sees if their probabilities are equal on
+-- the left-hand side and the right-hand side.  For example,
+-- @coinToss == fmap (>= 4) d6@, but @d12 /= d6 + d6@.
+--
+-- The 'Show' instance will display a horizontal bar-chart of relative outcome
+-- probability.  Note: this really is a relative probability -- common factors
+-- are cancelled, and is not a count of the different outcomes.  If you wish to
+-- show the raw numbers, use @show . outcomes@ instead.
+-- 
+-- The 'Functor' instance allows you to modify the outcome values without changing
+-- their associated probabilities.  For example, @fmap show d6@ changes the outcomes
+-- into their String representations.
+--
+-- The 'Applicative' instance allows you to join together the results of two events
+-- in a predetermined manner.  For example, @makeEvent [id, (* 2)] \<*\> d6@ allows
+-- you to roll a d6 that has a 50% chance of being doubled.  Note that @pure
+-- 6@ is an event that is certain to produce the outcome 6.
+--
+-- The 'Monad' instance allows you to base the choice of the next event on the
+-- result of the previous event.  For example, @coinToss >>= \x -> if x then d6
+-- else d4@ will roll a d4 50% of the time and a d6 the other 50%.  Note that @return
+-- 6@ is an event that is certain to produce the outcome 6.
+newtype EventM a = EventM (T Rational a)
+  deriving (Monad, Functor)
+
+instance Ord a => Eq (EventM a) where
+-- Eq not defined properly for T prob a, work-around for now:
+--(===) :: Ord a => EventM a -> EventM a -> Bool
+  (==) (EventM a) (EventM b) = decons (norm a) == decons (norm b)
+
+normEventM :: Ord a => EventM a -> EventM a
+normEventM (EventM dc) = EventM (norm dc)
+
+instance Num (EventM Int) where
+  (+) x y = normEventM $ liftA2 (+) x y
+  (-) x y = normEventM $ liftA2 (-) x y
+  negate = fmap negate
+  abs = normEventM . fmap abs
+  signum = normEventM . fmap signum
+  (*) = lotsOf
+    where
+      lotsOf :: EventM Int -> EventM Int -> EventM Int
+      lotsOf x y = do n <- x
+                      sum <$> replicateM n y
+      -- a `lotsOf` b = [(bx,ap*bp) | (ax,ap)<-a,(bx,bp)<- sum (replicate ax b)]
+      -- b `lotsOf` c = [(cx,bp*cp) | (bx,bp)<-b,(cx,cp)<- sum (replicate bx c)]
+      -- a `lotsOf` (b `lotsOf` c)
+      --  = [(bcx,ap*bcp) | (ax,ap)<-a,(bcx,bcp)<- sum (replicate ax [(cx,bp*cp) | (bx,bp)<-b,(cx,cp)<- sum (replicate bx c)])]
+  fromInteger = EventM . certainly . fromInteger
+
+instance (Show a, Ord a) => Show (EventM a) where
+  show (EventM dc) = showBars (decons (norm dc))
+
+showBars :: Show a => [(a, Rational)] -> String
+showBars xs = unlines (map (makeBar . scale) xs)
+  where
+    den = fromIntegral $ foldr lcm 1 (map (denominator . snd) xs)
+    scale (x, r) = (x, floor (r * den)) -- should be integral anyway
+
+    width = maximum (map (length . show . fst) xs)
+
+    makeBar (x, n) = pad (show x) ++ ": " ++ replicate n '#'
+      where
+        pad s = s ++ replicate (width - length s) ' '
+
+instance Applicative EventM where
+  pure = return
+  (<*>) = ap
+
+-- | Gets a list of all the outcomes of the event and their associated probability.
+--  You can be sure that the probabilities will all sum to 1, and that there will
+-- only be one item in the list per outcome.  It is possible that some of the outcomes
+-- in the list will have zero probability. 
+outcomes :: Ord a => EventM a -> [(a, Rational)]
+outcomes (EventM dc) = decons (norm dc)
+
+-- | Makes an event that has an equal chance of taking on the value of each
+-- entry in the list.  Note that duplicates in the list are permitted and do
+-- have an effect: @makeEvent [True, False]@ has a 50% chance of giving a True
+-- result, but @makeEvent [True, True, False, False, False]@ only has a 40%
+-- chance of giving a True result.  If you do not want this behaviour, use
+-- @makeEvent . nub@ to remove duplicates. 
+--
+-- The result of passing the empty list is undefined.
+makeEvent :: [a] -> EventM a
+makeEvent = EventM . uniform
+
+-- | Given a list of events and their associated probabilities, forms a
+-- corresponding event.  The probabilities must be non-negative.  If the
+-- probabilities do not sum to one, they are all scaled linearly so that their
+-- sum is one.  Duplicate items will have their probabilities added.
+--
+-- The result of passing the empty list, a list containing negative probabilities,
+-- or a list where all the probabilities are zero is undefined.
+makeEventProb :: (Ord a, Real prob) => [(a, prob)] -> EventM a
+makeEventProb = EventM . norm . fromFreqs . map (second toRational)
+
+-- | An event with a 50% chance of giving True, and a 50% chance of giving False.
+coinToss :: EventM Bool
+coinToss = makeEvent [True, False]
+
+-- | Actually enacts the event and produces a single result according to the probabilities
+-- in the @EventM a@ parameter.
+enact :: EventM a -> IO a
+enact (EventM dc) = selectP (toDouble dc) <$> randomRIO (0, 1)
+  where
+    toDouble :: T Rational a -> T Double a
+    toDouble = Cons . map (second fromRational) . decons
+
+-- | If the @EventM a@ parameter returns a result equal to the first parameter,
+-- it is changed to be the second parameter; otherwise it is left untouched.  For
+-- example @replace 4 8 d4@ has an equal chance of producing the outcomes 1, 2,
+-- 3 and 8, @replace 10 0 d10 == z10@, and @replace 10 20 d6 == d6@.
+subst :: Eq a => a -> a -> EventM a -> EventM a
+subst x y = fmap (\n -> if x == n then y else n)
+
+-- | Compares the outcomes of the two events, and works out the probability associated
+-- with the first outcome being greater than, equal to or less than the second
+-- outcome.  The probabilites for each are returned in an associative map.
+--
+-- Added in version 1.1.
+compareEvent :: Ord a => EventM a -> EventM a -> Map Ordering Rational
+compareEvent ex ey = fromListWith (+)
+  [(compare x y, px * py) | (x, px) <- outcomes ex, (y, py) <- outcomes ey]
+-}
+
+
+{-
+--#######################################################################
+--Query.hs
+-- | A module with functions for querying the probabilities of various outcomes.
+module Numeric.Probability.Game.Query (chancePred, chanceRel, chanceTrue) where
+
+import Control.Applicative ((<$>), liftA2)
+import Data.Maybe (fromMaybe)
+
+import Numeric.Probability.Game.Event (EventM, outcomes)
+
+-- | Gets the probability that the outcome will satisfy the given predicate.  For
+-- example:
+--
+-- > chancePred (<= 2) d6 == 1/3   -- The chance of getting 2 or less on a d6
+-- > chancePred even d6 == 1/2     -- The chance of rolling an event number on a d6
+chancePred :: (a -> Bool) -> EventM a -> Rational
+chancePred f e = fromMaybe 0 $ lookup True (outcomes (f <$> e))
+
+-- | Gets the probability that the given relation will hold between the two events.
+--  For example:
+--
+-- > chanceRel (==) d6 d6 == 1/6   -- The chance of rolling doubles on d6
+-- > chanceRel (>) (2*d6) d12      -- The chance of beating a d12 with two d6
+chanceRel :: (a -> a -> Bool) -> EventM a -> EventM a -> Rational
+chanceRel f a b = chanceTrue (liftA2 f a b)
+
+-- | Gets the probability that the given boolean-outcome event will give a True
+-- outcome.  For example:
+--
+-- > chanceTrue coinToss == 1/2
+-- > chanceTrue ((== 3) <$> d6) == 1/6
+--
+-- (For the latter example, 'chancePred' is more concise.)
+chanceTrue :: EventM Bool -> Rational
+chanceTrue = chancePred id
+-}
+
+
+
+{-
+--#######################################################################
+--Cards/Hands.hs
+-- | Functions for efficiently calculating the probability of drawing cards.  Here
+-- are some examples of using the module.
+--
+-- In the game Dominion you start out with a deck consisting of 7 \"Copper\" cards
+-- and 3 \"Estate\" cards.  On your first turn you draw five cards from this deck.
+--  To calculate the chances of drawing the different number of \"Copper\" cards
+-- (as a map from number of \"Copper\" cards to probability), you can use this code:
+--
+-- > copperChances :: Map Int Rational
+-- > copperChances = chanceMap startingDeck (drawCount (== "Copper") 5)
+-- >   where startingDeck = makeCards $ replicate 7 "Copper " ++ replicate 3 "Estate"
+--
+-- You could equally define a data-type for the cards rather than use Strings,
+-- but often Strings are easiest for one-off queries.
+-- 
+-- As a different example, in the game Ticket To Ride: Europe, the deck of cards consists of 12 cards of each
+-- of eight colours and 14 multi-colour cards.  We can describe it using a custom
+-- data-type this time:
+--
+-- > data TTRECard = Purple | White | Blue | Yellow | Orange | Black | Red | Green | MultiColour
+--
+-- > ttreDeck :: Cards TTRECard
+-- > ttreDeck = replicate 14 MultiColour ++ concatMap (replicate 12) [Purple, White, Blue, Yellow, Orange, Black, Red, Green]
+--
+-- In the game, there are always 5 communal cards visible.  Imagine you wanted
+-- to calculate the probability of receiving a particular colour when drawing from
+-- the deck.  You must first remove the cards in your hand and those visible communal
+-- cards (we'll ignore the discards), then calculate the probability for drawing
+-- one card with the 'draw' function:
+--
+-- > colourChances :: Map TTRECard Rational
+-- > colourChances = chanceMap (ttreDeck `minusCards` (myHand `mappend` communal)) draw
+--
+-- This will give you a map from TTRECard (i.e. colour) to probability.
+--
+-- To continue with that example, when you build tunnels in the game, you must
+-- lay out the required number of coloured cards, then draw three from the
+-- deck.  If any of the three match the colour of tunnel you are building, you
+-- must pay that many additional cards.  You may want a function that, given
+-- your hand (we'll ignore the communal cards to keep the example shorter) and
+-- the length of the tunnel, works out if you are likely to make it.  One way to
+-- do this is:
+--
+-- > tunnel :: Cards TTRECard -> Int -> Rational
+-- > tunnel myHand n = chance (ttreDeck `minusCards` myHand)
+-- >                          (drawCount match 3 >>= ensure . (<= spare))
+-- >   where
+-- >     spare = length (filter match $ sortedCards myHand) - n
+-- >     match a = a == MultiColour || a == tunnelColour
+--
+-- That should be fairly fast.  But to illustrate how to speed up these calculations,
+-- here is another, faster way to do this: pre-process the cards into those that
+-- match and those that don't, using 'chanceOn':
+--
+-- > tunnel :: Cards TTRECard -> Int -> Rational
+-- > tunnel myHand n = chanceOn match (ttreDeck `minusCards` myHand)
+-- >                          (drawCount (== True) 3 >>= ensure . (<= spare))
+-- >   where
+-- >     spare = length (filter match $ sortedCards myHand) - n
+-- >     match a = a == MultiColour || a == tunnelColour
+--
+-- This may seem like a relatively small difference, and indeed it is a small change
+-- to the code.  However, it will execute much faster, because the 'chanceOn' function
+-- only has two different card values to consider: True, and False, so it just
+-- considers those two.  Previously it had to consider the nine different types
+-- of card separately, even though only two would match (the function has no way
+-- of knowing that a priori).
+module Numeric.Probability.Game.Cards.Hand
+  (-- * The DrawM type and helper functions.
+   DrawM, ensure, badHand, interleave,
+   -- * Drawing cards
+   draw, drawAny, drawWhere, drawUntil, drawCount, drawSame, drawSameOn, drawGroups, drawGroupsOn,
+   -- * Calculating chances
+   chance, chanceOn, chanceMap, chanceMapOn,
+   -- * Drawing as a random event
+   eventDraw, eventDrawOn, eventDrawMaybe, eventDrawMaybeOn) where
+
+import Control.Applicative as A (Alternative(..), Applicative(..), (<$>))
+import Control.Arrow ((&&&), first, second)
+import Control.Monad (ap, liftM, replicateM)
+import Data.Function (on)
+import Data.List (groupBy, sortBy)
+import Data.Map as M (Map, elems, keys, singleton, empty, insertWith, 
+  fromList, lookup, toList, unionsWith, mapKeysMonotonic, mapWithKey, unionWith, size, update)
+import Data.Maybe (fromMaybe)
+import qualified Data.Foldable as F (foldr, sum)
+import Data.Ratio ((%))
+
+import Numeric.Probability.Game.Cards
+import Numeric.Probability.Game.Event
+
+-- | A monad for describing drawing cards.
+--
+-- The first parameter is the type of the card (this must match the deck you end
+-- up drawing from), the second parameter is the monadic return type as normal.
+--
+-- Each action in the monad is the drawing of a card, see 'draw' and similar functions.
+--  There is the notion of failure: 'badHand' makes the current draw fail, as does
+-- 'drawWhere' if no cards satisfy the criteria, and attempting to 'draw' when
+-- there are no more cards will also fail.
+--
+-- The 'Alternative' instance allows you to choose between two sequences of draws.
+--  If the LHS of '(\<|\>)' fails, the right-hand side is used instead.  'A.empty'
+-- is the same as 'badHand'.
+data DrawM card a = DrawFail | DrawOne (card -> DrawM card a) | Done a | DrawAny (DrawM card a)
+
+instance Monad (DrawM card) where
+  return x = Done x
+  (>>=) DrawFail _ = DrawFail
+  (>>=) (Done x) k = k x
+  (>>=) (DrawAny m) k = DrawAny (m >>= k)
+  (>>=) (DrawOne f) k = DrawOne (\x -> f x >>= k)
+  fail _ = DrawFail
+
+instance Applicative (DrawM card) where
+  pure = Done
+  (<*>) = ap
+
+instance Functor (DrawM card) where
+  fmap = liftM
+
+instance Alternative (DrawM card) where
+  empty = DrawFail
+  (<|>) DrawFail x = x
+  (<|>) (Done x) _ = Done x
+  (<|>) (DrawAny m) (DrawAny n) = DrawAny $ m <|> n
+  (<|>) (DrawOne f) (DrawOne g) = DrawOne $ \x -> f x <|> g x
+  (<|>) (DrawAny m) (DrawOne g) = DrawOne $ \x -> m <|> g x
+  (<|>) (DrawOne f) (DrawAny n) = DrawOne $ \x -> f x <|> n
+  -- Done or DrawFail on RHS:
+  (<|>) (DrawAny m) n = DrawAny $ m <|> n
+  (<|>) (DrawOne f) n = DrawOne $ \x -> f x <|> n
+
+-- | Tries to perform the two draws interleaved with each other in any sequence,
+-- favouring those where the left-hand side acts first.
+--
+-- As an example:
+--
+-- > interleave (replicateM 2 (drawWhere (== "a"))) (replicateM 3 (drawWhere (== "b")))
+--
+-- will attempt to draw two \"a\" cards and three \"b\" cards, in any order and return them
+-- as a pair.  If you want to draw identical groupings like this where the exact
+-- values of the cards can vary, look at 'drawGroups'.
+interleave :: DrawM card a -> DrawM card b -> DrawM card (a, b)
+interleave DrawFail _ = DrawFail
+interleave _ DrawFail = DrawFail
+interleave (Done x) n = do y <- n
+                           return (x, y)
+interleave m (Done y) = do x <- m
+                           return (x, y)
+interleave (DrawAny m) (DrawAny n)
+  = DrawAny $ interleave m (DrawAny n) <|> interleave (DrawAny m) n
+interleave (DrawAny m) (DrawOne g)
+  = DrawOne $ \x -> interleave m (DrawOne g) <|> interleave (DrawAny m) (g x)
+interleave (DrawOne f) (DrawAny n)
+  = DrawOne $ \x -> interleave (f x) (DrawAny n) <|> interleave (DrawOne f) n
+interleave (DrawOne f) (DrawOne g)
+  = DrawOne $ \x -> interleave (f x) (DrawOne g) <|> interleave (DrawOne f) (g x)
+
+-- | Draws a single card and returns it.
+--
+-- If you are not interested in the value of the returned card, 'drawAny' is much
+-- more efficient.  If you want to constrain which card might be drawn, use 'drawWhere'.
+draw :: DrawM card card
+draw = DrawOne Done
+
+-- | Draws any card from the deck. In cases where you are not interested in what
+-- the card is, this is much more efficient than 'draw'.
+drawAny :: DrawM card ()
+drawAny = DrawAny (Done ())
+
+-- | Draws a single card that matches the given criteria (i.e. where the given
+-- function returns True for the card).
+--
+-- For example:
+--
+-- > drawWhere (/= "c")
+--
+-- will draw any card that is not @\"c\"@.  Note that:
+--
+-- > (draw >>= ensure f) == (drawWhere f >> return ())
+drawWhere :: (card -> Bool) -> DrawM card card
+drawWhere f = DrawOne (\x -> if f x then Done x else DrawFail)
+
+-- | Draws the given number of cards and then counts how many meet the given criteria.
+--  The definition is:
+--
+-- > drawCount f n = length . filter f <$> replicateM n draw
+--
+-- Note that this is definitely /NOT/ the same as @replicateM n (drawWhere f)@.
+--  The @drawWhere@ code makes sure that it draws n cards that meet the given criteria
+-- (and fails in other cases), whereas this function draws the given number then
+-- checks how many meet the criteria.  Therefore this function will only fail if
+-- there are insufficient cards to draw that many.
+drawCount :: (card -> Bool) -> Int -> DrawM card Int
+drawCount f n = length . filter f <$> replicateM n draw
+
+-- | Draws cards until it draws a card that satisfies the given condition or it
+-- hits the optional limit of cards.  If the limit is zero, the function will fail
+-- every time, 1 will only draw a single card, 2 will draw up to 2 and so on.
+--
+-- All the cards drawn will be returned in order, therefore you can be guaranteed
+-- that the last card in the list (and only that card) satisfies the given function.
+drawUntil :: (card -> Bool) -> Maybe Int -> DrawM card [card]
+drawUntil f Nothing = DrawOne (\x -> if f x then Done [x] else (x:) <$> drawUntil f Nothing)
+drawUntil f (Just n)
+  | n < 1 = DrawFail
+  | otherwise = DrawOne (\x -> if f x then Done [x] else (x:) <$> drawUntil f (Just (n-1)))
+
+-- | Draws the given number of identical cards from the deck.
+--
+-- This corresponds to drawing one card from the deck with 'draw' and then using 'drawWhere'
+-- to make sure the rest of the cards match.  The card that was drawn is returned
+-- (since all of them are identical, only a single example is returned rather than
+-- a list).
+drawSame :: Eq card => Int -> DrawM card card
+drawSame n = head <$> drawSameOn id n
+
+-- | Draws the given number of identical (by the given aspect) cards from the deck.
+--
+-- This corresponds to drawing one card from the deck with 'draw' and then using 'drawWhere'
+-- with the given mapping function to make sure the rest of the cards match on
+-- the aspect specified.  The card that was drawn is returned
+-- (since all of them are identical, only a single example is returned rather than
+-- a list).  The order of the returned list is arbitrary.
+--
+-- For example:
+--
+-- > drawSameOn (map toLower) 5
+--
+-- will draw 5 cards (where the card type is simply String) that have matching
+-- names when compared case-insensitive.  The return list you get might be something
+-- like @[\"a\",\"A\",\"A\",\"a\",\"a\"]@.
+drawSameOn :: Eq aspect => (card -> aspect) -> Int -> DrawM card [card]
+drawSameOn f n | n < 1 = DrawFail
+               | otherwise = do c <- draw
+                                cs <- replicateM (n-1) $ drawWhere ((== f c) . f)
+                                return (c : cs)
+
+-- | Draws cards in groups of identical cards (but in any order) according to the given sizes.
+--
+-- This function is best explained by example:
+--
+-- * @drawGroups [2]@ will draw two identical cards, much as @drawSame 2@ does.
+--
+-- * @drawGroups [2,1]@ will draw two identical cards, and a third card that is
+-- guaranteed not to be equal to the two identical cards.
+--
+-- * @drawGroups [2,2]@ will draw two different lots of two identical cards (i.e.
+-- it cannot return 4 of the same card).
+--
+-- It is perhaps helpful to think of this function in terms of poker hands.  @drawGroups
+-- [4,1]@ looks for 4-of-a-kind in a hand of 5, @drawGroups [3,2]@ looks for a
+-- full house, @drawGroups [2,2,1]@ looks for two-pair, while @drawGroups [2,1,1,1]@
+-- looks for exactly one pair.
+--
+-- The order of groups requested corresponds to the returns.  Thus, for example,
+-- this code should never fail a pattern match:
+--
+-- > do [[a1,a2], [b1,b2,b3]] <- drawGroups [2,3]
+--
+-- The groups have no correspondence to the order in which the cards were drawn.
+--  So although the groups above and returned together, those 5 cards could have
+-- been drawn in any order, for example: @[b2, a1, b3, b2, a2]@.  This function is intended
+-- for cases when you want particular identical groups but don't mind about the
+-- order.  That is surprisingly fiddly to write without this helper function.
+drawGroups :: Ord card => [Int] -> DrawM card [[card]]
+drawGroups = drawGroupsOn id
+
+-- Picks items from the list that match the given size.
+--
+-- If this isn't possible, the function will give an error
+pick :: forall card. [Int] -> [[card]] -> [[card]]
+pick ns groups = fst $ foldr pick' ([], fromList $ map (length &&& return) groups) ns
+  where
+    pick' :: Int -> ([[card]], Map Int [[card]]) -> ([[card]], Map Int [[card]])
+    pick' n (r, m) = ((maybe (error "Internal error in drawGroupsOn") head $
+      M.lookup n m) : r, update tailOrRemove n m)
+
+    tailOrRemove [] = Nothing
+    tailOrRemove (_:xs) = Just xs
+
+-- | Like 'drawGroups', but considers them equal if their given aspect is equal.
+drawGroupsOn :: forall card aspect. (Ord aspect) => (card -> aspect) -> [Int] -> DrawM card [[card]]
+drawGroupsOn _ [] = return []
+drawGroupsOn f ns
+  | any (<= 0) ns = DrawFail
+  | otherwise = pick ns . elems <$> drawGroupsOn' M.empty
+  where
+    sortedns :: [Int]
+    sortedns = sortBy (flip compare) ns
+
+    end = replicate (length ns) EQ
+
+    drawGroupsOn' :: Map aspect [card] -> DrawM card (Map aspect [card])
+    drawGroupsOn' m
+      | comparison == end = return m
+--      | any (== GT) comparison = badHand
+      -- All are <= their intended result
+      | otherwise = do c <- if all (== freeNewSlot) (elems space)
+                              then draw
+                              else drawWhere (\k -> fromMaybe freeNewSlot $ M.lookup (f k) space)
+                       drawGroupsOn' $ insertWith (++) (f c) [c] m
+      where
+        -- A group has room to grow if the current number in the group is strictly
+        -- less than the head of the targets (which has the highest target value)
+        space :: Map aspect Bool
+        space = fromList $ concat
+          [ zip (map fst groupedKeysAndCounts) (repeat $ uncurry (<) $ snd $ head groupedKeysAndCounts)
+          | groupedKeysAndCounts <- groupBy ((==) `on` (fst . snd)) itemsWithTarget]
+
+        freeNewSlot = length sortedns > size m
+
+        comparison :: [Ordering]
+        comparison = map (uncurry compare . snd) itemsWithTarget
+
+        itemsWithTarget :: [(aspect, (Int, Int))]
+        itemsWithTarget = zipWith (\(x,y) z -> (x,(y,z)))
+          (sortBy (flip compare `on` snd) (map (second length) $ toList m))
+          sortedns
+
+-- | Indicates that the current draw should not be continued.
+badHand :: DrawM card a
+badHand = DrawFail
+
+-- | Checks that the given property holds, otherwise fails the current draw.  Its
+-- definition is simple:
+--
+-- > ensure b = if b then return () else badHand
+ensure :: Bool -> DrawM a ()
+ensure True = return ()
+ensure False = badHand
+
+-- Map is depth to count, starting at zero depth
+chance' :: Ord a => Int -> Cards a -> DrawM a z -> Map Int Integer
+chance' n cards (Done {})
+  | cardCount cards >= n = singleton 0 1
+  | otherwise = M.empty
+chance' _ _ DrawFail = M.empty
+chance' n deck (DrawAny m) = chance' (n+1) deck m
+chance' n deck (DrawOne f) = F.foldr ((/=) . (> 0)) True r `seq` r
+  where
+    r = mapKeysMonotonic (+1) $ unionsWith (+) [
+      if firstCount == 0 then M.empty
+      else if firstCount == 1 then chance' n (removeOneCard firstCard deck) (f firstCard)
+      else fmap (toInteger firstCount*) $ chance' n (removeOneCard firstCard deck) (f firstCard)
+      | (firstCard, firstCount) <- toList $ cardsMap deck]
+
+-- | Calculates the chance of the given draw succeeding (i.e. not failing) with
+-- the given deck.  Note that the return value of the draw is ignored; this function
+-- is only interested in whether the draw succeeds.
+--
+-- Note that if you are only interested in partial aspects of the cards (e.g. just
+-- the rank in a deck of playing cards), 'chanceOn' is much more efficient.  See
+-- 'chanceOn' for more details.
+--
+-- Examples:
+--
+-- > chance deck (return ()) == 1
+-- > chance (makeCards ["a", "a", "b"]) (drawWhere (== "a")) == 2 % 3
+-- > chance (makeCards ["a", "a", "b"]) (drawSame 2) == 1 % 3
+chance :: Ord card => Cards card -> DrawM card a -> Rational
+chance deck m = F.sum (mapWithKey (\k v -> (permutes !! k) * v) depthToCount) % head permutes
+  where
+    depthToCount = chance' 0 deck m
+    maxDepth = maximum (0 : keys depthToCount)
+    deckSize = cardCount deck
+
+    -- A lookup for (deckSize `permute`) . (maxDepth -)
+    permutes | maxDepth == 0 = [1, 1]
+             | otherwise = reverse $ 1 : scanl1 (*) [toInteger (deckSize - maxDepth + 1) .. toInteger deckSize]
+
+
+-- | Calculates the chance of the given draw succeeding (i.e. not failing) with
+-- the given deck.  Note that the return value of the draw is ignored; this function
+-- is only interested in whether the draw succeeds.
+--
+-- The given function is used to transform the cards for drawing.  This can make
+-- the function much more efficient if the transform maps several cards onto the
+-- same aspect.  Consider if you wanted the probability of
+-- drawing two aces from a deck of playing cards.  If you use 'chance', it will
+-- check all 52 distinct cards in the deck separately to see if they are aces when you are
+-- drawing.  However if you use @chanceOn rank@, it can collapse the 52 playing
+-- cards into 13 distinct cards (one per rank) with frequency 4, and only check
+-- each of the 13 cards separately.  Since this saving is made across repeated
+-- draws, using 'chanceOn' rather than 'chance' can reduce queries from taking
+-- many seconds into being instant.  This also applies to all the other chance..On and
+-- event..On variants of functions in this module.
+--
+-- Examples:
+--
+-- > chanceOn id deck m == chance deck m
+-- > chanceOn (map toLower) (makeCards ["a", "a", "A", "A", "b"]) (drawWhere (== "a")) == 4 % 5
+chanceOn :: (Ord aspect) => (card -> aspect) -> Cards card -> DrawM aspect a -> Rational
+chanceOn f = chance . mapCards f
+
+-- | Turns the successful outcomes of the given draw into an 'EventM' type, which will return
+-- the different values of the successful draw with their corresponding relative probabilities.  Note
+-- that only successful draws are included; a failed draw will have a probability
+-- of zero.  To incorporate the possibility of a failed draw, use 'eventDrawMaybe'
+-- instead.
+--
+-- As with other functions, 'eventDrawOn' can be much more efficient; see 'chanceOn'
+-- for details.
+--
+-- For example:
+--
+-- > outcomes (eventDraw (makeCards ["a","b"]) (drawWhere (== "a"))) == [("a", 1)]
+-- 
+-- > outcomes (eventDraw (makeCards ["a","a","a","b","b"]) (drawSame 2)
+-- >   == [("a", 3 % 5), ("b", 2 % 5)]
+eventDraw :: (Ord a, Ord card) => Cards card -> DrawM card a -> EventM a
+eventDraw c d = makeEventProb $ toList $ chanceMap c d
+
+-- | Like 'eventDraw' but can be much more efficient.  See 'chanceOn' for an
+-- explanation of why.
+eventDrawOn :: (Ord a, Ord aspect) => (card -> aspect) -> Cards card -> DrawM aspect a -> EventM a
+eventDrawOn f c d = makeEventProb $ toList $ chanceMapOn f c d
+
+-- | Turns the outcomes of the given draw into an 'EventM' type, which will return
+-- the different values of the draw with their corresponding probabilities.  Successful
+-- draws are the Just values; Nothing indicates an unsuccessful draw, with its
+-- corresponding probability.
+--
+-- As with other functions, 'eventDrawMaybeOn' can be much more efficient; see 'chanceOn'
+-- for details.
+--
+-- For example:
+--
+-- > outcomes (eventDraw (makeCards ["a","b"]) (drawWhere (== "a"))) == [(Just "a", 1 % 2), (Nothing, 1 % 2)]
+-- 
+-- > outcomes (eventDraw (makeCards ["a","a","a","b","b"]) (drawSame 2)
+-- >   == [(Just "a", 3 % 10), (Just "b", 1 % 5), (Nothing, 1 % 2)]
+--
+-- > eventDrawMaybe cards m == eventDraw cards (optional m)
+eventDrawMaybe :: (Ord a, Ord card) => Cards card -> DrawM card a -> EventM (Maybe a)
+eventDrawMaybe c d = makeEventProb $ (Nothing, q) : map (first Just) (toList m)
+  where
+    m = chanceMap c d
+    q = 1 - F.sum m
+
+-- | Like 'eventDrawMaybe' but can be much more efficient.  See 'chanceOn' for an
+-- explanation of why.
+eventDrawMaybeOn :: (Ord a, Ord aspect) => (card -> aspect) -> Cards card -> DrawM aspect a -> EventM (Maybe a)
+eventDrawMaybeOn f c d  = makeEventProb $ (Nothing, q) : map (first Just) (toList m)
+  where
+    m = chanceMapOn f c d
+    q = 1 - F.sum m
+
+-- | Like 'chanceMap' but can be much more efficient.  See 'chanceOn' for an
+-- explanation of why.
+chanceMapOn :: (Ord a, Ord aspect) => (card -> aspect) -> Cards card -> DrawM aspect a -> Map a Rational
+chanceMapOn f = chanceMap . mapCards f
+
+-- | Calculates the probability of each result of the given draw with the given
+-- deck.  The probabilities will exclude the chance of a failed draw; therefore
+-- the chance of a failed draw is @1 - sum (elems $ chanceMap ..)@.  Alternatively
+-- you can incorporate the possibility of a failed draw with a Maybe wrapper using
+-- @chanceMap cards (optional m)@.
+--
+-- Examples:
+--
+-- > chanceMap (makeCards ["a","b"]) (drawWhere (== "a"))) == singleton "a" (1 % 2)
+--
+-- > outcomes (eventDraw (makeCards ["a","a","a","b","b"]) (drawSame 2)
+-- >   == fromList [("a", 3 % 10), ("b", 1 % 5)]
+chanceMap :: (Ord card, Ord a) => Cards card -> DrawM card a -> Map a Rational
+chanceMap deck m = fmap (% head permutes) $ unionsWith (+) $ elems $
+  mapWithKey (\k v -> fmap ((permutes !! k) *) v) depthToCount
+  where
+    depthToCount = chanceMap' 0 deck m
+    maxDepth = maximum (0 : keys depthToCount)
+    deckSize = cardCount deck
+
+    permutes :: [Integer]
+    -- A lookup for (deckSize `permute`) . (maxDepth -)
+    permutes | maxDepth == 0 = [1, 1]
+             | otherwise = reverse $ 1 : scanl1 (*) [toInteger (deckSize - maxDepth + 1) .. toInteger deckSize]
+
+
+-- Map is depth to (return value to count), starting at zero depth
+chanceMap' :: (Ord a, Ord b) => Int -> Cards a -> DrawM a b -> Map Int (Map b Integer)
+chanceMap' n cards (Done x)
+  | cardCount cards >= n = singleton 0 (singleton x 1)
+  | otherwise = M.empty
+chanceMap' _ _ DrawFail = M.empty
+chanceMap' n deck (DrawAny m) = chanceMap' (n+1) deck m
+chanceMap' n deck (DrawOne f)
+  = mapKeysMonotonic (+1) $ unionsWith (unionWith (+)) [
+      if firstCount == 0 then M.empty
+      else if firstCount == 1 then chanceMap' n (removeOneCard firstCard deck) (f firstCard)
+      else fmap (fmap (toInteger firstCount*)) $ chanceMap' n (removeOneCard firstCard deck) (f firstCard)
+      | (firstCard, fi
+-}
