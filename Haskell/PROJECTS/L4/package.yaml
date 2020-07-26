@@ -31,6 +31,10 @@ dependencies:
 - unordered-containers
 - aeson
 - pretty-simple
+#- game-probability
+- mtl
+- lens
+- lens-aeson
 
 default-extensions:
 #- NoImplicitPrelude

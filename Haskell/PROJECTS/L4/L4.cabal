@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 86e951d95a976217dc510daf42bf622c295f18e75e0110a25b72bdf0bffe20d9
+-- hash: d0f54939ff187b3740a8a28a43c62b4336788e741f30745eb44cfc9eb6a155df
 
 name:           L4
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Cards
       FunctionWithLet
       FunctionWithWhere
       Lib
@@ -47,6 +48,9 @@ library
     , deepseq
     , directory
     , filepath
+    , lens
+    , lens-aeson
+    , mtl
     , pretty-simple
     , text
     , unordered-containers
@@ -68,6 +72,9 @@ executable L4-exe
     , deepseq
     , directory
     , filepath
+    , lens
+    , lens-aeson
+    , mtl
     , pretty-simple
     , text
     , unordered-containers
@@ -90,6 +97,9 @@ test-suite L4-test
     , deepseq
     , directory
     , filepath
+    , lens
+    , lens-aeson
+    , mtl
     , pretty-simple
     , text
     , unordered-containers
