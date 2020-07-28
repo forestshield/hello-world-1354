@@ -2,6 +2,9 @@ module Lib4
     ( someFuncLib4
     ) where
 
+--import Prelude hiding (max, signum)
+
+import Data.String
 someFuncLib4 :: IO ()
 someFuncLib4 = do
   print "------- Working with Lists ------"
@@ -70,7 +73,7 @@ someFuncLib4 = do
   putStr $ show $ signum' (-11)                   
   putStrLn ", signum' (-11)"                -- 11
   putStrLn "-- Binders — Associating Names with Values or Functions"
-  putStrLn "-- Useful functions on lists"
+  putStrLn "---------- Useful functions on lists ----------------"
   putStr $ show $ elem 3 lSample1                    
   putStrLn ", elem 3 is lSample1 [1, 2, 3, 4]"                      -- True
   putStr $ show $ sum [1, 2, 3, 4]                    
@@ -87,6 +90,50 @@ someFuncLib4 = do
   putStrLn ", minimum [1, 8, 3, (-4)]"                              -- -4
   putStrLn "lStr3 = elem 2 \"AbcdeFg\""                             -- failing to compile"
   putStrLn "lStr4   = maximum \"AbcdeFg\""                          -- failing to compile
+  putStr $ show $ last ['a', '0', 'C', 'd', 'e', 'z']               -- Exception on empty list!     
+  putStrLn ", last ['a', '0', 'C', 'd', 'e', 'z']"                  -- 'z'
+  putStr $ show $ init ['a', '0', 'C', 'd', 'e', 'z']               -- Exception on empty list!     
+  putStrLn ", init ['a', '0', 'C', 'd', 'e', 'z']"                  -- ['a', '0', 'C', 'd', 'e']
+  putStr $ show $ null [1, 2, 3, 4]                    
+  putStrLn ", null [1, 2, 3, 4]"                                     -- False
+  putStr $ show $ null ("abc" :: [Char])
+  putStrLn ", null' \"abc\" :: [Char]"                               -- False
+  putStrLn "-- the last one does not compile without type specification for \"abc\" :: [Char]"
+  putStr $ show $ null []                    
+  putStrLn ", null []"                                               -- True
+  putStr $ show $ take 24 [13, 26 .. ]                    
+  putStrLn ", take 24 [13, 26 .. ]" -- [13,26,39,52,65,78,91,104,117,130,143,156,169,182,195,208,221,234,247,260,273,286,299,312]
+  putStr $ show $ take 13 (cycle "abcdE")
+  putStrLn ", take 13 (cycle \"abcdE\")"                             -- "abcdEabcdEabc"
+  putStrLn "---- list comprehension and iterate ------"
+  putStr $ show $ [x*2 | x <- [1 .. 10]]                 
+  putStrLn ", [x*2 | x <- [1 .. 10]]"                                -- [2,4,6,8,10,12,14,16,18,20]
+  putStr $ show $ [x*2 | x <- [1..10], x*2 >= 12]
+  putStrLn ", [x*2 | x <- [1..10], x*2 >= 12]"                       -- [12,14,16,18,20]
+  putStr $ show $ take 10 (iterate (2*)1)             
+  putStrLn ", take 10 (iterate (2*)1)"                 -- [1,2,4,8,16,32,64,128,256,512]
+  putStr $ show $ take 10 (iterate (\x -> (x+3)*2)1)         
+  putStrLn ", take 10 (iterate (\\x -> (x+3) * 2) 1)"  -- [1,8,22,50,106,218,442,890,1786,3578]
+  putStrLn "---- list replicate, repeat ------"
+  putStr $ show $ replicate 3 5                    
+  putStrLn ", replicate 3 5"                           -- [5,5,5]
+  putStr $ show $ replicate 3 'a'                    
+  putStrLn ", replicate 3 'a'"                         -- "aaa"
+  putStr $ show $ replicate 3 "a"                    
+  putStrLn ", replicate 3 \"a\""                       -- ["a","a","a"]
+  putStr $ show $ take 10 $ repeat 5                    
+  putStrLn ", take 10 repeat 5"                        -- [5,5,5,5,5,5,5,5,5,5]
+  putStrLn "---- list cycle ------"
+  putStr $ show $ take 12 (cycle "LOL ")                    
+  putStrLn ", take 12 (cycle \"LOL \")"                -- "LOL LOL LOL "
+  putStr $ show $ take 10 (cycle [1,2,3])                    
+  putStrLn ", take 10 (cycle [1,2,3])"                 -- [1,2,3,1,2,3,1,2,3,1]
+  putStrLn "--- All numbers from 50 to 100 whose remainder when divided with the number 7 is 3"
+  putStr $ show $ [ x | x <- [50..100], x `mod` 7 == 3]  -- [52,59,66,73,80,87,94]
+  putStrLn ", [ x | x <- [50..100], x `mod` 7 == 3]"   -- [52,59,66,73,80,87,94]
+
+
+
   putStrLn "---- Error Customization ----"
   --putStr $ head' []       -- Prelude.head: empty list
                           --      CallStack (from HasCallStack):
@@ -94,7 +141,25 @@ someFuncLib4 = do
   --putStr $ head []        -- Prelude.head: empty list
   putStrLn "----  ----"
   putStr $ show $ minimum [1, 8, 3, (-4)]                    
-  putStrLn ", minimum [1, 8, 3, (-4)]"                              -- -4
+  putStrLn ", minimum [1, 8, 3, (-4)]"                      -- -4  
+  putStr $ show $ mangle "Hello"                              
+  putStrLn ", mangle \"Hello\""                             -- "elloH"
+  putStr $ show $ mangle ""
+  putStrLn ", mangle \"\""                                  -- ""
+  putStr $ show $ mangle "I"
+  putStrLn ", mangle \"I\""                                 -- "I"
+  putStrLn "---------- zip function ---------" 
+  putStr $ show $ zip [1 .. 5] ["one", "two", "three", "four", "five"]
+  putStrLn ", zip [1 .. 5] [\"one\", \"two\", \"three\", \"four\", \"five\"]"
+                                    -- [(1,"one"),(2,"two"),(3,"three"),(4,"four"),(5,"five")]
+  putStr $ show $ zip [1,2,3,4,5] [5,5,5,5,5]
+  putStrLn ", zip [1,2,3,4,5] [5,5,5,5,5]"                  -- [(1,5),(2,5),(3,5),(4,5),(5,5)] 
+  putStrLn "---------- right triangles ---------" 
+  putStrLn "triangles      = [ (a,b,c) | c <- [1..10], b <- [1..10], a <- [1..10] ]" 
+  putStrLn "rightTriangles = [ (a,b,c) | c <- [1..10], b <- [1..c], a <- [1..b], a^2 + b^2 == c^2"
+  putStr "rightTriangles = " 
+  putStrLn $ show $ rightTriangles   -- [(3,4,5),(6,8,10)]
+
 
 -- working with Lists
 par1 = "Papuchon"
@@ -469,17 +534,40 @@ lSample1  = [1, 2, 3, 4] :: [Int]
 -- (:) :: a -> [a] -> [a]       -- cons operator
 -- (++) :: [a] -> [a] -> [a]    -- concat operator
 -- (!!) :: [a] -> Int -> a      -- index operator -- Exception on empty list or too big/small index
--- head :: [a] -> a             -- head -- Exception on empty list or too big/small index
--- tail :: [a] -> [a]           -- tail -- Exception on empty list or too big/small index
+-- head :: [a] -> a             -- head -- Exception on empty list 
+-- tail :: [a] -> [a]           -- tail -- Exception on empty list 
 -- drop :: Int -> [a] -> [a]    -- droping first a chars, no Exception
 -- take :: Int -> [a] -> [a]    -- taking first a chars, no Exception
+-- last :: [a] -> a             -- last -- Exception on empty list 
+-- init :: [a] -> [a]           -- init -- Exception on empty list 
+-- reverse :: [a] -> [a]        -- reversing string
 -- length :: [a] -> Int         -- lenght 
+-- null :: [a] -> Bool          -- is list empty
 -- maximum :: Ord a => [a] -> a
 -- minimum :: Ord a => [a] -> a
 -- sum     :: Num a => [a] -> a
 -- product :: Num a => [a] -> a
 -- Check if an item is contained in a list
 -- elem :: Eq a => a -> [a] -> Bool  
+-- zip. It takes two lists and then zips them together into one list by joining the matching 
+--      elements into pairs. It's a really simple function but it has loads of uses. 
+--      It's especially useful for when you want to combine two lists in a way or traverse 
+--      two lists simultaneously. Here's a demonstration. 
+-- zip :: [a] -> [b] -> [(a, b)]
+-- cycle takes a list and cycles it into an infinite list. 
+--      If you just try to display the result, it will go on forever 
+--      so you have to slice it off somewhere. 
+-- cycle  :: [a] -> [a]        -- Exception on empty list
+-- repeat takes an element and produces an infinite list of just that element. 
+--      It's like cycling a list with only one element.
+-- repeat :: a -> [a]
+-- replicate function if you want some number of the same element in a list. 
+--      replicate 3 10 returns [10,10,10]
+-- replicate :: Int -> a -> [a]
+-- iterate creates an infinite list where the first item is calculated by applying 
+--      the function on the secod argument, the second item by applying the function 
+--      on the previous result and so on.
+-- iterate :: (a->a)->a->[a]
 -----
 lS2     = elem 2 lSample1 
 lS3     = sum [1, 2, 3, 4]
@@ -494,6 +582,15 @@ lStr2   = minimum ['a', 'b', 'C', 'd', 'e', 'z']
 exclaim :: String -> String
 exclaim sentence  = sentence ++ "!"
 
+listFromZip1 = zip [1 .. 5] ["one", "two", "three", "four", "five"] 
+listFromZip2 = zip [1,2,3,4,5] [5,5,5,5,5]
+--[(1,5),(2,5),(3,5),(4,5),(5,5)]
+--[(1,"one"),(2,"two"),(3,"three"),(4,"four"),(5,"five")] 
+
+-- null function ---------
+null'       :: [a] -> Bool 
+null' []    = True 
+null' (_:_) = False 
 
 ------ String --------- Partial Functions ---------
 --type String = [Char]
@@ -512,7 +609,88 @@ head' :: [a] -> a
 head' (x:_) = x  
 head' [] = error "Prelude.head: empty list"
 
+-- list comprehension ---
+lList2 = [x*2 | x <- [1 .. 10]]             -- [2,4,6,8,10,12,14,16,18,20]
+lList3 = [x*2 | x <- [1..10], x*2 >= 12]    -- [12,14,16,18,20]
+
+-- iterare
+lList4 = take 10 (iterate (2*)1)             -- [1,2,4,8,16,32,64,128,256,512]
+lList5 = take 10 (iterate (\x -> (x+3)*2)1)  -- [1,8,22,50,106,218,442,890,1786,3578]
+
+-- cycle
+lList6 = take 10 (cycle [1,2,3]) -- [1,2,3,1,2,3,1,2,3,1]  
+lList7 = take 12 (cycle "LOL ")  -- "LOL LOL LOL "   
+
+-- repeat
+lList8 = take 10 (repeat 5)      -- [5,5,5,5,5,5,5,5,5,5]  
+
+-- replicate
+lList9 = replicate 3 5          -- [5,5,5]  
+lList10 = replicate 3 'a'       -- "aaa"
+lList11 = replicate 3 "a"       -- ['a','a','a']  
+
+-- All numbers from 50 to 100 whose remainder when divided with the number 7 is 3
+lList12 = [ x | x <- [50..100], x `mod` 7 == 3]  -- [52,59,66,73,80,87,94] 
+lList13 = [ x | x <- [50..100], mod x 7 == 3]    -- [52,59,66,73,80,87,94] 
+
+-- List filtering
+--    A comprehension that replaces each odd number greater than 10 with "BANG!" 
+--    and each odd number that's less than 10 with "BOOM!". If a number isn't odd, 
+--    we throw it out of our lis
+boomBangs :: (Integral a1, Data.String.IsString a2) => [a1] -> [a2]
+boomBangs xs = [ if x < 10 then "BOOM!" else "BANG!" | x <- xs, odd x]
+--oddEven
+oddEven :: (Integral a1, Data.String.IsString a2) => [a1] -> [a2]
+oddEven xs = [if even x then "even" else "odd" | x <- xs]
+
+
 -----------------------------
 -- mangle
 mangle :: String -> String
+mangle [] = ""
 mangle x = tail x ++ take 1 x
+
+
+-----------------------------
+-- Here's a problem that combines tuples and list comprehensions: 
+-- which right triangle that has integers for all sides and all sides equal to 
+-- or smaller than 10 has a perimeter of 24? First, let's try generating 
+-- all triangles with sides equal to or smaller than 10:
+triangles :: [(Integer, Integer, Integer)]
+triangles      = [ (a,b,c) | c <- [1..10], b <- [1..10], a <- [1..10] ]  
+---
+rightTriangles :: [(Integer, Integer, Integer)]
+rightTriangles = [ (a,b,c) | c <- [1..10], b <- [1..c], a <- [1..b], a^2 + b^2 == c^2]   
+
+{-
+-- division
+divide :: Int -> Int -> Int
+--divide a b = 
+--    if a >= b 
+--      then
+--        0
+--      else
+--        100
+divide a b | a > b  = 0
+           | a == b = 1
+           | othewise 100
+
+--x = 0 :: Int
+--n = 0 :: Int 
+--allMult a b = (a * (add1 n)): [x]
+allMult a b | a * n < b  -- continue increasing n
+            | a * n == b = n 
+            | a * n > b -- stop cycle
+-}
+
+{-
+--allMultiples :: [Int, Int] -> [Int]
+--allMultiples [a, b] = where
+
+--  
+--      let m = [1 .. ] 
+--      let n = add1 n  
+--a = 9
+--x = take 10 (iterate (a*)1) 
+-}
+
