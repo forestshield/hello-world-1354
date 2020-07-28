@@ -3,8 +3,10 @@ module Lib4
     ) where
 
 --import Prelude hiding (max, signum)
-
 import Data.String
+import Data.Int
+import GHC.Int
+
 someFuncLib4 :: IO ()
 someFuncLib4 = do
   print "------- Working with Lists ------"
@@ -73,7 +75,7 @@ someFuncLib4 = do
   putStr $ show $ signum' (-11)                   
   putStrLn ", signum' (-11)"                -- 11
   putStrLn "-- Binders — Associating Names with Values or Functions"
-  putStrLn "---------- Useful functions on lists ----------------"
+  putStrLn "\n---------- Useful functions on lists ----------------"
   putStr $ show $ elem 3 lSample1                    
   putStrLn ", elem 3 is lSample1 [1, 2, 3, 4]"                      -- True
   putStr $ show $ sum [1, 2, 3, 4]                    
@@ -105,7 +107,7 @@ someFuncLib4 = do
   putStrLn ", take 24 [13, 26 .. ]" -- [13,26,39,52,65,78,91,104,117,130,143,156,169,182,195,208,221,234,247,260,273,286,299,312]
   putStr $ show $ take 13 (cycle "abcdE")
   putStrLn ", take 13 (cycle \"abcdE\")"                             -- "abcdEabcdEabc"
-  putStrLn "---- list comprehension and iterate ------"
+  putStrLn "\n---- List Comprehension and iterate ------"
   putStr $ show $ [x*2 | x <- [1 .. 10]]                 
   putStrLn ", [x*2 | x <- [1 .. 10]]"                                -- [2,4,6,8,10,12,14,16,18,20]
   putStr $ show $ [x*2 | x <- [1..10], x*2 >= 12]
@@ -131,10 +133,26 @@ someFuncLib4 = do
   putStrLn "--- All numbers from 50 to 100 whose remainder when divided with the number 7 is 3"
   putStr $ show $ [ x | x <- [50..100], x `mod` 7 == 3]  -- [52,59,66,73,80,87,94]
   putStrLn ", [ x | x <- [50..100], x `mod` 7 == 3]"   -- [52,59,66,73,80,87,94]
+  putStrLn " -- All numbers from 10 to 20 that are not 13, 15 or 19"
+  putStr $ show $ [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]  
+  putStrLn ", [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]"  -- [10,11,12,14,16,17,18,20]  
+  putStrLn "----- All the possible combinations between numbers in two lists ------"
+  putStr $ show $ [ x*y | x <- [2,5,10], y <- [8,10,11]]  
+  putStrLn ", [ x*y | x <- [2,5,10], y <- [8,10,11]]"   -- [16,20,22,40,50,55,80,100,110] 
+  putStrLn "\n --This function replaces every element of a list with 1 and then sums that up"
+  putStr $ show $ length' "a2b4c6"
+  putStrLn ", length' xs = sum [1 | _ <- xs],  length' \"a2b4c6\""    -- 6
 
+  putStrLn "\n--Function that takes a string and removes everything except uppercase letters from it"
+  putStr $ show $ removeNonUppercase "EveryThing is GooD!"
+  putStrLn ", removeNonUppercase st = [ c | c <- st, c `elem` ['A'..'Z']],   \"EveryThing is GooD!\""
 
+  putStrLn "\n-- Remove all odd numbers without flattening the list."
+  putStrLn "xxs = [[1,3,5,2,3,1,2,4,5],[1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]]"  
+  putStr $ show $ [ [ x | x <- xs, even x ] | xs <- xxs] 
+  putStrLn ", [ [ x | x <- xs, even x ] | xs <- xxs]"     -- [[2,2,4],[2,4,6,8],[2,4,2,6,2,6]] 
 
-  putStrLn "---- Error Customization ----"
+  putStrLn "\n---- Error Customization ----"
   --putStr $ head' []       -- Prelude.head: empty list
                           --      CallStack (from HasCallStack):
   --    error, called at src/Lib4.hs:507:12 in L4-0.1.0.0-Loc4iOrOwXG4zsh11hyC4Z:Lib4
@@ -148,7 +166,7 @@ someFuncLib4 = do
   putStrLn ", mangle \"\""                                  -- ""
   putStr $ show $ mangle "I"
   putStrLn ", mangle \"I\""                                 -- "I"
-  putStrLn "---------- zip function ---------" 
+  putStrLn "---------- zip function, creates list of tuples ---------" 
   putStr $ show $ zip [1 .. 5] ["one", "two", "three", "four", "five"]
   putStrLn ", zip [1 .. 5] [\"one\", \"two\", \"three\", \"four\", \"five\"]"
                                     -- [(1,"one"),(2,"two"),(3,"three"),(4,"four"),(5,"five")]
@@ -160,6 +178,72 @@ someFuncLib4 = do
   putStr "rightTriangles = " 
   putStrLn $ show $ rightTriangles   -- [(3,4,5),(6,8,10)]
 
+  putStrLn "\n----------- compare -------------------------"
+  putStr $ show $ "Abrakadabra" `compare` "Zebra"
+  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
+  ---
+  putStr $ show $ "Abrakadabra" < "Zebra"
+  putStrLn ", \"Abrakadabra\" < \"Zebra\""          -- True
+  ---
+  putStr $ show $ 5 `compare` 3 
+  putStrLn ", 5 `compare` 3"                        -- GT
+  putStr $ show $ 5 `compare` 5
+  putStrLn ", 5 `compare` 5"                        -- EQ
+
+  putStrLn "\n------------- read ----------------------------"
+  putStr $ show $ read "True" || False
+  putStrLn ", read \"True\" || False"               -- True
+  putStr $ show $ read "8.2" + 3.8        
+  putStrLn ", read \"8.2\" + 3.8"                   -- 12.0
+  putStr $ show $ read "[1,2,3,4]" ++ [99]
+  putStrLn ", read \"[1,2,3,4]\" ++ [99]"           -- [1,2,3,4,99]
+  putStrLn "\n------- read as ..."
+  putStr $ show (read "5" :: Int)
+  putStrLn ", read \"5\" :: Int"                    -- 5 
+  putStr $ show (read "5" :: Float)
+  putStrLn ", read \"5\" :: Float"                  -- 5.0
+  putStr $ show ((read "5" :: Float) * 4)
+  putStrLn ", (read \"5\" :: Float) * 4"            -- 20.0
+  putStr $ show (read "[1,2,3,4]" :: [Int])
+  putStrLn ", read \"[1,2,3,4]\" :: [Int]"          -- [1,2,3,4]
+  putStr $ show (read "(3, 'a')" :: (Int, Char))
+  putStrLn ", \"(3, 'a')\" :: (Int, Char)"          -- (3, 'a')
+  putStrLn "\n------------- enum, funcs pred and succ ---------------------"
+  putStrLn "Types in this class: (), Bool, Char, Ordering, Int, Integer, Float and Double"
+  putStr $ show $ ['a'..'e']  
+  putStrLn ", ['a'..'e']"       -- "abcde"  
+  putStr $ show $ [LT .. GT]  
+  putStrLn ", [LT .. GT]"       -- [LT,EQ,GT]
+  putStr $ show $ [3 .. 5]    
+  putStrLn ", [3 .. 5] "        -- [3,4,5]  
+  putStr $ show $ succ 'B'    
+  putStrLn ", succ 'B' "        -- 'C'
+  putStr $ show $ pred 'B'    
+  putStrLn ", pred 'B'"         -- 'A'
+
+  putStrLn "\n------------- Bounded ---------------------" 
+  putStr $ show (minBound :: Int)     -- -9223372036854775808
+  putStrLn ", (minBound :: Int)"
+  putStr $ show (maxBound :: Int)     -- 9223372036854775807
+  putStrLn ", (maxBound :: Int)"
+  putStr $ show (minBound :: Char)    -- '\NUL'
+  putStrLn ", (minBound :: Char)"  
+  putStr $ show $ succ (minBound :: Char)    -- '\SOH'
+  putStrLn ", succ (minBound :: Char)"  
+  putStr $ show $ pred (maxBound :: Char)    -- '\1114110'
+  putStrLn ", pred (maxBound :: Char)"  
+  putStr $ show (maxBound :: Char)    -- '\1114111'  
+  putStrLn ", (maxBound :: Char)"  
+  putStr $ show (maxBound :: Bool)    -- True  
+  putStrLn ", (maxBound :: Bool)"  
+  putStr $ show (minBound :: Int8)    -- -128
+  putStrLn ", (minBound :: Int8)"  
+  putStr $ show (maxBound :: Int32)    -- 2147483647
+  putStrLn ", (maxBound :: Int32)"  
+  putStrLn "\n------------- fromIntegral ---------------------" 
+  putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
+  putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
+  putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
 
 -- working with Lists
 par1 = "Papuchon"
@@ -541,7 +625,7 @@ lSample1  = [1, 2, 3, 4] :: [Int]
 -- last :: [a] -> a             -- last -- Exception on empty list 
 -- init :: [a] -> [a]           -- init -- Exception on empty list 
 -- reverse :: [a] -> [a]        -- reversing string
--- length :: [a] -> Int         -- lenght 
+-- length :: [a] -> Int         -- length 
 -- null :: [a] -> Bool          -- is list empty
 -- maximum :: Ord a => [a] -> a
 -- minimum :: Ord a => [a] -> a
@@ -609,7 +693,7 @@ head' :: [a] -> a
 head' (x:_) = x  
 head' [] = error "Prelude.head: empty list"
 
--- list comprehension ---
+-- List Comprehension -----------------------------------------------------
 lList2 = [x*2 | x <- [1 .. 10]]             -- [2,4,6,8,10,12,14,16,18,20]
 lList3 = [x*2 | x <- [1..10], x*2 >= 12]    -- [12,14,16,18,20]
 
@@ -643,13 +727,31 @@ boomBangs xs = [ if x < 10 then "BOOM!" else "BANG!" | x <- xs, odd x]
 oddEven :: (Integral a1, Data.String.IsString a2) => [a1] -> [a2]
 oddEven xs = [if even x then "even" else "odd" | x <- xs]
 
+--lList14   -- All numbers from 10 to 20 that are not 13, 15 or 19
+lList14 = [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]  -- [10,11,12,14,16,17,18,20]  
 
+-- If we have two lists, [2,5,10] and [8,10,11] and we want to get the products of 
+--    all the possible combinations between numbers in those lists
+lList15 = [ x*y | x <- [2,5,10], y <- [8,10,11]]  -- [16,20,22,40,50,55,80,100,110]   
+
+-- length ---
+--    This function replaces every element of a list with 1 and then sums that up
+length' :: [a] -> Int
+length' xs = sum [1 | _ <- xs]  
+
+-- Function that takes a string and removes everything except uppercase letters from it.
+removeNonUppercase    :: [Char] -> [Char]
+removeNonUppercase st = [ c | c <- st, c `elem` ['A'..'Z']]
+
+-- Remove all odd numbers without flattening the list.
+xxs = [[1,3,5,2,3,1,2,4,5],[1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]]  
+lList16 = [ [ x | x <- xs, even x ] | xs <- xxs]  
+-- [[2,2,4],[2,4,6,8],[2,4,2,6,2,6]]  
 -----------------------------
 -- mangle
 mangle :: String -> String
 mangle [] = ""
 mangle x = tail x ++ take 1 x
-
 
 -----------------------------
 -- Here's a problem that combines tuples and list comprehensions: 
@@ -661,6 +763,76 @@ triangles      = [ (a,b,c) | c <- [1..10], b <- [1..10], a <- [1..10] ]
 ---
 rightTriangles :: [(Integer, Integer, Integer)]
 rightTriangles = [ (a,b,c) | c <- [1..10], b <- [1..c], a <- [1..b], a^2 + b^2 == c^2]   
+
+-- factorial
+factorial :: Integer -> Integer  
+factorial n = product [1..n] 
+
+-- circumference
+circumference :: Float -> Float       -- circumference 4 = 25.132742
+circumference r = 2 * pi * r  
+---
+circumference' :: Double -> Double  
+circumference' r = 2 * pi * r         -- circumference' 4 = 25.132741228718345
+
+-- compare -------------------------
+-- (>) :: (Ord a) => a -> a -> Bool 
+resCompare1 = "Abrakadabra" `compare` "Zebra"     -- LT
+resCompare2 = "Abrakadabra" < "Zebra"             -- True
+resCompare3 = 5 `compare` 3                       -- GT
+resCompare4 = 5 `compare` 5                       -- EQ
+
+-- read ----------------------------
+-- read :: (Read a) => String -> a
+resRead1 = read "True" || False         -- True
+resRead2 = read "8.2" + 3.8             -- 12.0
+resRead3 = read "[1,2,3,4]" ++ [99]     -- [1,2,3,4,99]
+resRead4 = read "5" :: Int              -- 5 
+resRead5 = read "5" :: Float            -- 5.0
+resRead6 = (read "5" :: Float) * 4      -- 20.0
+resRead7 = read "[1,2,3,4]" :: [Int]    -- [1,2,3,4]
+resRead8 = read "(3, 'a')" :: (Int, Char)  -- (3, 'a')
+
+-- enum ----------------------------
+--    Enum members are sequentially ordered types — they can be enumerated. '
+--    The main advantage of the Enum typeclass is that we can use its types in list ranges. 
+--    They also have defined successors and predecesors, which you can get with 
+--    the succ and pred functions. 
+--    Types in this class: (), Bool, Char, Ordering, Int, Integer, Float and Double.
+resEnum1 = ['a'..'e']  -- "abcde"  
+resEnum2 = [LT .. GT]  -- [LT,EQ,GT]  
+resEnum3 = [3 .. 5]    -- [3,4,5]  
+resEnum4 = succ 'B'    -- 'C'
+resEnum5 = pred 'B'    -- 'A'
+-- Bounded ------------------------
+--     Bounded members have an upper and a lower bound.
+-- maxBound :: (Bool, Int, Char)
+-- minBound :: (Bool, Int, Char)
+resBound1  = minBound :: Int     -- -9223372036854775808    \= -2147483648
+resBound2  = maxBound :: Int     -- 9223372036854775807
+resBound3  = minBound :: Char    -- '\NUL'
+resBound3' = succ (minBound :: Char)    -- '\SOH'
+--resBound3'' = pred (minBound :: Char)    -- Exception
+resBound4  = maxBound :: Char    -- '\1114111'  
+resBound5  = maxBound :: Bool    -- True  
+resBound6  = minBound :: Bool    -- False  
+resBound7  = minBound :: Int8    -- -128
+resBound8  = maxBound :: Int8    -- 127
+resBound9  = minBound :: Int16    -- -32768
+resBound10 = maxBound :: Int16    -- 32767
+resBound11 = minBound :: Int32    -- -2147483648
+resBound12 = maxBound :: Int32    -- 2147483647
+resBound13 = minBound :: Int64    -- -9223372036854775808
+resBound14 = maxBound :: Int64    -- 9223372036854775807
+
+resFromInt = fromIntegral (minBound :: Int16) + 3.2
+-- resJust    = (minBound :: Int16) + 3.2 -- compiler error
+
+-- fromIntegral -------------------
+--    it takes an integral number and turns it into a more general number. 
+-- fromIntegral :: (Num b, Integral a) => a -> b
+
+
 
 {-
 -- division
