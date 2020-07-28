@@ -39,10 +39,64 @@ someFuncLib4 = do
   print $ applyThree id3 11                   -- 11
   print $ applyThree add1 11                  -- 14
   print $ applyThree reverse "abc"            -- "cba"
-  
+  putStrLn "....... Algebraic Datatypes .........." 
+  print c1    -- Car {company = "lexus", model = "RX350", year = 2014}
+  print c2    -- Car {company = "lexus", model = "RX350", year = 2014}
+  print bDif  -- c1 == c2 -- True
+  putStrLn "c4 of Car2 cannot be compared or shown, \
+  \because of it's constructor ?!"
+  putStrLn "c4 of Car2: probably this is a bad/wrong constructor \
+  \for Car2 (\"lexus\",  \"RX350\",  2014)"
+  putStrLn "Car2: all others constructors are OK, c3, c5 and for Car \
+  \c1 and c2 the same.    Car2 \"lexus\"  \"RX350\"  2014"
+  putStrLn "  but c3 or c5 Car2 can: Car2 {company = \"lexus\", model = 'RX350', year = 2014}"
+  print c3    -- Car {company = "lexus", model = "RX350", year = 2014}
+  print c5    -- Car {company = "lexus", model = "RX350", year = 2014}
+  print bDif2  -- c3 == c5 -- True
+  putStrLn "----- Values, Functions and Types -----------"
+  putStr $ show $ inc (square 5)    -- 26, a = inc (square 5)
+  putStrLn ", inc (square 5)"
+  putStr $ show $ square (inc 5)    -- 36, b = square (inc 5)
+  putStrLn ", square (inc 5)"
+  print "average (inc 3) (inc 5)  -- fails, wrong type of inc for average" 
+  putStr $ show $ average (inc2 3) (inc2 5) -- 5,0 c = average (inc2 3) (inc2 5 
+  putStrLn ", average (inc2 3) (inc2 5)"
+  putStr $ show $ arithmetic_mean 9 11  
+  putStrLn ", arithmetic_mean 9 11"         -- 10
+  putStr $ show $ harmonic_mean 9 11  
+  putStrLn ", harmonic_mean 9 11"           -- 9.9
+  putStr $ show $ max' 9 11                   
+  putStrLn ", max' 9 11"                    -- 11
+  putStr $ show $ signum' (-11)                   
+  putStrLn ", signum' (-11)"                -- 11
+  putStrLn "-- Binders — Associating Names with Values or Functions"
+  putStrLn "-- Useful functions on lists"
+  putStr $ show $ elem 3 lSample1                    
+  putStrLn ", elem 3 is lSample1 [1, 2, 3, 4]"                      -- True
+  putStr $ show $ sum [1, 2, 3, 4]                    
+  putStrLn ", sum [1, 2, 3, 4]"                                     -- 10
+  putStr $ show $ product [1, 2, 3, 4]                    
+  putStrLn ", product [1, 2, 3, 4]"                                 -- 24
+  putStr $ show $ maximum ['a', '0', 'C', 'd', 'e', 'z']                    
+  putStrLn ", maximum ['a', '0', 'C', 'd', 'e', 'z']"               -- 'z'
+  putStr $ show $ minimum ['a', '0', 'C', 'd', 'e', 'z']                    
+  putStrLn ", minimum ['a', '0', 'C', 'd', 'e', 'z']"               -- 'C'
+  putStr $ show $ maximum [1, 8, 3, (-4)]                    
+  putStrLn ", maximum [1, 8, 3, (-4)]"                              -- 8
+  putStr $ show $ minimum [1, 8, 3, (-4)]                    
+  putStrLn ", minimum [1, 8, 3, (-4)]"                              -- -4
+  putStrLn "lStr3 = elem 2 \"AbcdeFg\""                             -- failing to compile"
+  putStrLn "lStr4   = maximum \"AbcdeFg\""                          -- failing to compile
+  putStrLn "---- Error Customization ----"
+  --putStr $ head' []       -- Prelude.head: empty list
+                          --      CallStack (from HasCallStack):
+  --    error, called at src/Lib4.hs:507:12 in L4-0.1.0.0-Loc4iOrOwXG4zsh11hyC4Z:Lib4
+  --putStr $ head []        -- Prelude.head: empty list
+  putStrLn "----  ----"
+  putStr $ show $ minimum [1, 8, 3, (-4)]                    
+  putStrLn ", minimum [1, 8, 3, (-4)]"                              -- -4
 
-
---working with Lists
+-- working with Lists
 par1 = "Papuchon"
 awesome = [par1, "curry", ":)"]
 sL41 = "The Simons"
@@ -52,23 +106,23 @@ sList1 = awesome ++ also
 sList2 = concat allAwesome  -- changes List from 2 nested Lists to List of 5 strings
 bVal = sList1 == sList2
 
---isPalindrome
+-- isPalindrome
 isPalindrome :: (Eq a) => [a] -> Bool
 --isPalindrome x = undefined
 isPalindrome x = do  
   let y = reverse x
   x == y
 
---isPalindrome2 better one
+-- isPalindrome2 better one
 isPalindrome2 :: (Eq a) => [a] -> Bool
 isPalindrome2 x = reverse x == x
   
---returning abs value
---myAbs better one
+-- returning abs value
+-- myAbs better one
 myAbs :: Integer -> Integer
 myAbs x = if x > 0 then x else negate x
 
---myAbs2
+-- myAbs2
 myAbs2 :: Integer -> Integer
 myAbs2 x = do
   if x > 0 
@@ -76,11 +130,11 @@ myAbs2 x = do
   else 
     negate x
 
---simpliest function, regular definition
+-- simpliest function, regular definition
 id3 :: a -> a
 id3 x = x
 
---simpliest function, lambda sysntaxis
+-- simpliest function, lambda sysntaxis
 id2 :: a -> a
 id2  = \x -> x
 
@@ -104,18 +158,18 @@ add1 :: Int -> Int
 add1 x = x + (1 :: Int)
 --add1 = add 1
 
---addTupl
+-- addTupl
 addTupl :: (Int, Int) -> Int
 --addTupl :: Num a => (a, a) -> a
 addTupl (a, b) = add a b
 
---curry and uncurry
+-- curry and uncurry
 curry'        :: ((a, b) -> c) -> a -> b -> c
 curry' f x y  =  f (x, y)
 uncurry'      :: (a -> b -> c) -> (a, b) -> c
 uncurry' f p  =  f (fst p) (snd p)
 
---uncurryAdd
+-- uncurryAdd
 uncurryAdd :: (Int, Int) -> Int
 uncurryAdd = uncurry add
 --
@@ -127,17 +181,338 @@ curryAddTupl = undefined
 --curryAddTupl = curry addTupl
 
 
---Algebraic Datatypes ----------
---see Cards.hs
+-- Algebraic Datatypes ----------
+-- see Cards.hs too
+-- data Car
+data Car = Car  { company :: String
+                , model :: String 
+                , year :: Int               
+                } deriving (Show, Read, Eq)
+c1   = Car "lexus"  "RX350"  2014
+c2   = Car "lexus"  "RX350"  2014
+bDif = c1 == c2 
 
---Algebraic Datatypes ----------
---data Point
+-- deriving does not work here, because unknown type !!!
+data Car2 a b c = Car2  { company2 :: a
+                        , model2 :: b 
+                        , year2 :: c               
+                        } deriving (Show, Read, Eq)        
+c3   = Car2 "lexus"  "RX350"  2014
+c4   = Car2 ("lexus",  "RX350",  2014)  -- this constractor does not work really
+c5   = Car2 "lexus"  "RX350"  2014      -- this is OK
+--c3 == c4, fails, no Eq ???
+--bDif2 = c3 == c4    -- fails, no Eq, because of unknown type !!!
+bDif2 = c3 == c5    -- True
+
+-- data Color                               
+data Color  = Blue | Green | Read deriving (Show, Read, Eq) 
+--data Color2 = funcRGB Int Int Int 
+
+-- func RGB
+--funcRGB :: Int -> Int -> Int -> Color 
+--funcRGB a b c =  
+
+---------------------------------------------
+-- data SBTree (String)
+data SBTree = Leaf String
+            | Branch String SBTree SBTree deriving (Show, Eq, Read)
+-- data BBTree (Bool)
+data BBTree = Leaf2 Bool
+            | Branch2 Bool BBTree BBTree 
+-- data BTree (universal)
+data BTree a = Leaf3 a
+             | Branch3 a (BTree a) (BTree a)
+{-
+Step back here a moment and take note of the similarities.
+A data constructor is a "function" that takes 0 or more values and gives you back a new value.
+A type constructor is a "function" that takes 0 or more types and gives you back a new type.
+Data constructors with parameters are cool if we want slight variations 
+in our values – we put those variations in parameters and let the guy 
+who creates the value decide what arguments they are going to put in. 
+In the same sense, type constructors with parameters are cool if we want 
+slight variations in our types! We put those variations as parameters and 
+let the guy who creates the type decide what arguments they are going to put in.
+-}             
+sbL1    = Leaf "Leaf1"
+sbB1    = Branch "Branch1"
+sbL2    = Leaf "Leaf2"
+sbB2    = Branch "Branch2"
+sbL3    = Leaf "Leaf3"
+sbB3    = Branch "Branch3"
+
+--sbTree1 = SBTree sbL1  
+--sbTree2 = SBTree sbB1 
+--SBTree :: SBTree -> sbt SBTree
+-------------------------------
+{-
+{-
+-- data Point
 data Point  = Point Int Int deriving (Eq, Show, Read)
 data Point2 = Point2 { x :: Int, y :: Int} deriving Show
-
---addPoint
---addPoint          :: (Point, Point) -> Point
+-- addPoint
+addPoint          :: (Point, Point) -> Point
 --addPoint (p1, p2) = p1 + p2 
+--(+) :: Point -> Point -> Point
+-}
+{-
+data Point      = Pt Float Float
+pointx          :: Point -> Float
+pointx (Pt x _) = x
+pointy          :: Point -> Float
+pointy (Pt y _) = y
+-}
 
+-- data Point
+data Point1       = Pt1 {pointx1, pointy1 :: Float} deriving (Show, Eq, Read)
+
+-- data Point2
+data Point2       = Pt2 Float Float deriving (Show, Eq, Read)
+pointx2           :: Point2 -> Float
+pointx2 (Pt2 x _) = x
+pointy2           :: Point2 -> Float
+pointy2 (Pt2 y _) = y
+
+myPoint1 = ((0, 0), (1, 1))
+myPoint2 = ((3, 3), (5, 5))
+
+myPoint3 = ((0.0, 1.0), (2.0, 3.0))
+myPoint4 = ((4.0, 5.0), (6.0, 7.0))
+
+-- func absPoint
+absPoint        :: Point1 -> Float
+absPoint p      =  sqrt (pointx1 p * pointx1 p + 
+                         pointy1 p * pointy1 p)
+
+--addPoint   :: Point -> Point -> Float
+--addPoint   = (pointx x1 + pointx x2, pointy y1 + pointy y2)
+
+-- data Shape
 --data Shape
---data Shape
+-}
+
+----- Values, Functions and Types -----------
+-- http://learn.hfm.io/first_steps.html
+inc   :: Int -> Int
+inc x = x + 1 
+
+-- any type of Num inc2
+inc2   :: Num a => a -> a 
+inc2 x = x + 1
+
+average :: Float -> Float -> Float
+average a b  = (a + b) / 2.0
+
+-- Signatures
+--show :: Show a => a -> String
+--(==), (/=) :: Eq a => a -> a -> Bool
+--(<), (>), (<=), (>=) :: Ord a => a -> a-> Bool
+--(+), (-), (*) :: Num a => a -> a -> a
+--div, mod :: Integral a => a -> a -> a
+--(/) :: Fractional a => a -> a -> a
+--sin, cos, tan, exp, sqrt,… :: Floating a => a -> a
+
+{-
+Typeclass Show
+functions: show :: Show a => a -> String: convert the given value into a string.
+member types: almost all predefined types, excluding function types.
+
+Typeclass Eq
+functions: (==), (/=) :: Eq a => a -> a -> Bool: equality and inequality.
+member types: almost all predefined types, excluding function types.
+
+Typeclass Ord
+functions: (<), (>), (<=), (>=) :: Ord a => a -> a-> Bool: less than, greater than, 
+less or equal, greater or equal
+member types: almost all predefined types, excluding function types.
+
+all types in Ord are already in Eq, so if you are using both == and < on a value, 
+  it is sufficient to require it to be in Ord.
+
+Typeclass Num
+functions: (+), (-), (*) :: Num a => a -> a -> a: arithmetic operations.
+member types: Float, Double, Int, Integer
+
+Typeclass Integral
+functions: div, mod :: Integral a => a -> a -> a: division.
+
+member types: Int (fixed precision), Integer (arbitrary precision)
+Typeclass Fractional
+
+functions: (/) :: Fractional a => a -> a -> a: division.
+member types: Float, Double
+
+Typeclass Floating
+functions: sin, cos, tan, exp, sqrt,… :: Floating a => a -> a: trigonometric and 
+other functions.
+
+member types: Float, Double
+We will introduce more type classes and operations as we use them. 
+If you want to find out more about a type class, select its name and type ⌘-i 
+in Haskell for Mac, or use :info TYPECLASS-NAME in GHCi.
+-}
+
+--square
+square :: Int -> Int
+square x = x * x
+
+--tests
+a = inc (square 5)
+b = square (inc 5)
+--d = average (inc 3) (inc 5) -- fails
+c = average (inc2 3) (inc2 5) -- works
+
+--------------
+-- calculates the arithmetic mean of two numbers
+arithmetic_mean :: Fractional a => a -> a -> a
+arithmetic_mean x y  = (x + y)  / 2
+
+-- calculates the harmonic mean of two numbers
+harmonic_mean :: Fractional a => a -> a -> a
+harmonic_mean x y  = 2 * x * y / (x + y)
+
+-- Branches and Control Flow
+max'     :: Ord a => a -> a -> a
+--max' x y = if x >= y then x else y
+-- better max
+max' x y | x >= y     = x 
+        | otherwise  = y
+
+signum' :: (Ord a, Num a) => a -> Int
+--signum' x = if x < 0 then -1 else if x == 0 then 0 else 1
+--better to read
+--signum' x | x <  0  = -1
+--          | x == 0  = 0
+--          | x >  0  = 1
+-- even better
+signum' x | x <  0     = -1
+          | x == 0     = 0
+          | otherwise  = 1
+
+-- Binders — Associating Names with Values or Functions
+pi' :: Floating a => a
+pi' = 3.141592653589793
+
+--circleArea
+circleArea          :: Floating a => a -> a
+circleArea diameter = pi * radius * radius
+  where
+    radius = diameter / 2.0       -- local binding
+
+-- Point, using Tuples
+type Point = (Int, Int)
+--
+origin' :: Point
+origin' = (0, 0)
+-- move a given point to the right
+moveRight :: Point -> Int -> Point
+moveRight (x, y) distance'  = (x + distance', y)
+-- move a given point to upwards
+moveUp :: Point -> Int -> Point
+moveUp (x, y) distance'  = (x, y + distance')
+
+-- Color
+type Colour = String
+-- new name for the type of colour points
+type ColourPoint = (Int, Int, Colour)
+-- origin of the coordinate system in a given colour
+--
+origin         :: Colour -> ColourPoint
+origin colour  = (0, 0, colour)
+
+-- move a colour point vertically and horizontally
+move :: ColourPoint -> Int -> Int -> ColourPoint
+move (x, y, colour) xDistance yDistance  
+  = (x + xDistance, y + yDistance, colour)
+-- compute the distance between two colour points
+distance :: ColourPoint -> ColourPoint -> Float
+distance (x1, y1, colour1) (x2, y2, colour2) 
+  = sqrt (fromIntegral (dx * dx + dy * dy))
+  where
+    dx = x2 - x1
+    dy = y2 - y1
+-- The standard function fromIntegral converts any integral type to any other numeric type. 
+-- Its signature is
+--fromIntegral :: (Integral a, Num b) => a -> b
+
+startPoint = (0, 0, "black")
+colourOfPoint (x, y, colour) = colour
+
+-- Special names for some tuples.
+-- The following table lists a number of tuple types and their names:
+-- #	 	Expression	 	Name
+-- 0		()		                      Unit
+-- 1		n/a		                      n/a
+-- 2		(x_1, x_2)		              Pair
+-- 3		(x_1, x_2, x_3)		          Triple
+-- 4		(x_1, x_2, x_3, x_4)		    Quadruple
+-- 5		(x_1, x_2, x_3, x_4, x_5)		Quintuple
+-- ...
+-- n		(x_1, …, x_n)		            n-tuple
+
+-- Lists: Many Values of a Single Type ---------------
+firstTenPrimes :: [Int]
+firstTenPrimes  = [2, 3, 5, 7, 11, 13, 17, 19, 23, 27]
+
+oneToTwenty :: [Int]
+oneToTwenty = [1..20]
+
+-- return all positive odd numbers up to maxNumber
+oddNumbers :: Int -> [Int]
+oddNumbers maxNumber  = [1, 3..maxNumber]
+
+--Compare Tuple and List ------------------------
+tSample1 = (1, 2, "green") :: (Int, Int, String)
+-- vs
+lSample1  = [1, 2, 3, 4] :: [Int]
+
+-- Usefull functions on List
+-- (:) :: a -> [a] -> [a]       -- cons operator
+-- (++) :: [a] -> [a] -> [a]    -- concat operator
+-- (!!) :: [a] -> Int -> a      -- index operator -- Exception on empty list or too big/small index
+-- head :: [a] -> a             -- head -- Exception on empty list or too big/small index
+-- tail :: [a] -> [a]           -- tail -- Exception on empty list or too big/small index
+-- drop :: Int -> [a] -> [a]    -- droping first a chars, no Exception
+-- take :: Int -> [a] -> [a]    -- taking first a chars, no Exception
+-- length :: [a] -> Int         -- lenght 
+-- maximum :: Ord a => [a] -> a
+-- minimum :: Ord a => [a] -> a
+-- sum     :: Num a => [a] -> a
+-- product :: Num a => [a] -> a
+-- Check if an item is contained in a list
+-- elem :: Eq a => a -> [a] -> Bool  
+-----
+lS2     = elem 2 lSample1 
+lS3     = sum [1, 2, 3, 4]
+lS4     = product [1, 2, 3, 4] 
+lS5     = maximum [1, 8, 3, (-4)]
+lS6     = minimum [1, 8, 3, (-4)] 
+lStr1   = maximum ['a', 'b', 'C', 'd', 'e', 'z']
+lStr2   = minimum ['a', 'b', 'C', 'd', 'e', 'z']
+--lStr3   = elem 2 "AbcdeFg"  -- failing to compile
+--lStr4   = maximum "AbcdeFg"  -- failing to compile
+--concat
+exclaim :: String -> String
+exclaim sentence  = sentence ++ "!"
+
+
+------ String --------- Partial Functions ---------
+--type String = [Char]
+-- more for drop and take see Print3flipped.hs
+--
+--head :: [a] -> a
+--head (x:xs) = x
+-- The function head is defined by pattern matching using the same symmetry 
+-- between list construction and list pattern matching as we discussed 
+-- previously for tuples — i.e., it matches on the cons-operator (:):
+
+-- Customization of error ---
+--error :: String -> a
+--strErr1 = 
+head' :: [a] -> a
+head' (x:_) = x  
+head' [] = error "Prelude.head: empty list"
+
+-----------------------------
+-- mangle
+mangle :: String -> String
+mangle x = tail x ++ take 1 x
