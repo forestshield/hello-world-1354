@@ -256,9 +256,33 @@ someFuncLib4 = do
   specShow ((sayMe 1), (sayMe 2), (sayMe 3), (sayMe 99))
            ",\n ((sayMe 1 = \"One!\"), (sayMe 2 = \"Two!\"), (sayMe 3 = \"Three!\"), (sayMe x = \"Not between 1 and 3\"))\n"
            "Pattern Matching with \"Catch all case\""
+  specShow (addVectors (1, 2) (2, 3))
+           ", addVectors (1, 2) (2, 3)\n\
+           \addVectors (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)"
+           "Pattern Matching in addVectors"
+  specShow [a+b | (a,b) <- [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)]]
+           ", [a+b | (a,b) <- [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)]]\n"
+           "Pattern Matching in List Comprehension"
+           
+  specShow (({-head' [] :: Int-}), (head' "Hello"))
+           ", ({-head' [] :: Int-}), (head' \"Hello\")\n\
+           \N.B. head' on empty list commented, Exception"
+           "Pattern Matching & customization of the error"
+           
+  specShow (tell [1], tell[1,2], tell[1,2,3])
+           ", \n\
+           \"
+           "Pattern Matching tell function"
 
-
-
+  --tell [1]
+  --putStr $ show $ length "a"
+  --putStrLn $ show (length "a") 
+  putStrLn $ show $ length' "a"
+  putStrLn $ show $ length'' "a2b4c6"
+  putStrLn $ show $ length' ""
+  --putStrLn $ show $ length "abc" :: IO ()
+  --putStrLn $ show (length "a") -- does not work, if "- OverloadedStrings" is on 
+  --(tell [])
 
   specShow ('\0')
            ", \n"           
@@ -727,12 +751,12 @@ null' (_:_) = False
 -- between list construction and list pattern matching as we discussed 
 -- previously for tuples — i.e., it matches on the cons-operator (:):
 
--- Customization of error ---
+-- Customization of error and Pattern matching ---
 --error :: String -> a
---strErr1 = 
 head' :: [a] -> a
-head' (x:_) = x  
 head' [] = error "Prelude.head: empty list"
+head' (x:_) = x  
+
 
 -- List Comprehension -----------------------------------------------------
 lList2 = [x*2 | x <- [1 .. 10]]             -- [2,4,6,8,10,12,14,16,18,20]
@@ -757,13 +781,21 @@ lList11 = replicate 3 "a"       -- ['a','a','a']
 -- All numbers from 50 to 100 whose remainder when divided with the number 7 is 3
 lList12 = [ x | x <- [50..100], x `mod` 7 == 3]  -- [52,59,66,73,80,87,94] 
 lList13 = [ x | x <- [50..100], mod x 7 == 3]    -- [52,59,66,73,80,87,94] 
-
+ 
 -- List filtering
---    A comprehension that replaces each odd number greater than 10 with "BANG!" 
+--    A comprehension th at replaces each odd number greater than 10 with "BANG!" 
 --    and each odd number that's less than 10 with "BOOM!". If a number isn't odd, 
---    we throw it out of our lis
+--    we throw it out of our list
+--strBoom :: [Char] 
+--strBoom = "BOOM!"
+--strBang :: [Char]
+--strBang = "BANG!"
+--a2 :: [Char]
+
+-- does not work, if "- OverloadedStrings" is off ?!
 boomBangs :: (Integral a1, Data.String.IsString a2) => [a1] -> [a2]
 boomBangs xs = [ if x < 10 then "BOOM!" else "BANG!" | x <- xs, odd x]
+--boomBangs xs = [ if x < 10 then strBoom else strBoom | x <- xs, odd x]
 --oddEven
 oddEven :: (Integral a1, Data.String.IsString a2) => [a1] -> [a2]
 oddEven xs = [if even x then "even" else "odd" | x <- xs]
@@ -774,11 +806,6 @@ lList14 = [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]  -- [10,11,12,14,16,17
 -- If we have two lists, [2,5,10] and [8,10,11] and we want to get the products of 
 --    all the possible combinations between numbers in those lists
 lList15 = [ x*y | x <- [2,5,10], y <- [8,10,11]]  -- [16,20,22,40,50,55,80,100,110]   
-
--- length ---
---    This function replaces every element of a list with 1 and then sums that up
-length' :: [a] -> Int
-length' xs = sum [1 | _ <- xs]  
 
 -- Function that takes a string and removes everything except uppercase letters from it.
 removeNonUppercase    :: [Char] -> [Char]
@@ -912,10 +939,31 @@ second (_, y, _) = y
 third :: (a, b, c) -> c  
 third (_, _, z) = z  
 
+-- lisct comprehension and pattern matching
+xs       = [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)]  
+list11   =  [a+b | (a,b) <- xs]           -- [4,7,6,8,11,4]   
 
+-- tell  
+tell          :: (Show a) => [a] -> String  
+tell []       = "The list is empty"  
+tell (x:[])   = "The list has one element: " ++ show x  
+tell (x:y:[]) = "The list has two elements: " ++ show x ++ " and " ++ show y  
+tell (x:y:_)  = "This list is long. The first two elements are: " ++ show x ++ " and " ++ show y  
 
+-- length - the original one
+--length           :: [a] -> Int
+--length []        =  0
+--length (_:l)     =  1 + length l
 
+-- length' ---
+--    This function replaces every element of a list with 1 and then sums that up
+length' :: [a] -> Int
+length' xs = sum [1 | _ <- xs]  
 
+-- length''
+length'' :: (Num b) => [a] -> b  
+length'' [] = 0  
+length'' (_:xs) = 1 + length'' xs
 
 
 
