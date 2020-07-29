@@ -245,12 +245,30 @@ someFuncLib4 = do
   --putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
   --putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
   --putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
-  
   specShow (fromIntegral (minBound :: Int16) + 3.2)
            ", fromIntegral (minBound :: Int16) + 3.2 \n\
            \But, (minBound :: Int16) + 3.2 -- compiler error"
            "fromIntegral"
+  specShow ((first (1,2,3)), (second (1,2,3)), (third (1,2,3)))
+           ",   ((first (1,2,3)), (second (1,2,3)), (third (1,2,3)))\n\
+           \first (x, _, _) = x\nsecond (_, y, _) = y\nthird (_, _, z) = z"           
+           "Tuples Third"
+  specShow ((sayMe 1), (sayMe 2), (sayMe 3), (sayMe 99))
+           ",\n ((sayMe 1 = \"One!\"), (sayMe 2 = \"Two!\"), (sayMe 3 = \"Three!\"), (sayMe x = \"Not between 1 and 3\"))\n"
+           "Pattern Matching with \"Catch all case\""
 
+
+
+
+  specShow ('\0')
+           ", \n"           
+           "Test"
+{-
+  specShow ()
+           ", \n\
+           \"
+           ""
+-}
 -- specShow --------------------------------
 specShow :: Show a => a -> String -> String -> IO ()
 specShow a b c = do
@@ -260,9 +278,9 @@ specShow a b c = do
 --specHeader2
 specHeader2 :: String -> IO ()
 specHeader2 a = do  
-  putStr "\n--------------------- "  
+  putStr "\n------------- "  
   putStr a 
-  putStrLn " ---------------------"
+  putStrLn " -------------"
 --specHeader
 specHeader :: String -> IO ()
 specHeader  a | a /= "" = specHeader2 a
@@ -859,20 +877,47 @@ resFromInt = fromIntegral (minBound :: Int16) + 3.2
 -- factorial2
 factorial2 :: (Integral a) => a -> a  
 factorial2 0 = 1  
-factorial2 n = n * factorial2 (n - 1)
+factorial2 n = n * factorial2 (n - 1)     -- recursion
 -- sayMe
 sayMe :: (Integral a) => a -> String  
 sayMe 1 = "One!"  
 sayMe 2 = "Two!"  
 sayMe 3 = "Three!"  
-sayMe 4 = "Four!"  
-sayMe 5 = "Five!"  
-sayMe x = "Not between 1 and 5" 
+--sayMe 4 = "Four!"  
+--sayMe 5 = "Five!"  
+sayMe x = "Not between 1 and 3" 
 -- charName
 charName :: Char -> String  
 charName 'a' = "Albert"  
 charName 'b' = "Broseph"  
 charName 'c' = "Cecil"
+-- lucky
+lucky :: (Integral a) => a -> String  
+lucky 7 = "LUCKY NUMBER SEVEN!"  
+lucky x = "Sorry, you're out of luck, pal!"
+
+-- addVector with pattern matching (2-nd implementation)
+addVectors :: (Num a) => (a, a) -> (a, a) -> (a, a)  
+--addVectors a b = (fst a + fst b, snd a + snd b)
+-- better implementation with pattern matching
+addVectors (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+
+-- tuples third
+first :: (a, b, c) -> a  
+first (x, _, _) = x  
+--  
+second :: (a, b, c) -> b  
+second (_, y, _) = y  
+--  
+third :: (a, b, c) -> c  
+third (_, _, z) = z  
+
+
+
+
+
+
+
 
 
 
