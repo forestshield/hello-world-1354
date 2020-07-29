@@ -5,7 +5,8 @@ module Lib4
 --import Prelude hiding (max, signum)
 import Data.String
 import Data.Int
-import GHC.Int
+--import GHC.Int
+--import data-easy
 
 someFuncLib4 :: IO ()
 someFuncLib4 = do
@@ -240,10 +241,32 @@ someFuncLib4 = do
   putStrLn ", (minBound :: Int8)"  
   putStr $ show (maxBound :: Int32)    -- 2147483647
   putStrLn ", (maxBound :: Int32)"  
-  putStrLn "\n------------- fromIntegral ---------------------" 
-  putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
-  putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
-  putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
+  --putStrLn "\n------------- fromIntegral ---------------------" 
+  --putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
+  --putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
+  --putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
+  
+  specShow (fromIntegral (minBound :: Int16) + 3.2)
+           ", fromIntegral (minBound :: Int16) + 3.2 \n\
+           \But, (minBound :: Int16) + 3.2 -- compiler error"
+           "fromIntegral"
+
+-- specShow --------------------------------
+specShow :: Show a => a -> String -> String -> IO ()
+specShow a b c = do
+  specHeader c    
+  putStr $ show (a)
+  putStrLn b 
+--specHeader2
+specHeader2 :: String -> IO ()
+specHeader2 a = do  
+  putStr "\n--------------------- "  
+  putStr a 
+  putStrLn " ---------------------"
+--specHeader
+specHeader :: String -> IO ()
+specHeader  a | a /= "" = specHeader2 a
+
 
 -- working with Lists
 par1 = "Papuchon"
@@ -523,8 +546,8 @@ harmonic_mean x y  = 2 * x * y / (x + y)
 max'     :: Ord a => a -> a -> a
 --max' x y = if x >= y then x else y
 -- better max
-max' x y | x >= y     = x 
-        | otherwise  = y
+max' x y | x >= y    = x 
+         | otherwise = y
 
 signum' :: (Ord a, Num a) => a -> Int
 --signum' x = if x < 0 then -1 else if x == 0 then 0 else 1
@@ -831,6 +854,26 @@ resFromInt = fromIntegral (minBound :: Int16) + 3.2
 -- fromIntegral -------------------
 --    it takes an integral number and turns it into a more general number. 
 -- fromIntegral :: (Num b, Integral a) => a -> b
+
+-- Pattern matching ---------------
+-- factorial2
+factorial2 :: (Integral a) => a -> a  
+factorial2 0 = 1  
+factorial2 n = n * factorial2 (n - 1)
+-- sayMe
+sayMe :: (Integral a) => a -> String  
+sayMe 1 = "One!"  
+sayMe 2 = "Two!"  
+sayMe 3 = "Three!"  
+sayMe 4 = "Four!"  
+sayMe 5 = "Five!"  
+sayMe x = "Not between 1 and 5" 
+-- charName
+charName :: Char -> String  
+charName 'a' = "Albert"  
+charName 'b' = "Broseph"  
+charName 'c' = "Cecil"
+
 
 
 
