@@ -1,0 +1,70 @@
+name:                orig1
+version:             0.1.0.0
+github:              "githubuser/orig1"
+license:             BSD3
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2020 Author name here"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/orig1#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+##- protolude
+##- classy-prelude
+#- deepseq
+#- directory
+#- filepath
+#- text
+#- containers
+#- unordered-containers
+#- aeson
+#- pretty-simple
+##- game-probability
+#- mtl
+#- lens
+#- lens-aeson
+##- data-easy
+
+default-extensions:
+#- NoImplicitPrelude
+- OverloadedStrings
+#- QuasiQuotes
+#- TemplateHaskell
+
+
+library:
+  source-dirs: src
+
+executables:
+  orig1-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - orig1
+
+tests:
+  orig1-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - orig1
