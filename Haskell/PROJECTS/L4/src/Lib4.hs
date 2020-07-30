@@ -269,21 +269,13 @@ someFuncLib4 = do
            \N.B. head' on empty list commented, Exception"
            "Pattern Matching & customization of the error"
            
-  specShow (tell [1], tell[1,2], tell[1,2,3])
-           ", \n\
+  specShow (tell ([] :: [()]), tell [1], tell[1,2], tell[1,2,3])
+           ", tell ([] :: [()]), tell [1], tell[1,2], tell[1,2,3]\n\
            \"
            "Pattern Matching tell function"
-
-  --tell [1]
-  --putStr $ show $ length "a"
-  --putStrLn $ show (length "a") 
-  putStrLn $ show $ length' "a"
-  putStrLn $ show $ length'' "a2b4c6"
-  putStrLn $ show $ length' ""
-  --putStrLn $ show $ length "abc" :: IO ()
-  --putStrLn $ show (length "a") -- does not work, if "- OverloadedStrings" is on 
-  --(tell [])
-
+  specShow ((length ("a" :: String)), (length' "ab"), (length'' "abc"))
+           ", length (\"a\" :: String), length' \"ab\", length'' \"abc\"\n"           
+           "different length funcs"
   specShow ('\0')
            ", \n"           
            "Test"
@@ -293,6 +285,7 @@ someFuncLib4 = do
            \"
            ""
 -}
+
 -- specShow --------------------------------
 specShow :: Show a => a -> String -> String -> IO ()
 specShow a b c = do
@@ -918,6 +911,7 @@ charName :: Char -> String
 charName 'a' = "Albert"  
 charName 'b' = "Broseph"  
 charName 'c' = "Cecil"
+charName '\NUL' = "Mr. Null"      -- same as '\0'
 -- lucky
 lucky :: (Integral a) => a -> String  
 lucky 7 = "LUCKY NUMBER SEVEN!"  
@@ -949,6 +943,9 @@ tell []       = "The list is empty"
 tell (x:[])   = "The list has one element: " ++ show x  
 tell (x:y:[]) = "The list has two elements: " ++ show x ++ " and " ++ show y  
 tell (x:y:_)  = "This list is long. The first two elements are: " ++ show x ++ " and " ++ show y  
+
+--tellVal :: [Char]
+tellVal = tell ([] :: [()])
 
 -- length - the original one
 --length           :: [a] -> Int
