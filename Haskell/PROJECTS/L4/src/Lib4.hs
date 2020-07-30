@@ -28,10 +28,12 @@ someFuncLib4 = do
   print (myAbs (-4))
   putStrLn ".......myAbs2 5 ..............." 
   print (myAbs2 5)
+  putStrLn "\n"
   putStrLn ".......simpliest func with Lambda syntaxis .........." 
   putStrLn "id :: a -> a    -- type singnature"
   putStrLn "id x = x        -- regular definition"
   putStrLn "id = \\x -> x    -- lambda syntaxis definition"  -- prints id = \x -> x
+  putStrLn "Anonimus function devinision, aka labmda-expression"  
   print $ id3 "xxx"                                 -- "xxx"
   print $ id3 5                                     -- 5  
   print $ id2 [1,2,4]                               -- [1,2,4]
@@ -45,6 +47,7 @@ someFuncLib4 = do
   print $ applyThree id3 11                   -- 11
   print $ applyThree add1 11                  -- 14
   print $ applyThree reverse "abc"            -- "cba"
+  putStrLn "\n"
   putStrLn "....... Algebraic Datatypes .........." 
   print c1    -- Car {company = "lexus", model = "RX350", year = 2014}
   print c2    -- Car {company = "lexus", model = "RX350", year = 2014}
@@ -59,6 +62,7 @@ someFuncLib4 = do
   print c3    -- Car {company = "lexus", model = "RX350", year = 2014}
   print c5    -- Car {company = "lexus", model = "RX350", year = 2014}
   print bDif2  -- c3 == c5 -- True
+  putStrLn "\n"
   putStrLn "----- Values, Functions and Types -----------"
   putStr $ show $ inc (square 5)    -- 26, a = inc (square 5)
   putStrLn ", inc (square 5)"
@@ -75,6 +79,7 @@ someFuncLib4 = do
   putStrLn ", max' 9 11"                    -- 11
   putStr $ show $ signum' (-11)                   
   putStrLn ", signum' (-11)"                -- 11
+  putStrLn "\n"
   putStrLn "-- Binders — Associating Names with Values or Functions"
   putStrLn "\n---------- Useful functions on lists ----------------"
   putStr $ show $ elem 3 lSample1                    
@@ -108,6 +113,7 @@ someFuncLib4 = do
   putStrLn ", take 24 [13, 26 .. ]" -- [13,26,39,52,65,78,91,104,117,130,143,156,169,182,195,208,221,234,247,260,273,286,299,312]
   putStr $ show $ take 13 (cycle "abcdE")
   putStrLn ", take 13 (cycle \"abcdE\")"                             -- "abcdEabcdEabc"
+  putStrLn "\n"
   putStrLn "\n---- List Comprehension and iterate ------"
   putStr $ show $ [x*2 | x <- [1 .. 10]]                 
   putStrLn ", [x*2 | x <- [1 .. 10]]"                                -- [2,4,6,8,10,12,14,16,18,20]
@@ -131,28 +137,31 @@ someFuncLib4 = do
   putStrLn ", take 12 (cycle \"LOL \")"                -- "LOL LOL LOL "
   putStr $ show $ take 10 (cycle [1,2,3])                    
   putStrLn ", take 10 (cycle [1,2,3])"                 -- [1,2,3,1,2,3,1,2,3,1]
+  putStrLn "\n"
   putStrLn "--- All numbers from 50 to 100 whose remainder when divided with the number 7 is 3"
   putStr $ show $ [ x | x <- [50..100], x `mod` 7 == 3]  -- [52,59,66,73,80,87,94]
   putStrLn ", [ x | x <- [50..100], x `mod` 7 == 3]"   -- [52,59,66,73,80,87,94]
+  putStrLn "\n"
   putStrLn " -- All numbers from 10 to 20 that are not 13, 15 or 19"
   putStr $ show $ [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]  
   putStrLn ", [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]"  -- [10,11,12,14,16,17,18,20]  
+  putStrLn "\n"
   putStrLn "----- All the possible combinations between numbers in two lists ------"
   putStr $ show $ [ x*y | x <- [2,5,10], y <- [8,10,11]]  
   putStrLn ", [ x*y | x <- [2,5,10], y <- [8,10,11]]"   -- [16,20,22,40,50,55,80,100,110] 
   putStrLn "\n --This function replaces every element of a list with 1 and then sums that up"
   putStr $ show $ length' "a2b4c6"
   putStrLn ", length' xs = sum [1 | _ <- xs],  length' \"a2b4c6\""    -- 6
-
+  putStrLn "\n"
   putStrLn "\n--Function that takes a string and removes everything except uppercase letters from it"
   putStr $ show $ removeNonUppercase "EveryThing is GooD!"
   putStrLn ", removeNonUppercase st = [ c | c <- st, c `elem` ['A'..'Z']],   \"EveryThing is GooD!\""
-
+  putStrLn "\n"
   putStrLn "\n-- Remove all odd numbers without flattening the list."
   putStrLn "xxs = [[1,3,5,2,3,1,2,4,5],[1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]]"  
   putStr $ show $ [ [ x | x <- xs, even x ] | xs <- xxs] 
   putStrLn ", [ [ x | x <- xs, even x ] | xs <- xxs]"     -- [[2,2,4],[2,4,6,8],[2,4,2,6,2,6]] 
-
+  putStrLn "\n"
   putStrLn "\n---- Error Customization ----"
   --putStr $ head' []       -- Prelude.head: empty list
                           --      CallStack (from HasCallStack):
@@ -241,10 +250,12 @@ someFuncLib4 = do
   putStrLn ", (minBound :: Int8)"  
   putStr $ show (maxBound :: Int32)    -- 2147483647
   putStrLn ", (maxBound :: Int32)"  
-  --putStrLn "\n------------- fromIntegral ---------------------" 
-  --putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
-  --putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
-  --putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
+{-  
+  putStrLn "\n------------- fromIntegral ---------------------" 
+  putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
+  putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
+  putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
+-}  
   specShow (fromIntegral (minBound :: Int16) + 3.2)
            ", fromIntegral (minBound :: Int16) + 3.2 \n\
            \But, (minBound :: Int16) + 3.2 -- compiler error"
@@ -262,23 +273,46 @@ someFuncLib4 = do
            "Pattern Matching in addVectors"
   specShow [a+b | (a,b) <- [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)]]
            ", [a+b | (a,b) <- [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)]]\n"
-           "Pattern Matching in List Comprehension"
-           
+           "Pattern Matching in List Comprehension"           
   specShow (({-head' [] :: Int-}), (head' "Hello"))
            ", ({-head' [] :: Int-}), (head' \"Hello\")\n\
            \N.B. head' on empty list commented, Exception"
-           "Pattern Matching & customization of the error"
-           
+           "Pattern Matching & customization of the error"           
   specShow (tell ([] :: [()]), tell [1], tell[1,2], tell[1,2,3])
-           ", tell ([] :: [()]), tell [1], tell[1,2], tell[1,2,3]\n\
-           \"
+           ", tell ([] :: [()]), tell [1], tell[1,2], tell[1,2,3]\n"
            "Pattern Matching tell function"
   specShow ((length ("a" :: String)), (length' "ab"), (length'' "abc"))
            ", length (\"a\" :: String), length' \"ab\", length'' \"abc\"\n"           
            "different length funcs"
+  specShow ((all (<10) [1,3,5,7,9]), (all even [2,4,6,8,10]), (all ( \x -> (x*x)/4 > 10) [5,10,15]))
+           ", (all (<10) [1,3,5,7,9]), (all even [2,4,6,8,10]), (all ( \\x -> (x*x)/4 > 10) [5,10,15])\n"           
+           "Functinon all "
+  specShow (calcBmis [(80, 1.8), (85, 1.9), (65, 1.64)])
+           ", calcBmis [(80, 1.8), (85, 1.9), (65, 1.64)]\n"
+           "calcBmis with guards"
+  specShow ([let square x = x * x in (square 5, square 3, square 2)])
+           ", [let square x = x * x in (square 5, square 3, square 2)]\n"          
+           "let <Bindings> in <Expression>"
+  specShow ((let a = 100; b = 200; c = 300 in a*b*c, let foo="Hey "; bar = "there!" in foo ++ bar))
+           ", (let a = 100; b = 200; c = 300 in a*b*c, let foo=\"Hey \"; bar = \"there!\" in foo ++ bar)\n"
+           "more let <Bindings> in <Expression>"
+  specShow ((let (a,b,c) = (1,2,3) in a+b+c) * 100)
+           ", (let (a,b,c) = (1,2,3) in a+b+c) * 100\n"
+           "more let <Bindings> in <Expression>"
+
+
   specShow ('\0')
-           ", \n"           
-           "Test"
+           ", \n\
+           \..."
+           "S"
+
+  specShow ('\0')
+           ", \n\
+           \..."
+           "S"
+
+
+  putStrLn $ show $ sum' []           
 {-
   specShow ()
            ", \n\
@@ -948,19 +982,303 @@ tell (x:y:_)  = "This list is long. The first two elements are: " ++ show x ++ "
 tellVal = tell ([] :: [()])
 
 -- length - the original one
---length           :: [a] -> Int
---length []        =  0
---length (_:l)     =  1 + length l
+----length       :: [a] -> Int  -- not anymore, it is Foldable
+--length       :: Foldable t => t a -> Int
+--length []    =  0
+--length (_:l) =  1 + length l
 
 -- length' ---
 --    This function replaces every element of a list with 1 and then sums that up
 length' :: [a] -> Int
 length' xs = sum [1 | _ <- xs]  
 
--- length''
+-- length''   -- recursive version 
 length'' :: (Num b) => [a] -> b  
 length'' [] = 0  
 length'' (_:xs) = 1 + length'' xs
+
+-- sum        -- recursive version
+sum' :: (Num a) => [a] -> a  
+sum' [] = 0  
+sum' (x:xs) = x + sum' xs 
+
+-- capital
+capital :: String -> String  
+capital "" = "Empty string, whoops!"  
+capital all@(x:xs) = "The first letter of " ++ all ++ " is " ++ [x]  
+
+-- all func
+--    returns True if all items in the list fulfill the condition
+bValAll  = all (<10) [1,3,5,7,9]               -- True
+bValAll2 = all even [2,4,6,8,10]               -- True
+bValAll3 = all (\x -> (x*x)/4 > 10) [5,10,15]  -- False
+
+-- @ -----
+{-
+someFunctio1 :: SomeType -> SomeType
+someFunctio1 leaf@(Leaf _ _ _) = Leaf   -- same thing
+someFunctio1 Nil = Leaf 0 0 0
+---
+someFunctio2 :: SomeType -> SomeType
+someFunctio2 (Leaf x y z) = Leaf x y z  -- same thing
+someFunctio2 Nil = Leaf 0 0 0
+----
+Besides the argument pattern matching usage described in the answer of @Sibi, 
+in Haskell the "at" character ('@', also known as an arobase character) can be used 
+in some contexts to force a typing decision. This is mentioned in the comments by @Josh.F.
+
+This is not part of the default language features, and is known as 
+the Type Application Haskell language extension. 
+In summary, the extension allows you to give explicit type arguments to a 
+polymorphic function such as read. In a classic .hs source file, 
+the relevant pragma must be included:
+
+{-#  LANGUAGE TypeApplications  #-}
+example:
+ λ> let x = (read @Integer "33")
+<interactive>:12:10: error:
+    Pattern syntax in expression context: read@Integer
+    Did you mean to enable TypeApplications?
+ λ> :set -XTypeApplications
+ λ>
+ λ> let x = (read @Integer "33")
+ λ>
+ λ> :t x
+ x :: Integer
+-}
+
+
+-- guards ------ see also signum
+-- max'' --
+max'' :: (Ord a) => a -> a -> a  
+max'' a b   
+    | a > b     = a  
+    | otherwise = b 
+--max'' a b | a > b = a | otherwise = b 
+
+-- myCompare --
+myCompare :: (Ord a) => a -> a -> Ordering  
+a `myCompare` b  
+    | a > b     = GT  
+    | a == b    = EQ  
+    | otherwise = LT 
+
+-- initials ---
+initials :: String -> String -> String  
+initials firstname lastname = [f] ++ ". " ++ [l] ++ "."  
+    where (f:_) = firstname  
+          (l:_) = lastname 
+
+-- bmiTell with gurds and where binding 
+bmiTell :: (RealFloat a) => a -> a -> String
+bmiTell weight height  
+    | bmi <= skinny = "You're underweight, you emo, you!"  
+    | bmi <= normal = "You're supposedly normal. Pffft, I bet you're ugly!"  
+    | bmi <= fat = "You're fat! Lose some weight, fatty!"  
+    | otherwise   = "You're a whale, congratulations!"  
+    where 
+      bmi = weight / height ^ 2 
+      --skinny = 18.5
+      --normal = 25.0
+      --fat    = 30.0
+      (skinny, normal, fat) = (18.5, 25.0, 30.0)   -- pattern match here
+
+-- calcBmis with guards and "where" binding --
+calcBmis :: (RealFloat a) => [(a, a)] -> [a]  
+calcBmis xs = [bmi w h | (w, h) <- xs]  
+    where bmi weight height = weight / height ^ 2
+-- "let" without "in". 
+--    here is a let inside a list comprehension much like we would a predicate, 
+--    only it doesn't filter the list, it only binds to names. 
+--    The names defined in a let inside a list comprehension are visible to 
+--    the output function (the part before the |) and all predicates and sections 
+--    that come after of the binding. 
+--    So we could make our function return only the BMIs of fat people
+calcBmis' :: (RealFloat a) => [(a, a)] -> [a]  
+calcBmis' xs = [bmi | (w, h) <- xs, let bmi = w / h ^ 2, bmi >= 25.0]
+
+-- cylinder with "let" binding (with "in") --
+cylinder :: (RealFloat a) => a -> a -> a
+cylinder r h = 
+    let sideArea = 2 * pi * r * h
+        topArea = pi * r ^2
+    in  sideArea + 2 * topArea
+
+-- "let-in" vs "if-else-then"
+resExp1 = 4 * (let a = 9 in a + 1) + 2
+resExp2 = 4 * (if 10 > 5 then 10 else 0) + 2  
+
+-- "let-in" and "where"
+--  The difference is that "let" bindings are expressions themselves. 
+--  "where" bindings are just syntactic constructs. Remember when we did the 
+--  if statement and it was explained that an if else statement is an expression and 
+--  you can cram it in almost anywhere?
+--  The form is "let <bindings> in <expression>"
+resExp3 = [let square x = x * x in (square 5, square 3, square 2)] 
+resExp4 = (let (a,b,c) = (1,2,3) in a+b+c) * 100
+
+-- case expressions --
+{-
+case expression of pattern -> result  
+                   pattern -> result  
+                   pattern -> result  
+                   ...  
+-}
+-- describe list
+describeList :: [a] -> String  
+describeList xs = "The list is " ++ case xs of []  -> "empty."
+                                               [_] -> "a singleton list."
+                                               xs  -> "a longer list."
+-- describe list, but without case-of
+describeList'    :: [a] -> String  
+describeList' xs = "The list is " ++ what xs  
+    where what []  = "empty."  
+          what [_] = "a singleton list."  
+          what xs  = "a longer list."
+
+-- describe list with guards
+describeList2      :: [a] -> String  
+describeList2 xs   = "The list is " ++ myList xs
+myList :: [a] -> String
+-- null :: Foldable t => t a -> Bool
+myList xs
+    | null          xs = "empty."
+    | null (drop 1 xs) = "a singleton list."
+    | otherwise        = "a longer list."
+
+-- describe list with guards
+describeList3    :: [a] -> String  
+describeList3 xs = "The list is " ++ what xs
+    where what xs 
+              | []   <- xs = "empty."
+              | [_]  <- xs = "a singleton list."
+              | otherwise  = "a longer list."
+
+
+-- describe list with guards
+{-
+describeList4    :: [a] -> String       - this one does not compile
+describeList4 xs = "The list is " ++ 
+              | [] <- xs = "empty." 
+              | [_] <- xs = "a singleton list." 
+              | otherwise = "a longer list."
+-}
+
+-- ==========================================
+-- 4 versions of myList 
+-- using case-of 
+myList1    :: [a] -> String
+myList1 xs = case xs of []  -> "empty"
+                        [_] -> "one"
+                        xs  -> "more"
+-- using guards and patters
+myList2 :: [a] -> String
+myList2 xs
+    | []  <- xs = "empty"
+    | [_] <- xs = "one"
+    | otherwise = "more"
+
+-- using null :: Foldable f => f a -> Bool and drop :: Int -> [a] -> [a]
+-- null :: Foldable t => t a -> Bool
+myList3 :: [a] -> String
+myList3 xs
+    | null          xs = "empty"
+    | null (drop 1 xs) = "one"
+    | otherwise        = "more"
+
+-- using where and patterns
+myList4 :: [a] -> String
+myList4 xs = what xs 
+  where what []  = "empty"
+        what [_] = "one"
+        what xs  = "more"
+
+-- anonimus function again (Lambda notation)
+--   But here's another way, where we pass the anonymous function into map 
+--   rather than any named function.
+addOneList     :: Num b => [b] -> [b]
+addOneList lst = map addOne' lst
+    where addOne' x = x + 1
+
+addOneList'    :: Num b => [b] -> [b]
+addOneList' lst = map (\x -> x + 1) lst
+
+--   For completeness it's worth mentioning that this could be better written using a section, 
+--   in pointfree style:
+
+addOneList'' :: [Integer] -> [Integer]
+addOneList'' =  map (+1)
+
+
+
+-- =============================
+-- https://www.futurelearn.com/courses/functional-programming-haskell/0/steps/27226
+-- © University of Glasgow 
+{- guards notation
+f x
+  | predicate1 = expression1
+  | predicate2 = expression2
+  | predicate3 = expression3
+-}
+--example without guards
+absolute1 x = if (x<0) then (-x) else x
+--example with guards
+absolute2 x
+  | x<0 = -x
+  | otherwise = x
+---------  
+data Pet = Cat | Dog | Fish | Parrot String | Lizard | Bird | Hamster
+hello :: Pet -> String
+hello x = 
+  case x of
+    Cat         -> "meeow"
+    Dog         -> "woof"
+    Fish        -> "bubble"
+    Parrot name -> "pretty " ++ name
+    Lizard      -> "psss"
+    _           -> "grunt"            -- this is catch-all pattern
+
+-- N.B. begin - investigate this code later 
+{-
+-- pattern guard from wiki
+--    https://wiki.haskell.org/Pattern_guard
+lookup :: FiniteMap -> Int -> Maybe Int
+addLookup env var1 var2
+   | Just val1 <- lookup env var1
+   , Just val2 <- lookup env var2
+   = val1 + val2
+{-...other equations...-}
+-}
+
+{-
+-- replacing case-of with guards ---
+firstFunction  :: String -> Maybe MyType
+secondFunction :: MyType -> Integer
+myFunction     :: String -> Maybe Integer
+myFunction xs = case firstFunction xs of
+    Nothing -> Nothing
+    Just x  -> Just( secondFunction x )
+-- 
+myFunction1    :: String -> Maybe Integer
+myFunction1 xs | Just x <- firstFunction xs = Just (secondFunction x)
+               | otherwise = Nothing
+
+-- fmap
+myFunction2    :: String -> Maybe Integer
+myFunction2 xs = fmap secondFunction (firstFunction xs)
+
+-- fmap
+fmap :: Functor f => (a -> b) -> f a -> f b  -- is used to "map" over a functor
+instance Functor Maybe  where
+    fmap _ Nothing = Nothing
+    fmap f (Just a) = Just (f a)
+-}
+-- N.B. end - investigate this code later 
+
+
+
+
+
 
 
 
