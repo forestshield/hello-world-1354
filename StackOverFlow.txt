@@ -1,0 +1,225 @@
+=====================================================
+Stack OverFlow questions by Al Yusupov (Forestshield)
+https://stackoverflow.com/
+
+====================================
+#1. July 29, 20       Solved by Willem Van Onsem
+====================================
+Function length “a” does not compile, if OverloadedStrings extension is enabled
+---
+If "{-# LANGUAGE OverloadedStrings #-}" is included at the top of the source file, 
+or in package.yaml (I am using stack), then
+
+length "a"  -- does not compile anymore.
+However the custom function length' is working fine
+
+length' :: [a] -> Int 
+length' xs = sum [1 | _ <- xs] 
+The package Data.String is imported - I think the problem is there, but, 
+I am interested to see, if somebody had similar problem.
+
+Stack and GHC versions: Version 2.3.1, Git revision x86_64 hpack-0.33.0, ghc-8.8.3
+
+I am using mac osx, but the same error is in Linux and windows too.
+
+This is an error produced by stack:
+/Users/admin1/Haskell/PROJECTS/orig1/src/Lib.hs:13:29: error:
+    • Ambiguous type variables ‘t0’,
+                               ‘a0’ arising from the literal ‘"a"’
+      prevents the constraint ‘(IsString (t0 a0))’ from being solved.
+      Probable fix: use a type annotation to specify what ‘t0’,
+                                                          ‘a0’ should be.
+      These potential instances exist:
+        instance (a ~ Char) => IsString [a] -- Defined in ‘Data.String’
+        ...plus two instances involving out-of-scope types
+        (use -fprint-potential-instances to see them all)
+    • In the first argument of ‘length’, namely ‘"a"’
+      In the first argument of ‘show’, namely ‘(length "a")’
+      In the second argument of ‘($)’, namely ‘show (length "a")’
+   |
+13 |     putStrLn $ show (length "a")  -- does not work, if "- OverloadedStrings" i
+----------------------------------------------------------------------------
+Answer. 
+This is because length has a signature length :: Foldable f => f a -> Int, 
+so it can be any Foldable type. If you use the OverloadedStrings extension, 
+then "foo" is no longer a String, it can be any type IsString a => a, 
+and multiple fo these can be Foldable f => f as as well.
+
+What you can do is give the compiler a type hint, for example with:
+
+length ("a" :: String)
+
+====================================
+#2. July 29, 20       Solved by dfeuer
+====================================
+Haskell. Matching pattern Problem. 
+Cannot put in IO value of function with empty list “print $ note1 []” - failing to compile
+---
+Haskell. Matching pattern Problem. Cannot put in IO value of function with empty list
+
+print $ note1 []
+failing to compile, but works fine in ghci ?! Also the print $ note1 [1] works fine and compiles fine too. The problem only with empty list:
+
+print $ note1 []
+(N.B. I am new in Haskell) I have a matching pattern function
+
+note1          :: (Show a) => [a] -> String
+note1 []       = "Empty"
+note1 (x:[])   = "One"
+But print $ note1 [] fails to compile, but perfectly works in ghci interpreter?!
+
+I am using stack 2.3.1 and ghc 8.8.3 on MacOS.
+
+This is the compilation error produced by compiler.
+
+    /Users/admin1/Haskell/PROJECTS/orig1/src/Lib.hs:18:13: error:
+    • Ambiguous type variable ‘a0’ arising from a use of ‘note1’
+      prevents the constraint ‘(Show a0)’ from being solved.
+      Probable fix: use a type annotation to specify what ‘a0’ should be.
+      These potential instances exist:
+        instance Show Ordering -- Defined in ‘GHC.Show’
+        instance Show Integer -- Defined in ‘GHC.Show’
+        instance Show a => Show (Maybe a) -- Defined in ‘GHC.Show’
+        ...plus 22 others
+        ...plus 15 instances involving out-of-scope types
+        (use -fprint-potential-instances to see them all)
+    • In the second argument of ‘($)’, namely ‘note1 []’
+      In a stmt of a 'do' block: print $ note1 []
+      In the expression:
+        do putStrLn "someFunc"
+           putStrLn $ show (1)
+           putStrLn $ show $ length ("a" :: String)
+           putStrLn $ show (length' "a")
+           ....   |
+18 |     print $ note1 []
+-----------------------------------------------------------------------------------
+Answer by dfeuer
+------
+The problem is the (unnecessary, in this case) Show a constraint on note1. 
+Here's what happens. When GHC is typechecking print $ note1 [], it needs to work out 
+which Show instance to use with note1. That's typically inferred from the type of elements 
+in the list that it's passed. But the list it's passed ... doesn't have any elements. 
+So the typechecker has no particular way to choose an instance, and just gives up. 
+The reason this works in GHCi is that GHCi, by default, enables the ExtendedDefaultRules 
+language extension, which expands the type defaulting rules. So instead of throwing 
+up its hands, the type checker picks the type () for elements of the list, 
+and everything works. Something sort of similar is going on when you use [1]. 
+In that case, the standard defaulting rule comes into play: numeric types default 
+to Integer, so the typechecker picks that type.
+
+How should you fix this? You could manually write
+
+print $ note1 ([] :: [()])
+to make your code compile, but if that's your real code, you'd be much 
+better off removing the unnecessary constraint:
+
+note1          :: [a] -> String
+note1 []       = "Empty"
+note1 (x:[])   = "One"
+As a side note, since you don't use the x variable, it's best to make that fact explicit 
+by either using the special _ pattern:
+
+note1          :: [a] -> String
+note1 []       = "Empty"
+note1 (_:[])   = "One"
+or prefixing the variable name with an underscore:
+
+note1          :: [a] -> String
+note1 []       = "Empty"
+note1 (_x:[])   = "One"
+This indicates, both to other programmers (such as yourself a few hours later) and 
+the compiler, that you are intentionally not using that value.
+
+Additionally, you can (and probably should) use list syntax to clarify the second pattern:
+
+note1 [_] = "One"
+Finally, the note1 function has a bit of a problem: if you pass it a list with 
+more than one element, it'll produce a pattern match failure. Whoops! 
+It's usually better to write total functions when you can. When you can't, 
+it's generally best to use an explicit error call to indicate what went wrong. 
+I recommend compiling your code with the -Wall flag to help catch mistakes.
+
+====================================
+#3. July 30, 20         Solved by Willem Van Onsem
+====================================
+How to replace case-of or matching pattern with guards in Haskell?
+---
+I am trying (as a part of learning) replace case-of expression with expression with guards. 
+This is a function with case-of
+
+myList :: [a] -> String
+myList xs = case xs of []  -> "empty"
+                       [x] -> "one"
+                       xs  -> "more"
+I've managed to write a function with where and matching pattern
+
+myList' :: [a] -> String
+myList' xs = someF xs 
+where someF []  = "empty"
+      someF [x] = "one"
+      someF xs  = "more"
+However, I could not make another function myList'' which is using guards (|). 
+I am new in Haskell, and would much appreciate if somebody can help me with this problem. 
+Thank you in advance. Al
+---------------------------------------------------------------------------------
+Answer.
+You can make use of pattern guards, for example:
+
+myList'' :: [a] -> String
+myList'' xs
+    | [] <- xs = "empty"
+    | [_] <- xs = "one"
+    | otherwise = "more"
+
+Or you can make use of 
+    null :: Foldable f => f a -> Bool 
+and 
+    drop :: Int -> [a] -> [a] to check if the list is empty:
+
+myList'' :: [a] -> String
+myList'' xs
+    | null xs = "empty"
+    | null (drop 1 xs) = "one"
+    | otherwise = "more"
+
+
+====================================
+#4. July 30, 20
+====================================
+4 versions of same function. Can somebody add more versions using different approaches?
+---
+I did a couple of versions same function using case-of and where with patterns. 
+Willem Van Onsem added 1 more version and fix a bug in "guard" version. Many thanks to him.
+Can somebody add more versions using different approaches?
+Thank you in advance.
+  Al 
+
+    -- 4 versions of myList 
+    -- using case-of 
+    myList1    :: [a] -> String
+    myList1 xs = case xs of []  -> "empty"
+                            [x] -> "one"
+                            xs  -> "more"
+
+    -- using guards and patters
+    -- error here was fixed by Willem Van Onsem
+    myList2 :: [a] -> String
+    myList2 xs
+        | []  <- xs = "empty"
+        | [_] <- xs = "one"
+        | otherwise = "more"
+
+    -- using null :: Foldable f => f a -> Bool and drop :: Int -> [a] -> [a]
+    -- by Willem Van Onsem
+    myList3 :: [a] -> String
+    myList3 xs
+        | null          xs = "empty"
+        | null (drop 1 xs) = "one"
+        | otherwise        = "more"
+
+    -- using where and patterns
+    myList4 :: [a] -> String
+    myList4 xs = what xs 
+        where what []  = "empty"
+              what [x] = "one"
+              what xs  = "more"
