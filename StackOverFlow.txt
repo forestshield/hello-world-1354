@@ -186,10 +186,15 @@ myList'' xs
 ====================================
 #4. July 30, 20
 ====================================
-4 versions of same function. Can somebody add more versions using different approaches?
+Below are 4 functions with the same functionality, but different implementations. 
+Can somebody suggest more different approaches?
 ---
-I did a couple of versions same function using case-of and where with patterns. 
-Willem Van Onsem added 1 more version and fix a bug in "guard" version. Many thanks to him.
+There are 4 Functions with identical functionality, but 4 Different Implementations 
+based on different approaches, like "using guards", "using inline function and "where", 
+using "case-of" expression, and using "null :: Foldable f => f a -> Bool" and guards.
+I did a couple of versions the same BY FUNCTIONALITY function using case-of and where with 
+patterns. Willem Van Onsem added 1 more version and fix a bug in "guard" version. 
+Many thanks to him.
 Can somebody add more versions using different approaches?
 Thank you in advance.
   Al 
@@ -223,3 +228,36 @@ Thank you in advance.
         where what []  = "empty"
               what [x] = "one"
               what xs  = "more"
+--------------------------------------------------------------------------
+Answer. leftaroundabout
+{-# LANGUAGE TemplateHaskell #-}
+
+module MyListGenerator where
+
+import Language.Haskell.TH
+
+myListGenerator :: Int -> Q [Dec]
+myListGenerator nTot = pure <$> go nTot (mkName "myList")
+ where go 0 myName = return $ FunD myName
+         [ Clause [ListP []] (NormalB . LitE $ StringL "empty") []
+         , Clause [ListP [WildP]] (NormalB . LitE $ StringL "one") []
+         , Clause [WildP] (NormalB . LitE $ StringL "more") []
+         ]
+       go n myName = do
+         myArg <- newName "xs"
+         locFunName <- newName "what"
+         locDecl <- go (n-1) locFunName
+         return $ FunD myName
+           [ Clause [VarP myArg]
+                    (NormalB $ AppE (VarE locFunName) (VarE myArg))
+                    [locDecl]
+           ]
+Example use:
+
+{-# LANGUAGE TemplateHaskell #-}
+
+import MyListGenerator
+
+myListGenerator 37
+
+main = print $ myList "bla"
