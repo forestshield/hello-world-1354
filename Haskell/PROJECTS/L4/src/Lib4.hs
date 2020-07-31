@@ -299,7 +299,30 @@ someFuncLib4 = do
   specShow ((let (a,b,c) = (1,2,3) in a+b+c) * 100)
            ", (let (a,b,c) = (1,2,3) in a+b+c) * 100\n"
            "more let <Bindings> in <Expression>"
-
+  specShow ((quicksort [10,2,4,4,8,9]), 
+            (quicksort "the quick brown fox jumps over the lazy dog"), 
+            (quicksort [(10,2,5),(3,1,6),(-99,4,2), (3,4.0,8)]), 
+            (quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9]))
+           "\nquicksort [10,2,4,4,8,9]\nquicksort \"the quick brown fox jumps over the lazy dog\"\n\
+           \quicksort [(10,2,5),(3,1,6),(-99,4,2), (3,4.0,8)]\n\
+           \quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9]"
+           "Recursions"
+  specShow ((multThree 3 5 9), ( ((multThree 3) 5) 9) )
+           ",  (multThree 3 5 9), (((multThree 3) 5) 9)\n\
+           \multThree :: (Num a) => a -> a -> a -> a == multThree :: (Num a) => a -> (a -> (a -> a))"
+           "curry"
+  specShow (multTwoWithNine 2 3)
+           ", (multTwoWithNine 2 3), where (multTwoWithNine = multThree 9)\n\
+           \and (multThree x y z) -- should be 3 parameters "
+           "curry, using function with too few parameters\n\
+           \---------------- or partialy applyed function"
+  specShow ((compare 10 9), ((compare 10) 9))
+           ", compare 10 9, (compare 10) 9\n"
+           "curry, using function with too few parameters\n\
+           \---------------- or partialy applyed function"
+  specShow ((200 / 10), (divideByTen 200), ((/10) 200))
+           ", \"200 / 10\" == \"divideByTen 200\" == \"(/10) 200\"\n"
+           "partialy applyed infix function"
 
   specShow ('\0')
            ", \n\
@@ -310,7 +333,6 @@ someFuncLib4 = do
            ", \n\
            \..."
            "S"
-
 
   putStrLn $ show $ sum' []           
 {-
@@ -486,6 +508,7 @@ sbB3    = Branch "Branch3"
 --SBTree :: SBTree -> sbt SBTree
 -------------------------------
 {-
+
 {-
 -- data Point
 data Point  = Point Int Int deriving (Eq, Show, Read)
@@ -495,6 +518,7 @@ addPoint          :: (Point, Point) -> Point
 --addPoint (p1, p2) = p1 + p2 
 --(+) :: Point -> Point -> Point
 -}
+
 {-
 data Point      = Pt Float Float
 pointx          :: Point -> Float
@@ -1014,39 +1038,6 @@ bValAll2 = all even [2,4,6,8,10]               -- True
 bValAll3 = all (\x -> (x*x)/4 > 10) [5,10,15]  -- False
 
 -- @ -----
-{-
-someFunctio1 :: SomeType -> SomeType
-someFunctio1 leaf@(Leaf _ _ _) = Leaf   -- same thing
-someFunctio1 Nil = Leaf 0 0 0
----
-someFunctio2 :: SomeType -> SomeType
-someFunctio2 (Leaf x y z) = Leaf x y z  -- same thing
-someFunctio2 Nil = Leaf 0 0 0
-----
-Besides the argument pattern matching usage described in the answer of @Sibi, 
-in Haskell the "at" character ('@', also known as an arobase character) can be used 
-in some contexts to force a typing decision. This is mentioned in the comments by @Josh.F.
-
-This is not part of the default language features, and is known as 
-the Type Application Haskell language extension. 
-In summary, the extension allows you to give explicit type arguments to a 
-polymorphic function such as read. In a classic .hs source file, 
-the relevant pragma must be included:
-
-{-#  LANGUAGE TypeApplications  #-}
-example:
- λ> let x = (read @Integer "33")
-<interactive>:12:10: error:
-    Pattern syntax in expression context: read@Integer
-    Did you mean to enable TypeApplications?
- λ> :set -XTypeApplications
- λ>
- λ> let x = (read @Integer "33")
- λ>
- λ> :t x
- x :: Integer
--}
-
 
 -- guards ------ see also signum
 -- max'' --
@@ -1154,7 +1145,6 @@ describeList3 xs = "The list is " ++ what xs
               | [_]  <- xs = "a singleton list."
               | otherwise  = "a longer list."
 
-
 -- describe list with guards
 {-
 describeList4    :: [a] -> String       - this one does not compile
@@ -1210,8 +1200,6 @@ addOneList'' :: [Integer] -> [Integer]
 addOneList'' =  map (+1)
 
 
-
--- =============================
 -- https://www.futurelearn.com/courses/functional-programming-haskell/0/steps/27226
 -- © University of Glasgow 
 {- guards notation
@@ -1221,11 +1209,13 @@ f x
   | predicate3 = expression3
 -}
 --example without guards
-absolute1 x = if (x<0) then (-x) else x
+absolute1 x = if (x < 0) then (negate x) else x
+
 --example with guards
-absolute2 x
+absolute2 x 
   | x<0 = -x
   | otherwise = x
+
 ---------  
 data Pet = Cat | Dog | Fish | Parrot String | Lizard | Bird | Hamster
 hello :: Pet -> String
@@ -1239,17 +1229,6 @@ hello x =
     _           -> "grunt"            -- this is catch-all pattern
 
 -- N.B. begin - investigate this code later 
-{-
--- pattern guard from wiki
---    https://wiki.haskell.org/Pattern_guard
-lookup :: FiniteMap -> Int -> Maybe Int
-addLookup env var1 var2
-   | Just val1 <- lookup env var1
-   , Just val2 <- lookup env var2
-   = val1 + val2
-{-...other equations...-}
--}
-
 {-
 -- replacing case-of with guards ---
 firstFunction  :: String -> Maybe MyType
@@ -1273,17 +1252,6 @@ instance Functor Maybe  where
     fmap _ Nothing = Nothing
     fmap f (Just a) = Just (f a)
 -}
--- N.B. end - investigate this code later 
-
-
-
-
-
-
-
-
-
-
 
 {-
 -- division
@@ -1304,9 +1272,7 @@ divide a b | a > b  = 0
 allMult a b | a * n < b  -- continue increasing n
             | a * n == b = n 
             | a * n > b -- stop cycle
--}
 
-{-
 --allMultiples :: [Int, Int] -> [Int]
 --allMultiples [a, b] = where
 
@@ -1316,4 +1282,174 @@ allMult a b | a * n < b  -- continue increasing n
 --a = 9
 --x = take 10 (iterate (a*)1) 
 -}
+
+{-
+----- @ --------------
+someFunctio1 :: SomeType -> SomeType
+someFunctio1 leaf@(Leaf _ _ _) = Leaf   -- same thing
+someFunctio1 Nil = Leaf 0 0 0
+---
+someFunctio2 :: SomeType -> SomeType
+someFunctio2 (Leaf x y z) = Leaf x y z  -- same thing
+someFunctio2 Nil = Leaf 0 0 0
+----
+Besides the argument pattern matching usage described in the answer of @Sibi, 
+in Haskell the "at" character ('@', also known as an arobase character) can be used 
+in some contexts to force a typing decision. This is mentioned in the comments by @Josh.F.
+
+This is not part of the default language features, and is known as 
+the Type Application Haskell language extension. 
+In summary, the extension allows you to give explicit type arguments to a 
+polymorphic function such as read. In a classic .hs source file, 
+the relevant pragma must be included:
+
+-- {-#  LANGUAGE TypeApplications  #-}
+example:
+ λ> let x = (read @Integer "33")
+<interactive>:12:10: error:
+    Pattern syntax in expression context: read@Integer
+    Did you mean to enable TypeApplications?
+ λ> :set -XTypeApplications
+ λ>
+ λ> let x = (read @Integer "33")
+ λ>
+ λ> :t x
+ x :: Integer
+-}
+
+
+
+-- Recursion ---------
+xsMax1 = [(1,3),(4,3),(2,4),(6,2),(5,3),(5,6),(3,1),(6,1)]
+xsMax2 = [1,3,4,3,2,4,5,3,5,6,3,1,6,1]
+xsMax3 = "AbXdeF90zY"
+xsMax4 = ["aBc","zY2","zz","zz2","abc","0","zza"]
+xsMax5 = [("aBc","zY2"), ("zza","zz2"),("abc", "0"), ("zza", "zzz")]
+
+-- maximum' --------
+maximum' :: (Ord a) => [a] -> a  
+maximum' [] = error "maximum of empty list"  
+maximum' [x] = x  
+maximum' (x:xs)   
+    | x > maxTail = x  
+    | otherwise = maxTail  
+    where 
+      maxTail = maximum' xs 
+      
+-- maximum'' --------
+maximum'' :: (Ord a) => [a] -> a  
+maximum'' [] = error "maximum of empty list"  
+maximum'' [x] = x  
+maximum'' (x:xs) = max x (maximum' xs)
+
+-- replicate' -------
+--    Note: Num is not a subclass of Ord. That means that what constitutes for a number 
+--    doesn't really have to adhere to an ordering. So that's why we have to specify both 
+--    the Num and Ord class constraints when doing addition or subtraction and also comparison.
+replicate' :: (Num i, Ord i) => i -> a -> [a]  
+replicate' n x  
+    | n <= 0    = []  
+    | otherwise = x:replicate' (n-1) x
+
+-- take' ----------
+take' :: (Num i, Ord i) => i -> [a] -> [a]  
+take' n _  
+    | n <= 0   = []  
+take' _ []     = []  
+take' n (x:xs) = x : take' (n-1) xs
+
+-- drop' ----------
+drop'                   :: Int -> [a] -> [a]  
+drop' n xs     | n <= 0 =  xs  
+drop' _ []              =  []  
+drop' n (_:xs)          =  drop (n-1) xs
+
+-- splitAt' --------
+splitAt'                :: Int -> [a] -> ([a],[a])  
+splitAt' n xs           =  (take' n xs, drop' n xs)    
+
+-- reverse' --------
+reverse' :: [a] -> [a]  
+reverse' [] = []  
+reverse' (x:xs) = reverse' xs ++ [x]
+
+-- repeat' ---------
+repeat' :: a -> [a]  
+repeat' x = x:repeat' x
+
+-- zip' ------------
+zip' :: [a] -> [b] -> [(a,b)]  
+zip' _ [] = []  
+zip' [] _ = []  
+zip' (x:xs) (y:ys) = (x,y):zip' xs ys
+
+-- elem' -----------
+elem' :: (Eq a) => a -> [a] -> Bool  
+elem' a [] = False  
+elem' a (x:xs)  
+    | a == x    = True  
+    | otherwise = a `elem'` xs
+
+-- quicksort -------------------
+quicksort :: (Ord a) => [a] -> [a]  
+quicksort [] = []  
+quicksort (x:xs) =   
+    let smallerSorted = quicksort [a | a <- xs, a <= x]  
+        biggerSorted = quicksort [a | a <- xs, a > x]  
+    in  smallerSorted ++ [x] ++ biggerSorted
+
+-- quicksort [10,2,5,3,1,6,7,4,2,3,4,8,9] -- [1,2,2,3,3,4,4,5,6,7,8,9,10]
+-- quicksort "the quick brown fox jumps over the lazy dog" -- "        abcdeeefghhijklmnoooopqrrsttuuvwxyz"
+-- quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9] -- [-99.0,1.0,2.0,2.0,3.0,3.0,4.0,4.0,5.0,6.0,8.0,9.0,10.0]
+-- quicksort [(10,2,5),(3,1,6),(-99,4,2), (3,4.0,8)] -- [(-99,4.0,2),(3,1.0,6),(3,4.0,8),(10,2.0,5)]
+
+-- curried functions ----------
+resCur1 = max 4 5 
+resCur2 = (max 4) 5
+
+-- max :: (Ord a) => a -> a -> a
+
+-- max :: (Ord a) => a -> (a -> a)
+-- max takes an a and returns (that's the ->) a function that takes an a and returns an a
+
+--multThree       :: (Num a) => a -> a -> a -> a
+--multThree       :: (Num a) => a -> (a -> a -> a)
+multThree       :: (Num a) => a -> (a -> (a -> a))  
+multThree x y z = x * y * z
+resCur3 = multThree 3 5 9       -- 135
+resCur4 = ((multThree 3) 5) 9   -- 135
+-- First, 3 is applied to multThree, because they're separated by a space. 
+-- That creates a function that takes one parameter and returns a function. 
+-- So then 5 is applied to that, which creates a function that will take a parameter 
+-- and multiply it by 15. 9 is applied to that function and the result is 135
+
+-- curry, using function with too few parameters, or partialy applyed function
+-- By calling functions with too few parameters, we're creating new functions on the fly.
+--multTwoWithNine :: Integer -> Integer -> Integer
+multTwoWithNine :: (Num a) => a -> a -> a
+multTwoWithNine = multThree 9   -- here is only 1 paremeter, but should be 3 parameters
+resCur5 = multTwoWithNine 2 3   -- 54 (all together 3 parameters)
+
+-- curry, using function with too few parameters, or partialy applyed function
+-- another example of using function with less then expected parameters
+compareWithHundred :: (Num a, Ord a) => a -> Ordering  
+compareWithHundred x = compare 100 x      -- this is a regular implementaion
+---
+compareWithHundred' :: (Num a, Ord a) => a -> Ordering
+compareWithHundred' = compare 100         -- this one is with fewer parameters
+-- about compare
+-- it has a type  "compare :: (Ord a) => a -> a -> Ordering", and calling it with 100,
+-- returns a "(Num a, Ord a) => a -> Ordering"
+-- "compare 10 9" == "(compare 10) 9"
+
+-- Infix functions can also be partially applied by using sections. 
+-- To section an infix function, simply surround it with parentheses and 
+-- only supply a parameter on one side. That creates a function that takes 
+-- one parameter and then applies it to the side that's missing an operand
+divideByTen :: (Floating a) => a -> a  
+divideByTen = (/10) 
+-- "200 / 10" == "divideByTen 200" == "(/10) 200"
+
+
+
 
