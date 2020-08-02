@@ -7,6 +7,8 @@ import Data.String
 import Data.Int
 --import GHC.Int
 --import data-easy
+import Data.Char (toUpper)
+import Control.Monad 
 
 someFuncLib4 :: IO ()
 someFuncLib4 = do
@@ -337,11 +339,12 @@ someFuncLib4 = do
            ", \nzipWith' (+) [1,2,3] [8,9,0] \nzipWith' (\\x y -> 2*x + y) [1..4] [5..8]\n\
            \nzipWith' (/) [8,9,9] [1,2,3] \nzipWith' (**) (replicate 10 5) [1..10]"
            "zipWith' using a lambda notation in a second example"
-         
-  specShow ((), () )          
-           "\n\ 
-           \"
-           ""
+  specShow ((gcd 12 8), (gcd 12 (gcd 16 8)) )          
+           ", (gcd 12 8) (gcd 12 (gcd 16 8))\n"
+           "gcd greates common divisor"
+  specShow ((flip (/) 1 2), (flip (>) 3 5), (flip mod 3 6))
+           ", flip (/) 1 2), flip (>) 3 5), flip mod 3 6\n"           
+           "flip"
 
 
   specShow ('\0')
@@ -349,6 +352,10 @@ someFuncLib4 = do
            \..."
            "S"
   
+  specShow ('\0')
+           ", \n\
+           \..."
+           "S"
 
   putStrLn $ show $ sum' []           
 {-
@@ -1494,5 +1501,82 @@ lmResVal1 = (\x y -> 2*x + y) 4 5
 lmResVal2 x y = 2*x + y             -- it is a function already
 lmResVal3 = (+) . (2 * )
 
---- ======================== monads ===========================
+--- ======================== monads, AKA computation builders ===========================
+--  https://stackoverflow.com/questions/44965/what-is-a-monad
 
+-- example 1. List comprehension
+ -- list Comprehension
+resMod1 = [x*2 | x<-[1..10], odd x]
+-- do
+resMod2 = do 
+            x <- [1..10] 
+            guard (odd x)          
+            return (x * 2)
+-- >>=
+resMod3 = [1..10] >>= (\x -> guard (odd x) >> return (x*2))
+
+---
+
+
+-- example 2. Input/Output
+resMod4 = do
+            putStrLn "What is your name?"
+            name <- getLine
+            putStrLn ("Welcome, " ++ name ++ "!")
+
+-- example 3. A parser
+{-
+parseExpr = parseString <|> parseNumber
+parseString = do
+        char '"'
+        x <- many (noneOf "\"")
+        char '"'
+        return (StringValue x)
+parseNumber = do
+    num <- many1 digit
+    return (NumberValue (read num))
+-}
+
+-- =================== List comprehension and List Monad ===========================
+-- https://wiki.haskell.org/List_comprehension
+resVal99 = [toUpper c | c <- (s :: String)]
+    where 
+      --s :: String
+      s = "Hello"                   -- "HELLO"
+resVal98 = [(i,j) | i <- [1,2], 
+                    j <- [1..4] ]   -- [(1,1),(1,2),(1,3),(1,4),(2,1),(2,2),(2,3),(2,4)]
+resVal97 = take 10 [ (i,j) | i <- [1,2], 
+                             j <- [1..] ] -- [(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10)]
+resVal96 = take 5 [ [ (i,j) | i <- [1,2] ] | j <- [1..] ]
+                            -- [[(1,1),(2,1)], [(1,2),(2,2)], [(1,3),(2,3)], [(1,4),(2,4)], [(1,5),(2,5)]]
+-- boolean guard
+resVal95 = take 10 [ (i,j) | i <- [1..], 
+                             j <- [1..i-1], 
+                             gcd i j == 1 ]
+                            -- [(2,1),(3,1),(3,2),(4,1),(4,3),(5,1),(5,2),(5,3),(5,4),(6,1)]
+-- gcd - greatest common divisor (наибольший общий делитель)
+-- gcd :: Integral a => a -> a -> a
+resVal94 = gcd 12 8        -- 4
+
+
+-- Intermission:  Syntctic Sugar --------
+-- x `elem` xs      is sugar for    elem x xs 
+-- `elem` xs        is sugar for    flip elem xs 
+-- [1, 2, 3]        is sugar for    (1:2:3:[])
+-- do x <- f; g x   is sugar for    f >>= (\x -> g x)
+
+-- flip - it evaluates the function flipping the order of arguments
+--flip :: (a -> b -> c) -> b -> a -> c
+resVal93 = flip (/) 1 2    -- 2
+resVal92 = flip (>) 3 5    -- True
+resVal91 = flip mod 3 6    -- 0
+
+
+
+
+
+--resVal9 = do c <- s
+--             return (toUpper c)
+--resVal9 = do i <- [1,2]
+--              j <- [1..4]
+--            return (i,j)  
