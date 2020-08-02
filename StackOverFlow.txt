@@ -261,3 +261,34 @@ import MyListGenerator
 myListGenerator 37
 
 main = print $ myList "bla"
+
+====================================
+#5. August 1, 20
+====================================
+Lambda notation function signature does not compile in ghc, but OK in interpreter (ghci)
+--------
+Lambda notation function signature does not compile in ghc, but OK in interpreter (ghci) I am using stack on mac osx. ghc version is 8.8.3
+
+\x y -> 2*x + y :: Num a => a -> a -> a 
+valNum1 = \x y -> 2*x + y 
+
+------------------------------------
+Answer. by Willem Van Onsem
+
+The problem is that you define a signature for the lambda expression, 
+but this lambda expression is an expression, not a declaration. 
+If you want to specify the signature, then you specify this as the signature 
+of valNum1:
+
+---
+valNum1 :: Num a => a -> a -> a
+valNum1 = \x y -> 2*x + y
+It is however more convenient to specify the variables in the head of valNum1:
+
+---
+valNum1 :: Num a => a -> a -> a
+valNum1 x y = 2*x + y
+or you can write this as a point-free variant:
+---
+valNum1 :: Num a => a -> a -> a
+valNum1 = (+) . (2 *)
