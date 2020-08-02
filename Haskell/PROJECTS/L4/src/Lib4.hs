@@ -345,13 +345,23 @@ someFuncLib4 = do
   specShow ((flip (/) 1 2), (flip (>) 3 5), (flip mod 3 6))
            ", flip (/) 1 2), flip (>) 3 5), flip mod 3 6\n"           
            "flip"
-
-
+  specShow ((gcd'' 12 36 96), 
+            (gcd' 12 $ gcd' 36 96), 
+            (gcd' (gcd' 12 36) 96), 
+            (gcd' (gcd' 12 96) 36))
+           ",\n(gcd'' 12 36 96)\n(gcd' 12 $ gcd' 36 96)\n(gcd' (gcd' 12 36) 96)\n\
+           \(gcd' (gcd' 12 96) 36)\n"
+           "gcd'' 13 36 96  -- gcd'' with 3 agruments"
+  specShow ( (5 `elem` [1,5,6]), (elem 5 [1,5,6]), 
+             ([1, 2, 3]), (1:2:3:[]) )
+           ", \n(5 `elem` [1,5,6]), sugar for  (elem 5 [1,5,6])\n\
+           \[1, 2, 3]), sugar for  (1:2:3:[])\n"            
+           "Syntactic Sugar"
+           
   specShow ('\0')
            ", \n\
            \..."
            "S"
-  
   specShow ('\0')
            ", \n\
            \..."
@@ -1554,16 +1564,48 @@ resVal95 = take 10 [ (i,j) | i <- [1..],
                              j <- [1..i-1], 
                              gcd i j == 1 ]
                             -- [(2,1),(3,1),(3,2),(4,1),(4,3),(5,1),(5,2),(5,3),(5,4),(6,1)]
+
+-- Intermission: gcd
 -- gcd - greatest common divisor (наибольший общий делитель)
 -- gcd :: Integral a => a -> a -> a
-resVal94 = gcd 12 8        -- 4
+resVal94  = gcd 12 8           -- 4
+resVal94' = gcd 12 (gcd 16 8)  -- 4
+---- gcd implementation
+gcd' :: Integral t => t -> t -> t
+gcd' 0 y = y
+gcd' x y = gcd' (y `mod` x) x
+----
+myGCD :: Integral t => t -> t -> t
+myGCD x y | x < 0     = myGCD (-x) y
+          | y < 0     = myGCD x (-y)
+          | y < x     = gcd' y x
+          | otherwise = gcd' x y
+----
+myGCD' :: Integer -> Integer -> Integer
+myGCD' a b
+      | b == 0     = abs a
+      | otherwise  = myGCD' b (a `mod` b)
+--- gcd with 3 and more -- algorithm
+{-
+gcd(a, b, c) = gcd(a, gcd(b, c)) 
+             = gcd(gcd(a, b), c) 
+             = gcd(gcd(a, c), b)
+-}
+res3gcd1 = gcd' 12 $ gcd' 36 96 
+res3gcd2 = gcd' (gcd' 12 36) 12 
+res3gcd3 = gcd' (gcd' 12 96) 36 
+
+---- gcd'' with 3 arguments
+gcd'' :: Integral t => t -> t -> t -> t
+gcd'' a b c = gcd' a $ gcd' b c 
 
 
 -- Intermission:  Syntctic Sugar --------
+-- https://wiki.haskell.org/Syntactic_sugar
 -- x `elem` xs      is sugar for    elem x xs 
--- `elem` xs        is sugar for    flip elem xs 
+-- `elem` xs        is sugar for    flip elem xs      -- ??? does not look correct ?!
 -- [1, 2, 3]        is sugar for    (1:2:3:[])
--- do x <- f; g x   is sugar for    f >>= (\x -> g x)
+-- do x <- f; g x   is sugar for    f >>= (\x -> g x) -- N.B. think about this sample
 
 -- flip - it evaluates the function flipping the order of arguments
 --flip :: (a -> b -> c) -> b -> a -> c
