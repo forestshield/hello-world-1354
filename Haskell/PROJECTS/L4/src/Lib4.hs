@@ -324,15 +324,31 @@ someFuncLib4 = do
            ", \"200 / 10\" == \"divideByTen 200\" == \"(/10) 200\"\n"
            "partialy applyed infix function"
 
-  specShow ('\0')
-           ", \n\
-           \..."
-           "S"
+  specShow ((applyTwice (+3) 10), 
+            (applyTwice (++ " HAHA") "hey"), (applyTwice ("HAHA " ++) "hey"),
+            (applyTwice (multThree 3 4) 10), (applyTwice (3:) [1]))
+           ",\n(applyTwice (+3) 10), (applyTwice (++ \" HAHA\") \"hey\"), (applyTwice (\"HAHA \" ++) \"hey\")\n\
+           \(applyTwice (multThree 3 4) 10), (applyTwice (3:) [1])"
+           "applyTwice again"
+  specShow ((zipWith' (+) [1,2,3] [8,9,0]),
+            (zipWith' (\x y -> 2*x + y) [1..4] [5..8]), 
+            (zipWith' (/) [8,9,9] [1,2,3]),
+            (zipWith' (**) (replicate 10 5) [1..10]))
+           ", \nzipWith' (+) [1,2,3] [8,9,0] \nzipWith' (\\x y -> 2*x + y) [1..4] [5..8]\n\
+           \nzipWith' (/) [8,9,9] [1,2,3] \nzipWith' (**) (replicate 10 5) [1..10]"
+           "zipWith' using a lambda notation in a second example"
+         
+  specShow ((), () )          
+           "\n\ 
+           \"
+           ""
+
 
   specShow ('\0')
            ", \n\
            \..."
            "S"
+  
 
   putStrLn $ show $ sum' []           
 {-
@@ -398,8 +414,20 @@ id3 :: a -> a
 id3 x = x
 
 -- simpliest function, lambda sysntaxis
-id2 :: a -> a
+id2 :: a  -> a
 id2  = \x -> x
+
+-- 2 arguments lambda notation
+id4 :: Num a => a -> a -> a      -- does not compile, but works in ghci
+id4 = \x y -> 2*x + y    
+
+-- versions by Willem Van Onsem
+id4'  x y = 2*x + y
+id4''     = (+) . (2 *)
+
+
+
+id5 = 1 + 2 :: Int
 
 -- applyTwice 
 applyTwice :: (a -> a) -> a -> a
@@ -813,7 +841,7 @@ head' (x:_) = x
 lList2 = [x*2 | x <- [1 .. 10]]             -- [2,4,6,8,10,12,14,16,18,20]
 lList3 = [x*2 | x <- [1..10], x*2 >= 12]    -- [12,14,16,18,20]
 
--- iterare
+-- iterare (lambda notation)
 lList4 = take 10 (iterate (2*)1)             -- [1,2,4,8,16,32,64,128,256,512]
 lList5 = take 10 (iterate (\x -> (x+3)*2)1)  -- [1,8,22,50,106,218,442,890,1786,3578]
 
@@ -1031,7 +1059,7 @@ capital :: String -> String
 capital "" = "Empty string, whoops!"  
 capital all@(x:xs) = "The first letter of " ++ all ++ " is " ++ [x]  
 
--- all func
+-- all func           (with lambda notation)
 --    returns True if all items in the list fulfill the condition
 bValAll  = all (<10) [1,3,5,7,9]               -- True
 bValAll2 = all even [2,4,6,8,10]               -- True
@@ -1191,7 +1219,7 @@ addOneList lst = map addOne' lst
     where addOne' x = x + 1
 
 addOneList'    :: Num b => [b] -> [b]
-addOneList' lst = map (\x -> x + 1) lst
+addOneList' lst = map (\x -> x + 1) lst     -- lambda notation
 
 --   For completeness it's worth mentioning that this could be better written using a section, 
 --   in pointfree style:
@@ -1450,6 +1478,21 @@ divideByTen :: (Floating a) => a -> a
 divideByTen = (/10) 
 -- "200 / 10" == "divideByTen 200" == "(/10) 200"
 
+-- zipWith' ----------
+zipWith'                 :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith' _ [] _          = []
+zipWith' _ _ []          = []
+zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys
+
+-- zipWith' using a function with a lambda Notation
+zResVal0 = zipWith' (\x y -> 2*x + y) [1..4] [5..8]  
+zResVal1 = zipWith' (**) (replicate 10 5) [1..10]
 
 
+-- lambda notation and equivalents
+lmResVal1 = (\x y -> 2*x + y) 4 5   
+lmResVal2 x y = 2*x + y             -- it is a function already
+lmResVal3 = (+) . (2 * )
+
+--- ======================== monads ===========================
 
