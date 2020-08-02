@@ -9,6 +9,7 @@ import Data.Int
 --import data-easy
 import Data.Char (toUpper)
 import Control.Monad 
+--import Data.Map 
 
 someFuncLib4 :: IO ()
 someFuncLib4 = do
@@ -335,9 +336,11 @@ someFuncLib4 = do
   specShow ((zipWith' (+) [1,2,3] [8,9,0]),
             (zipWith' (\x y -> 2*x + y) [1..4] [5..8]), 
             (zipWith' (/) [8,9,9] [1,2,3]),
-            (zipWith' (**) (replicate 10 5) [1..10]))
+            (zipWith' (**) (replicate 10 5) [1..10]),
+            (zipWith' (\a b -> (a * 30 + 3) / b) [5,4,3,2,1] [1,2,3,4,5]))
            ", \nzipWith' (+) [1,2,3] [8,9,0] \nzipWith' (\\x y -> 2*x + y) [1..4] [5..8]\n\
-           \nzipWith' (/) [8,9,9] [1,2,3] \nzipWith' (**) (replicate 10 5) [1..10]"
+           \nzipWith' (/) [8,9,9] [1,2,3] \nzipWith' (**) (replicate 10 5) [1..10] \n\
+           \zipWith' (\a b -> (a * 30 + 3) / b) [5,4,3,2,1] [1,2,3,4,5]"
            "zipWith' using a lambda notation in a second example"
   specShow ((gcd 12 8), (gcd 12 (gcd 16 8)) )          
            ", (gcd 12 8) (gcd 12 (gcd 16 8))\n"
@@ -356,12 +359,23 @@ someFuncLib4 = do
              ([1, 2, 3]), (1:2:3:[]) )
            ", \n(5 `elem` [1,5,6]), sugar for  (elem 5 [1,5,6])\n\
            \[1, 2, 3]), sugar for  (1:2:3:[])\n"            
-           "Syntactic Sugar"
-           
-  specShow ('\0')
-           ", \n\
-           \..."
-           "S"
+           "Syntactic Sugar"           
+  specShow ((lcm' 5 12), (lcm' (-6) 8))
+           ", (lcm' 5 12), (lcm' (-6) 8)\n"           
+           "lcm -- lowest common multiple"
+  specShow ((lcm'' 12 4 5), (lcm' 12 $ lcm' 4 5), (lcm' 5 $ lcm' 12 4))
+           ", (lcm'' 12 4 5), (lcm' 12 $ lcm' 4 5), (lcm' 5 $ lcm' 12 4)\n"
+           "lcm'' with 3 arguments"
+  specShow ((map abs [-1,-3,4,-12]), 
+            (map reverse ["abc","cda","1234"]),
+            (map (3*) [1,2,3,4] ),
+            (map (recip . negate) [1,4,-5,0.1]),
+            (map (\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]) )
+           "\nmap abs [-1,-3,4,-12]\nmap reverse [\"abc\"\"cda\",\"1234\"]),\n\
+            \map (3*) [1,2,3,4] )\nmap (recip . negate) [1,4,-5,0.1])\n\            
+            \map (\\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)])\n"            
+           "map"
+
   specShow ('\0')
            ", \n\
            \..."
@@ -1502,14 +1516,76 @@ zipWith' _ _ []          = []
 zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys
 
 -- zipWith' using a function with a lambda Notation
-zResVal0 = zipWith' (\x y -> 2*x + y) [1..4] [5..8]  
-zResVal1 = zipWith' (**) (replicate 10 5) [1..10]
-
+zResVal0 = zipWith' (\x y -> 2*x + y) [1..4] [5..8]     -- [7,10,13,16]
+zResVal1 = zipWith' (**) (replicate 10 5) [1..10]       
+              -- [5.0,25.0,125.0,625.0,3125.0,15625.0,78125.0,390625.0,1953125.0,9765625.0]
+zResVal2 = zipWith' (\a b -> (a * 30 + 3) / b) [5,4,3,2,1] [1,2,3,4,5]
+              -- [153.0,61.5,31.0,15.75,6.6]
 
 -- lambda notation and equivalents
 lmResVal1 = (\x y -> 2*x + y) 4 5   
 lmResVal2 x y = 2*x + y             -- it is a function already
 lmResVal3 = (+) . (2 * )
+
+-- Intermission: gcd
+-- gcd - greatest common divisor (наибольший общий делитель)
+-- gcd :: Integral a => a -> a -> a
+resVal94  = gcd 12 8           -- 4
+resVal94' = gcd 12 (gcd 16 8)  -- 4
+---- gcd implementation
+gcd' :: Integral t => t -> t -> t
+gcd' 0 y = y
+gcd' x y = gcd' (y `mod` x) x
+----
+myGCD :: Integral t => t -> t -> t
+myGCD x y | x < 0     = myGCD (-x) y
+          | y < 0     = myGCD x (-y)
+          | y < x     = gcd' y x
+          | otherwise = gcd' x y
+----
+myGCD' :: Integer -> Integer -> Integer
+myGCD' a b
+      | b == 0     = abs a
+      | otherwise  = myGCD' b (a `mod` b)
+
+--- gcd with 3 and more -- algorithm
+--gcd(a, b, c) = gcd(a, gcd(b, c)) = gcd(gcd(a, b), c) = gcd(gcd(a, c), b)
+res3gcd1 = gcd' 12 $ gcd' 36 96 
+res3gcd2 = gcd' (gcd' 12 36) 12 
+res3gcd3 = gcd' (gcd' 12 96) 36 
+
+---- gcd'' for 3 arguments
+gcd''       :: Integral t => t -> t -> t -> t
+gcd'' a b c = gcd' a $ gcd' b c 
+
+---- lcm'  lowest common multipble, наименьшее общее частное
+lcm' :: Integral a => a -> a -> a
+--lcm' :: (Fractional a, Integral a) => a -> a -> a
+lcm' _ 0    = 0
+lcm' 0 _    = 0
+lcm' a b    = abs ((a `quot` (gcd a b)) * b) 
+-- lcm'' for 3 arguments
+lcm''       :: Integral a => a -> a -> a -> a
+lcm'' a b c = lcm' a $ lcm' b c 
+
+-- Intermission:  Syntctic Sugar --------
+-- https://wiki.haskell.org/Syntactic_sugar
+-- x `elem` xs      is sugar for    elem x xs 
+-- `elem` xs        is sugar for    flip elem xs      -- ??? does not look correct ?!
+-- [1, 2, 3]        is sugar for    (1:2:3:[])
+-- do x <- f; g x   is sugar for    f >>= (\x -> g x) -- N.B. think about this sample
+
+-- flip - it evaluates the function flipping the order of arguments
+--flip :: (a -> b -> c) -> b -> a -> c
+resVal93 = flip (/) 1 2    -- 2
+resVal92 = flip (>) 3 5    -- True
+resVal91 = flip mod 3 6    -- 0
+
+--- flip' with lampda, here it is OK, because you want to make it explicit that 
+--    your function is mainly meant to be partially applied and passed on to a function 
+--    as a parameter.
+flip'   :: (a -> b -> c) -> b -> a -> c  
+flip' f = \x y -> f y x 
 
 --- ======================== monads, AKA computation builders ===========================
 --  https://stackoverflow.com/questions/44965/what-is-a-monad
@@ -1524,10 +1600,7 @@ resMod2 = do
             return (x * 2)
 -- >>=
 resMod3 = [1..10] >>= (\x -> guard (odd x) >> return (x*2))
-
 ---
-
-
 -- example 2. Input/Output
 resMod4 = do
             putStrLn "What is your name?"
@@ -1556,69 +1629,55 @@ resVal99 = [toUpper c | c <- (s :: String)]
 resVal98 = [(i,j) | i <- [1,2], 
                     j <- [1..4] ]   -- [(1,1),(1,2),(1,3),(1,4),(2,1),(2,2),(2,3),(2,4)]
 resVal97 = take 10 [ (i,j) | i <- [1,2], 
-                             j <- [1..] ] -- [(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10)]
+                             j <- [1..] ] 
+                -- [(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10)]
 resVal96 = take 5 [ [ (i,j) | i <- [1,2] ] | j <- [1..] ]
-                            -- [[(1,1),(2,1)], [(1,2),(2,2)], [(1,3),(2,3)], [(1,4),(2,4)], [(1,5),(2,5)]]
+                -- [[(1,1),(2,1)], [(1,2),(2,2)], [(1,3),(2,3)], [(1,4),(2,4)], [(1,5),(2,5)]]
 -- boolean guard
 resVal95 = take 10 [ (i,j) | i <- [1..], 
                              j <- [1..i-1], 
                              gcd i j == 1 ]
                             -- [(2,1),(3,1),(3,2),(4,1),(4,3),(5,1),(5,2),(5,3),(5,4),(6,1)]
 
--- Intermission: gcd
--- gcd - greatest common divisor (наибольший общий делитель)
--- gcd :: Integral a => a -> a -> a
-resVal94  = gcd 12 8           -- 4
-resVal94' = gcd 12 (gcd 16 8)  -- 4
----- gcd implementation
-gcd' :: Integral t => t -> t -> t
-gcd' 0 y = y
-gcd' x y = gcd' (y `mod` x) x
-----
-myGCD :: Integral t => t -> t -> t
-myGCD x y | x < 0     = myGCD (-x) y
-          | y < 0     = myGCD x (-y)
-          | y < x     = gcd' y x
-          | otherwise = gcd' x y
-----
-myGCD' :: Integer -> Integer -> Integer
-myGCD' a b
-      | b == 0     = abs a
-      | otherwise  = myGCD' b (a `mod` b)
---- gcd with 3 and more -- algorithm
-{-
-gcd(a, b, c) = gcd(a, gcd(b, c)) 
-             = gcd(gcd(a, b), c) 
-             = gcd(gcd(a, c), b)
--}
-res3gcd1 = gcd' 12 $ gcd' 36 96 
-res3gcd2 = gcd' (gcd' 12 36) 12 
-res3gcd3 = gcd' (gcd' 12 96) 36 
+---- map ------------------
+-- returns a list constructed by appling a function (the first argument) to all items 
+-- in a list passed as the second argument
+-- map :: (a -> b) -> [a] -> [b]
+resMap1 = map abs [-1,-3,4,-12]                     -- [1,3,4,12]
+resMap2 = map reverse ["abc","cda","1234"]          -- ["cba","adc","4321"]
+resMap3 = map (3*) [1,2,3,4]                        -- [3,6,9,12]
+resMap4 = map (recip . negate) [1,4,-5,0.1]         -- [-1.0,-0.25,0.2,-10.0]
+resMap5 = map (print) [1,3,5,6,7]                   
+          -- [<<IO action>>,<<IO action>>,<<IO action>>,<<IO action>>,<<IO action>>]
+-- here is lambda func again                        
+resMap6 = map (\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]  -- [3,8,9,8,7]  
 
----- gcd'' with 3 arguments
-gcd'' :: Integral t => t -> t -> t -> t
-gcd'' a b c = gcd' a $ gcd' b c 
+-- addTree -----------
+addThree :: (Num a) => a -> a -> a -> a  
+addThree x y z = x + y + z
+-- addTree with lambda notation
+addThree' :: (Num a) => a -> a -> a -> a  
+addThree' = \x -> \y -> \z -> x + y + z
 
+--sum' :: (Num a) => [a] -> a               -- recursive version
+--sum' [] = 0  
+--sum' (x:xs) = x + sum' xs         
 
--- Intermission:  Syntctic Sugar --------
--- https://wiki.haskell.org/Syntactic_sugar
--- x `elem` xs      is sugar for    elem x xs 
--- `elem` xs        is sugar for    flip elem xs      -- ??? does not look correct ?!
--- [1, 2, 3]        is sugar for    (1:2:3:[])
--- do x <- f; g x   is sugar for    f >>= (\x -> g x) -- N.B. think about this sample
+-- sum' --------------
+sum''    :: (Num a) => [a] -> a  
+sum'' xs = foldl (\acc x -> acc + x) 0 xs   -- using foldl
 
--- flip - it evaluates the function flipping the order of arguments
---flip :: (a -> b -> c) -> b -> a -> c
-resVal93 = flip (/) 1 2    -- 2
-resVal92 = flip (>) 3 5    -- True
-resVal91 = flip mod 3 6    -- 0
+-- foldl ----
+--  it takes the second argument and the first item of the list and applies the function to them, 
+--  then feeds the function with this result and the second argument and so on. 
+--  See scanl for intermediate results.
+-- foldl' :: (a -> b -> a) -> a -> [b] -> a
+resFold1 = foldl (/) 64 [4,2,4]               -- 2.0
+resFold2 = foldl (/) 3 []                     -- 3.0
+resFold3 = foldl max 5 [1,2,3,4]              -- 5.0 
+resFold4 = foldl max 5 [1,2,3,4,5,6,7]        -- 7
+resFold5 = foldl (\x y -> 2*x + y) 4 [1,2,3]  -- 43
 
 
 
 
-
---resVal9 = do c <- s
---             return (toUpper c)
---resVal9 = do i <- [1,2]
---              j <- [1..4]
---            return (i,j)  
