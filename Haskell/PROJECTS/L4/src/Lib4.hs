@@ -375,13 +375,32 @@ someFuncLib4 = do
             \map (3*) [1,2,3,4] )\nmap (recip . negate) [1,4,-5,0.1])\n\            
             \map (\\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)])\n"            
            "map"
+  specShow ((foldl (/) 64 [4,2,4]), 
+            (foldl (/) 3 []), 
+            (foldl max 5 [1,2,3,4]), 
+            (foldl max 5 [1,2,3,4,5,6,7]), 
+            (foldl (\x y -> 2*x + y) 4 [1,2,3]))
+           "\nfoldl (/) 64 [4,2,4]\nfoldl (/) 3 []\nfoldl max 5 [1,2,3,4]\n\ 
+           \foldl max 5 [1,2,3,4,5,6,7]\n(foldl (\\x y -> 2*x + y) 4 [1,2,3]"
+           "foldl"
+  specShow "!!!!!    "
+           "(foo a = bar b a)\" == \"(foo = bar b)\"     !!!!!\n\
+           \\"sum1 xs = foldl (\\acc x -> acc + x) 0 + xs\"  == \"sum2 = foldl (+) 0\"\
+           \, NO xs here! it can be omited"
+           "Succincity, because of CURRYING !!!"
+  specShow ((filter' (>5) [1,2,3,4,5,6,7,8] ),
+            (filter' odd [3,6,7,9,12,14]),
+            (filter' (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"]),
+            (filter (`elem` ['a'..'z']) "u LaUgH aT mE BeCaUsE I aM diFfeRent"),
+            (filter (`elem` ['A'..'Z']) "i lauGh At You BecAuse u r aLL the Same"))
+           "\nfilter' (>5) [1,2,3,4,5,6,7,8]\nfilter' odd [3,6,7,9,12,14]\n\
+           \filter' (\\x -> length (x :: String) > 4) [\"aaaa\",\"bbbbbbbbbbbbb\",\"cc\"]\n\
+           \filter (`elem` ['a'..'z']) \"u LaUgH aT mE BeCaUsE I aM diFfeRent\"\n\
+           \filter (`elem` ['A'..'Z']) \"i lauGh At You BecAuse u r aLL the Same\""
+           "filter"
 
-  specShow ('\0')
-           ", \n\
-           \..."
-           "S"
-
-  putStrLn $ show $ sum' []           
+  putStrLn $ show $ sum' []
+  putStrLn $ show $ length ("abcdef" :: String)           
 {-
   specShow ()
            ", \n\
@@ -1666,6 +1685,15 @@ addThree' = \x -> \y -> \z -> x + y + z
 -- sum' --------------
 sum''    :: (Num a) => [a] -> a  
 sum'' xs = foldl (\acc x -> acc + x) 0 xs   -- using foldl
+-- even better sum3
+sum3 :: (Num a) => [a] -> a  
+sum3 = foldl (+) 0                          -- using foldl, 
+-- (\acc x -> acc + x) == (+) and we can omit xs as the parameter, 
+-- because calling foldl (+) 0 will return a function that takes a list.
+-- GENERALLY, IF we have a function, like "foo a = bar b a", we can
+-- rewrite it like "foo = bar b"
+
+-- ========= (foo a = bar b a) == (foo = bar b) ========= !!!!!
 
 -- foldl ----
 --  it takes the second argument and the first item of the list and applies the function to them, 
@@ -1677,6 +1705,20 @@ resFold2 = foldl (/) 3 []                     -- 3.0
 resFold3 = foldl max 5 [1,2,3,4]              -- 5.0 
 resFold4 = foldl max 5 [1,2,3,4,5,6,7]        -- 7
 resFold5 = foldl (\x y -> 2*x + y) 4 [1,2,3]  -- 43
+
+-- fileter -----
+filter' :: (a -> Bool) -> [a] -> [a]  
+filter' _ [] = []  
+filter' p (x:xs)   
+    | p x       = x : filter p xs  
+    | otherwise = filter p xs
+
+resFil1 = filter' (>5) [1,2,3,4,5,6,7,8]                               -- [6,7,8]
+resFil2 = filter' odd [3,6,7,9,12,14]                                  -- [3,7,9]
+resFil3 = filter' (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"] -- ["bbbbbbbbbbbbb"]
+resFil4 = filter (`elem` ['a'..'z']) "u LaUgH aT mE BeCaUsE I aM diFfeRent"  -- "uagameasadifeent"
+resFil5 = filter (`elem` ['A'..'Z']) "i lauGh At You BecAuse u r aLL the Same"  -- "GAYBALLS" 
+
 
 
 
