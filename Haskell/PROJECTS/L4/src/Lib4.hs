@@ -398,7 +398,28 @@ someFuncLib4 = do
            \filter (`elem` ['a'..'z']) \"u LaUgH aT mE BeCaUsE I aM diFfeRent\"\n\
            \filter (`elem` ['A'..'Z']) \"i lauGh At You BecAuse u r aLL the Same\""
            "filter"
+  specShow ((sum (takeWhile (<10000) (filter odd (map (^2) [1..])))),
+           (sum (takeWhile (<10000) [n^2 | n <- [1..], odd (n^2)])))
+           ", sum (takeWhile (<10000) (filter odd (map (^2) [1..])))\n\
+           \sum (takeWhile (<10000) [n^2 | n <- [1..], odd (n^2)]) - list comprehention"
+           "The sum of all odd squares that are smaller than 10,000.\n\
+           \First, we'll begin by mapping the (^2) function to the infinite list [1..].\n\
+           \Then we filter them to get the odd ones. Then, we'll take elements from that list\n\
+           \while they are smaller than 10,000. Finally, we'll get the sum of that list."
+  specShow ( ((map (*) [0..]) !! 4) 5)
+           ", (map (*) [0..]) !! 4) 5"           
+           "some trics using map"
+  specShow ((length (filter (\xs -> length xs > 15) (map chain [1..100]))))
+           ", length (filter (\\xs -> length xs > 15) (map chain [1..100])) \n"
+           "Collatz sequences"
 
+  specShow ()
+           ", \n\
+           \"
+           ""
+
+
+-- some cool stuff
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
 {-
@@ -422,7 +443,8 @@ specHeader2 a = do
   putStrLn " -------------"
 --specHeader
 specHeader :: String -> IO ()
-specHeader  a | a /= "" = specHeader2 a
+specHeader  a | a /= "" = specHeader2 a | otherwise = return () -- from Control.Monad
+  --Nothing -- print ""
 
 
 -- working with Lists
@@ -964,6 +986,15 @@ rightTriangles = [ (a,b,c) | c <- [1..10], b <- [1..c], a <- [1..b], a^2 + b^2 =
 -- factorial
 factorial :: Integer -> Integer  
 factorial n = product [1..n] 
+-- variant 2
+factorial2 :: (Integral a) => a -> a
+factorial2 0 = 1
+factorial2 n = n * factorial2 (n -1)
+-- variant 3 (my own)
+factorial3 :: (Integral a) => a -> a
+factorial3 0 = 1
+factorial3 n = product [(factorial3 0)..n]
+
 
 -- circumference
 circumference :: Float -> Float       -- circumference 4 = 25.132742
@@ -1030,10 +1061,11 @@ resFromInt = fromIntegral (minBound :: Int16) + 3.2
 -- fromIntegral :: (Num b, Integral a) => a -> b
 
 -- Pattern matching ---------------
--- factorial2
-factorial2 :: (Integral a) => a -> a  
-factorial2 0 = 1  
-factorial2 n = n * factorial2 (n - 1)     -- recursion
+-- factorial4
+factorial4 :: (Integral a) => a -> a  
+factorial4 0 = 1  
+factorial4 n = n * factorial4 (n - 1)     -- recursion
+
 -- sayMe
 sayMe :: (Integral a) => a -> String  
 sayMe 1 = "One!"  
@@ -1706,7 +1738,7 @@ resFold3 = foldl max 5 [1,2,3,4]              -- 5.0
 resFold4 = foldl max 5 [1,2,3,4,5,6,7]        -- 7
 resFold5 = foldl (\x y -> 2*x + y) 4 [1,2,3]  -- 43
 
--- fileter -----
+-- filter -----
 filter' :: (a -> Bool) -> [a] -> [a]  
 filter' _ [] = []  
 filter' p (x:xs)   
@@ -1719,7 +1751,64 @@ resFil3 = filter' (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"]
 resFil4 = filter (`elem` ['a'..'z']) "u LaUgH aT mE BeCaUsE I aM diFfeRent"  -- "uagameasadifeent"
 resFil5 = filter (`elem` ['A'..'Z']) "i lauGh At You BecAuse u r aLL the Same"  -- "GAYBALLS" 
 
+---- largestDivisible
+largestDivisible :: (Integral a) => a  
+largestDivisible = head (filter p [100000,99999..])  
+    where p x = x `mod` 3829 == 0
+
+-- takeWhile --
+-- creates a list from another one, it inspects the original list and takes from it its elements 
+-- to the moment when the condition fails, then it stops processing
+reTW0 = takeWhile (<3) [1,2,3,4,5]                   -- [1,2]
+reTW1 = takeWhile (>3) [1,2,3,4,5]                   -- [] 
+reTW2 = takeWhile odd [1,3,5,7,9,10,11,13,15,17]     -- [1,3,5,7,9]
+reTW3 = takeWhile (\x -> 6*x < 100) [1..20]          -- [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+reTW4 = takeWhile ('w'>) "hello world"               -- "hello "
+
+-- The sum of all odd squares that are smaller than 10,000. 
+-- First, we'll begin by mapping the (^2) function to the infinite list [1..]. 
+-- Then we filter them so we only get the odd ones. And then, we'll take elements from that list 
+-- while they are smaller than 10,000. Finally, we'll get the sum of that list. 
+reTW5 = sum (takeWhile (<10000) (filter odd (map (^2) [1..])))  -- 166650
+-- the same with list comprehentions
+reLC1 = sum (takeWhile (<10000) [n^2 | n <- [1..], odd (n^2)])  -- 166650  
+
+-- =============================================
+-- Collatz sequences ----
+-- We take a natural number. If that number is even, we divide it by two. If it's odd, 
+-- we multiply it by 3 and then add 1 to that. We take the resulting number 
+-- and apply the same thing to it, which produces a new number and so on.
+-- In essence, we get a chain of numbers. It is thought that for all starting numbers, 
+-- the chains finish at the number 1. So if we take the starting number 13, we get 
+-- this sequence: 13, 40, 20, 10, 5, 16, 8, 4, 2, 1. 13*3 + 1 equals 40. 40 divided by 2 is 20, etc.
+-- We see that the chain has 10 terms.
+-- Now what we want to know is this: for all starting numbers between 1 and 100, 
+-- how many chains have a length greater than 15?
+chain :: (Integral a) => a -> [a]  
+chain 1 = [1]  
+chain n  
+    | even n =  n:chain (n `div` 2)  
+    | odd n  =  n:chain (n*3 + 1)
+
+rsChn1 = chain 10     -- [10,5,16,8,4,2,1]
+rsChn2 = chain 1      -- [1]
+rsChn3 = chain 30     -- [30,15,46,23,70,35,106,53,160,80,40,20,10,5,16,8,4,2,1]
+-- this function aswers our question
+numLongChains :: Int  
+numLongChains = length (filter isLong (map chain [1..100]))       -- 86 -- answer
+    where isLong xs = length xs > 15
+--- N.B. Note: This function has a type of numLongChains :: Int because length returns an Int 
+--  instead of a Num a for historical reasons. If we wanted to return a more general Num a, 
+--  we could have used fromIntegral on the resulting length.
 
 
+-- lambda version of isLong function
+numLongChains' :: Int  
+numLongChains' = length (filter (\xs -> length xs > 15) (map chain [1..100])) 
 
+
+-- some trics using map 
+rsMap7 = map (*) [0..]         -- this one has type                 rsMap7 :: [Integer -> Integer] 
+rsMap8 = (rsMap7 !! 4) 5       -- 20      0, 5, 10, 15, 20 ..., but this one     rsMap8 :: Integer
+rsMap9 = ((map (*) [0..]) !! 4) 5      -- 20  
 
