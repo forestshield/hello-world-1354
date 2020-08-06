@@ -417,12 +417,37 @@ someFuncLib4 = do
            \defnitions ... fnAddLong n = fnAddTwo 10 n ... fnAddShort = fnAddTwo 10\n\
            \(fnAddLong n = fnAddTwo 10 n) == (fnAddShort = fnAddTwo 10) !!!"
            "(foo a = bar b a) == (foo = bar b)"
+  specShow ((elem2 9 [1,2,3,4,5,6,7]), (elem3 5 [1,2,3,4,5,6,7]))
+           ", (elem2 9 [1,2,3,4,5,6,7]), (elem3 5 [1,2,3,4,5,6,7])\n\
+           \elem2 y ys = foldl (\\acc x -> if x == y then True else acc) False ys\n\
+           \elem3 y ys = foldr (\\x acc -> if x == y then True else acc) False ys"
+           "elem implementaion with foldl and foldr"
+
+  specShow ((foldl (/) 64 [4,2,4]), (foldr (/) 64 [4,2,4]), 
+           (foldl (+) 5 [1,2,3,4]), (foldr (+) 5 [1,2,3,4]),
+           (foldl (\x y -> (x+y)/2) 54 [12,4,10,6]), (foldr (\x y -> (x+y)/2) 54 [12,4,10,6]) )
+           ", \n(foldl (/) 64 [4,2,4]) vs (foldr (/) 64 [4,2,4])\n\
+           \(foldl (+) 5 [1,2,3,4]), (foldr (+) 5 [1,2,3,4])\n\
+           \(foldl (\\x y -> (x+y)/2) 54 [12,4,10,6]), (foldr (\\x y -> (x+y)/2) 54 [12,4,10,6])"
+           "foldl vs foldr"
+  specShow (((negate . abs) (-1)), ((reverse . take 10 . enumFrom) 10), 
+           ((abs . snd)(-1,-3)), (((2+).(3*).(4-)) 2) )
+           ", \n(negate . abs) (-1)\n(reverse . take 10 . enumFrom) 10\
+           \\n(abs . snd)(-1,-3)\n((2+).(3*).(4-)) 2"
+           "function composition (.)"
+  specShow ((take 10 (enumFrom 'a') ), (take 10 (enumFrom 23)), 
+           (enumFrom BB), (enumFrom Green) )
+           ",\ntake 10 (enumFrom 'a')\ntake 10 (enumFrom 23)\n\
+           \     data XXX = AA|BB|CC|DD deriving (Enum, Show)\n\
+           \enumFrom BB\n\
+           \     data Color  = Blue | Green | Read deriving (Show, Read, Eq, Enum)\n\
+           \enumFrom Green"
+           "EnumFrom"
 
   specShow ()
            ", \n\
            \"
            ""
-
 
 -- some cool stuff
   putStrLn $ show $ sum' []
@@ -573,7 +598,7 @@ c5   = Car2 "lexus"  "RX350"  2014      -- this is OK
 bDif2 = c3 == c5    -- True
 
 -- data Color                               
-data Color  = Blue | Green | Read deriving (Show, Read, Eq) 
+data Color  = Blue | Green | Read deriving (Show, Read, Eq, Enum) 
 --data Color2 = funcRGB Int Int Int 
 
 -- func RGB
@@ -1332,7 +1357,7 @@ absolute2 x
   | otherwise = x
 
 ---------  
-data Pet = Cat | Dog | Fish | Parrot String | Lizard | Bird | Hamster
+data Pet = Cat|Dog|Fish|Parrot String|Lizard|Bird|Hamster  deriving (Show)
 hello :: Pet -> String
 hello x = 
   case x of
@@ -1504,6 +1529,37 @@ elem' a [] = False
 elem' a (x:xs)  
     | a == x    = True  
     | otherwise = a `elem'` xs
+
+-- elem2 with foldl ----
+elem2 :: (Eq a) => a -> [a] -> Bool  
+elem2 y ys = foldl (\acc x -> if x == y then True else acc) False ys  
+
+-- elem 3, uring (right) foldr
+elem3 :: (Eq a) => a -> [a] -> Bool  
+elem3 y ys = foldr (\x acc -> if x == y then True else acc) False ys  
+
+-- more foldr ---
+--  http://zvon.org/other/haskell/Outputprelude/
+--  it takes the second argument and the last item of the list and applies the function, 
+--  then it takes the penultimate item from the end and the result, and so on. 
+--  See scanr for intermediate results.
+rsFdr1 = foldr (+) 5 [1,2,3,4]                   -- 15
+rsFdr2 = foldr (/) 2 [8,12,24,4]                 -- 8.0
+rsFdr3 = foldr (/) 3 []                          -- 3.0
+rsFdr4 = foldr (&&) True [1>2,3>2,5==5]          -- False
+rsFdr5 = foldr max 111 [3,6,12,4,55,11]          -- 111
+rsFdr6 = foldr (\x y -> (x+y)/2) 54 [12,4,10,6]  -- 12.0
+rsFdr7 = foldr (/) 64 [4,2,4]                    -- 0.125
+
+-- compare with foldl
+rsFdl1 = foldl (+) 5 [1,2,3,4]                   -- 15
+rsFdl2 = foldl (/) 2 [8,12,24,4]                 -- 2.1701388888888888e-4
+rsFdl3 = foldl (/) 3 []                          -- 3.0
+rsFdl4 = foldl (&&) True [1>2,3>2,5==5]          -- False
+rsFdl5 = foldl max 111 [3,6,12,4,55,11]          -- 111
+rsFdl6 = foldl (\x y -> (x+y)/2) 54 [12,4,10,6]  -- 10.125
+rsFdl7 = foldl (/) 64 [4,2,4]                    -- 2.0
+
 
 -- quicksort -------------------
 quicksort :: (Ord a) => [a] -> [a]  
@@ -1708,6 +1764,78 @@ resMap5 = map (print) [1,3,5,6,7]
 -- here is lambda func again                        
 resMap6 = map (\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]  -- [3,8,9,8,7]  
 
+--------------- intermission -----------------
+-- recip ----
+-- Fractional a => a -> a
+-- returns 1 / argument
+rsRcp1 = recip 0.1           -- 10.0
+rsRcp2 = recip 4             -- 0.25
+
+-- . -----
+-- function composition
+-- (a -> b) -> (c -> a) -> c -> b
+rsDot1 = (negate . abs) (-1)                  -- -1
+rsDot2 = (reverse . take 10 . enumFrom) 10    --  [19,18,17,16,15,14,13,12,11,10]
+rsDot3 = (abs . snd)(-1,-3)                   -- 3
+rsDot4 = ((2+).(3*).(4-)) 2                   -- 8
+
+-- enumFrom ----
+-- Enum a => a -> [a]
+-- returns an array of members of an enumeration starting with the argument, 
+-- it is equvalent to syntax.
+rsEnFr1 = take 10 (enumFrom 'a')               -- "abcdefghij"
+rsEnFr2 = take 10 (enumFrom 23)                -- [23,24,25,26,27,28,29,30,31,32]
+-- small program with enumFrom
+data XXX = AA|BB|CC|DD deriving (Enum, Show)
+rsEnFr3 = enumFrom BB                          -- [BB,CC,DD]
+
+--- map' using fordr -------
+mapR      :: (a -> b) -> [a] -> [b]  
+mapR f xs = foldr (\x acc -> f x : acc) [] xs
+
+--- map' using fordl -------
+mapL      :: (a -> b) -> [a] -> [b]  
+--mapL :: Foldable t1 => (t2 -> a) -> t1 t2 -> [a] -- automatic type created by ghc
+mapL f xs = foldl (\acc x -> acc ++ [f x]) [] xs
+
+-- Folds can be used to implement any function where you traverse a list once, 
+-- element by element, and then return something based on that. 
+-- Whenever you want to traverse a list to return something, chances are you want a fold. 
+-- That's why folds are, along with maps and filters, 
+-- one of the most useful types of functions in functional programming.
+
+-- The foldl1 and foldr1 functions work much like foldl and foldr, 
+-- only you don't need to provide them with an explicit starting value. 
+-- They assume the first (or last) element of the list to be the starting value 
+-- and then start the fold with the element next to it. 
+
+-- Power of folds --- using folds for implementations
+maximumF :: (Ord a) => [a] -> a  
+maximumF = foldr1 (\x acc -> if x > acc then x else acc)  
+---  
+reverseF :: [a] -> [a]  
+reverseF = foldl (\acc x -> x : acc) []  
+--
+reverseFr :: [a] -> [a]  
+reverseFr = foldr (\ x acc -> x : acc) []     -- this will not work (does not reverse)
+--reverseFr = foldr (\acc x -> x : acc) []    -- this does not compile
+--  
+productF :: (Num a) => [a] -> a  
+productF = foldr1 (*)  
+---  
+filterF   :: (a -> Bool) -> [a] -> [a]  
+filterF p = foldr (\x acc -> if p x then x : acc else acc) []  
+---  
+--head is better implemented by pattern ma
+headF :: [a] -> a  
+headF = foldr1 (\x _ -> x)  
+---  
+lastF :: [a] -> a  
+lastF = foldl1 (\_ x -> x)  
+
+
+
+
 -- addTree -----------
 addThree :: (Num a) => a -> a -> a -> a  
 addThree x y z = x + y + z
@@ -1730,6 +1858,10 @@ sum3 = foldl (+) 0                          -- using foldl,
 -- GENERALLY, IF we have a function, like "foo a = bar b a", we can
 -- rewrite it like "foo = bar b"
 
+-- sum func using foldl1 !!! --- does not work with empty lists
+sum4 :: (Num a) => [a] -> a 
+sum4 = foldl1 (+)
+
 -- ========= (foo a = bar b a) == (foo = bar b) ========= !!!!!
 fnAddTwo     :: Num a => a -> a -> a
 fnAddTwo u t = u + t 
@@ -1742,10 +1874,8 @@ fnAddShort = fnAddTwo 10          --  (foo = bar b), first argument of fnAdd3 pa
                                   --                 as a second parameter 
                                   --  fnAdd3 91.5 = 101.5
 
-
-
-
 -- foldl ----
+-- http://zvon.org/other/haskell/Outputprelude/
 --  it takes the second argument and the first item of the list and applies the function to them, 
 --  then feeds the function with this result and the second argument and so on. 
 --  See scanl for intermediate results.
