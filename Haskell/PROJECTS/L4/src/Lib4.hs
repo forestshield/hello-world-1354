@@ -410,8 +410,13 @@ someFuncLib4 = do
            ", (map (*) [0..]) !! 4) 5"           
            "some trics using map"
   specShow ((length (filter (\xs -> length xs > 15) (map chain [1..100]))))
-           ", length (filter (\\xs -> length xs > 15) (map chain [1..100])) \n"
+           ", length (filter (\\xs -> length xs > 15) (map chain [1..100]))"
            "Collatz sequences"
+  specShow ((fnAddTwo 8 6), (fnAddLong 12), (fnAddShort 12) )
+           ", (fnAddTwo 8 6)   fnAddLong 12)   (fnAddShort 12)\n\
+           \defnitions ... fnAddLong n = fnAddTwo 10 n ... fnAddShort = fnAddTwo 10\n\
+           \(fnAddLong n = fnAddTwo 10 n) == (fnAddShort = fnAddTwo 10) !!!"
+           "(foo a = bar b a) == (foo = bar b)"
 
   specShow ()
            ", \n\
@@ -1726,6 +1731,19 @@ sum3 = foldl (+) 0                          -- using foldl,
 -- rewrite it like "foo = bar b"
 
 -- ========= (foo a = bar b a) == (foo = bar b) ========= !!!!!
+fnAddTwo     :: Num a => a -> a -> a
+fnAddTwo u t = u + t 
+--
+fnAddLong   :: Num a => a -> a
+fnAddLong n = fnAddTwo 10 n       --  (foo a = bar b a)
+-- or 
+fnAddShort :: Num a => a -> a
+fnAddShort = fnAddTwo 10          --  (foo = bar b), first argument of fnAdd3 passed to fnAddTen,
+                                  --                 as a second parameter 
+                                  --  fnAdd3 91.5 = 101.5
+
+
+
 
 -- foldl ----
 --  it takes the second argument and the first item of the list and applies the function to them, 
