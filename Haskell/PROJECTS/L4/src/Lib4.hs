@@ -3,6 +3,13 @@ module Lib4
     ) where
 
 --import Prelude hiding (max, signum)
+
+import Data.List
+--import Data.List (nub, sort)   -- if we want only these functions
+--import Data.List hiding (nub)  -- if we want everything, except of nub
+--import qualified Data.Map      -- if we want call funcs like "Data.Map.nub"
+--import qualified Data.Map as M -- if we want call funcs like "M.nub"  
+
 import Data.String
 import Data.Int
 --import GHC.Int
@@ -388,13 +395,13 @@ someFuncLib4 = do
            \\"sum1 xs = foldl (\\acc x -> acc + x) 0 + xs\"  == \"sum2 = foldl (+) 0\"\
            \, NO xs here! it can be omited"
            "Succincity, because of CURRYING !!!"
-  specShow ((filter' (>5) [1,2,3,4,5,6,7,8] ),
-            (filter' odd [3,6,7,9,12,14]),
-            (filter' (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"]),
+  specShow ((filter2 (>5) [1,2,3,4,5,6,7,8] ),
+            (filter2 odd [3,6,7,9,12,14]),
+            (filter2 (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"]),
             (filter (`elem` ['a'..'z']) "u LaUgH aT mE BeCaUsE I aM diFfeRent"),
             (filter (`elem` ['A'..'Z']) "i lauGh At You BecAuse u r aLL the Same"))
            "\nfilter' (>5) [1,2,3,4,5,6,7,8]\nfilter' odd [3,6,7,9,12,14]\n\
-           \filter' (\\x -> length (x :: String) > 4) [\"aaaa\",\"bbbbbbbbbbbbb\",\"cc\"]\n\
+           \filter2 (\\x -> length (x :: String) > 4) [\"aaaa\",\"bbbbbbbbbbbbb\",\"cc\"]\n\
            \filter (`elem` ['a'..'z']) \"u LaUgH aT mE BeCaUsE I aM diFfeRent\"\n\
            \filter (`elem` ['A'..'Z']) \"i lauGh At You BecAuse u r aLL the Same\""
            "filter"
@@ -1873,14 +1880,6 @@ oddSquareSum'' =                                                              --
     in  sum belowLimit 
 
 
-
-
-
-
-
-
-
-
 -- enumFrom ----
 -- Enum a => a -> [a]
 -- returns an array of members of an enumeration starting with the argument, 
@@ -2027,7 +2026,7 @@ fnAddShort = fnAddTwo 10          --  (foo = bar b), first argument of fnAdd3 pa
 --  it takes the second argument and the first item of the list and applies the function to them, 
 --  then feeds the function with this result and the second argument and so on. 
 --  See scanl for intermediate results.
--- foldl' :: (a -> b -> a) -> a -> [b] -> a
+-- foldl2 :: (a -> b -> a) -> a -> [b] -> a
 resFold1 = foldl (/) 64 [4,2,4]               -- 2.0
 resFold2 = foldl (/) 3 []                     -- 3.0
 resFold3 = foldl max 5 [1,2,3,4]              -- 5.0 
@@ -2035,15 +2034,15 @@ resFold4 = foldl max 5 [1,2,3,4,5,6,7]        -- 7
 resFold5 = foldl (\x y -> 2*x + y) 4 [1,2,3]  -- 43
 
 -- filter -----
-filter' :: (a -> Bool) -> [a] -> [a]  
-filter' _ [] = []  
-filter' p (x:xs)   
+filter2 :: (a -> Bool) -> [a] -> [a]  
+filter2 _ [] = []  
+filter2 p (x:xs)   
     | p x       = x : filter p xs  
     | otherwise = filter p xs
 
-resFil1 = filter' (>5) [1,2,3,4,5,6,7,8]                               -- [6,7,8]
-resFil2 = filter' odd [3,6,7,9,12,14]                                  -- [3,7,9]
-resFil3 = filter' (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"] -- ["bbbbbbbbbbbbb"]
+resFil1 = filter2 (>5) [1,2,3,4,5,6,7,8]                               -- [6,7,8]
+resFil2 = filter2 odd [3,6,7,9,12,14]                                  -- [3,7,9]
+resFil3 = filter2 (\x -> length (x :: String) > 4) ["aaaa","bbbbbbbbbbbbb","cc"] -- ["bbbbbbbbbbbbb"]
 resFil4 = filter (`elem` ['a'..'z']) "u LaUgH aT mE BeCaUsE I aM diFfeRent"  -- "uagameasadifeent"
 resFil5 = filter (`elem` ['A'..'Z']) "i lauGh At You BecAuse u r aLL the Same"  -- "GAYBALLS" 
 
@@ -2097,14 +2096,129 @@ numLongChains = length (filter isLong (map chain [1..100]))       -- 86 -- answe
 --  instead of a Num a for historical reasons. If we wanted to return a more general Num a, 
 --  we could have used fromIntegral on the resulting length.
 
-
 -- lambda version of isLong function
 numLongChains' :: Int  
 numLongChains' = length (filter (\xs -> length xs > 15) (map chain [1..100])) 
-
 
 -- some trics using map 
 rsMap7 = map (*) [0..]         -- this one has type                 rsMap7 :: [Integer -> Integer] 
 rsMap8 = (rsMap7 !! 4) 5       -- 20      0, 5, 10, 15, 20 ..., but this one     rsMap8 :: Integer
 rsMap9 = ((map (*) [0..]) !! 4) 5      -- 20  
+
+-- ============================== import Data.List ========================
+--import Data.List
+--import Data.List (nub, sort)   -- if we want only these functions
+--import Data.List hiding (nub)  -- if we want everything, except of nub
+--import qualified Data.Map      -- if we want call funcs like "Data.Map.nub"
+--import qualified Data.Map as M -- if we want call funcs like "M.nub"  
+---
+numUniques :: (Eq a) => [a] -> Int  
+numUniques = length . nub               -- == \xs -> length (nub xs)
+
+--- nub ---
+--    The nub function removes duplicate elements from a list. In particular, it keeps only 
+--    the first occurrence of each element. (The name nub means `essence'.) It is a special case of nubBy, 
+--    which allows the programmer to supply their own equality test.
+rsNub1 = nub [1,2,3,4,3,2,1,2,4,3,5]            -- [1,2,3,4,5]
+rsNub2 = nub "asdfsadsa"                        -- "asdf"
+rsNub3 = nub [1,2.0,3,4,3,2,1,2,4,3,5]          -- [1.0,2.0,3.0,4.0,5.0]
+
+--- intersperse --- takes an element and a list and then puts that element in between 
+--    each pair of elements in the list
+rsDtL1 = intersperse '.' "MONKEY"                         -- "M.O.N.K.E.Y" 
+rsDtL2 = intersperse 0 [1,2,3,4,5,6]                      -- [1,0,2,0,3,0,4,0,5,0,6]
+
+--- intercalate --- takes a list of lists and a list. It then inserts that list in between 
+--    all those lists and then flattens the result
+rsDtL3 = intercalate " " ["hey","there","guys"]           -- "hey there guys"  
+rsDtL4 = intercalate [0,0,0] [[1,2,3],[4,5,6],[7,8,9]]    -- [1,2,3,0,0,0,4,5,6,0,0,0,7,8,9]
+
+--- transpose transposes a list of lists. If you look at a list of lists as a 2D matrix, 
+--    the columns become the rows and vice versa
+rsDtL5 = transpose [[1,2,3],[4,5,6],[7,8,9]]              -- [[1,4,7],[2,5,8],[3,6,9]]
+rsDtL6 = transpose ["hey","there","guys"]                 -- ["htg","ehu","yey","rs","e"]
+--- exsample --- Say we have the polynomials 3x2 + 5x + 9, 10x3 + 9 and 8x3 + 5x2 + x - 1 and 
+--    we want to add them together. We can use the lists [0,3,5,9], [10,0,0,9] and [8,5,1,-1] 
+--    to represent them in Haskell. Now, to add them, all we have to do is this:
+rsDtL7 = map sum $ transpose [[0,3,5,9],[10,0,0,9],[8,5,1,-1]]  -- [18,8,6,17] 
+
+--- foldl' and foldr' -- are stricter versions of their respective lazy incarnations. 
+--    When using lazy folds on really big lists, you might often get a stack overflow error. 
+--    The culprit for that is that due to the lazy nature of the folds, the accumulator value 
+--    isn't actually updated as the folding happens. What actually happens is that the accumulator 
+--    kind of makes a promise that it will compute its value when asked to actually produce 
+--    the result (also called a thunk). That happens for every intermediate accumulator and all those 
+--    thunks overflow your stack. The strict folds aren't lazy buggers and actually compute 
+--    the intermediate values as they go along instead of filling up your stack with thunks. 
+--    So if you ever get stack overflow errors when doing lazy folds, try switching to their strict versions.
+
+--- concat --- flattens a list of lists into just a list of elements  
+rsDtL8 = concat ["foo","bar","car"]               -- "foobarcar"  
+rsDtL9 = concat [[3,4,5],[2,3,4],[2,1,1]]         -- [3,4,5,2,3,4,2,1,1]  
+
+--- concatMap --- is the same as first mapping a function to a list and then concatenating the 
+--    list with concat 
+rsDtL10 = concatMap (replicate 4) [1..3]          -- [1,1,1,1,2,2,2,2,3,3,3,3]
+-- concatMap (replicate 4) [1..3]         ==      concat ( map (replicate 4) [1..3])    
+
+--- and --- takes a list of boolean values and returns True only if all the values in the list are True
+rsDtL11 = and $ map (>4) [5,6,7,8]        -- True  
+rsDtL12 = and $ map (==4) [4,4,4,3,4]     -- False  
+
+--- or --- it returns True if any of the boolean values in a list is True
+rsDtL13 = or $ map (==4) [2,3,4,5,6,1]    -- True  
+rsDtL14 = or $ map (>4) [1,2,3]           -- False  
+
+--- any and all take a predicate and then check if any or all the elements in a list satisfy 
+--    the predicate, respectively. Usually we use these two functions instead of 
+--    mapping over a list and then doing and or or
+rsDtL15 = any (==4) [2,3,5,6,1,4]                               -- True  
+rsDtL16 = all (>4) [6,9,10]                                     -- True  
+rsDtL17 = all (`elem` ['A'..'Z']) ("HEYGUYSwhatsup" :: [Char])  -- False  
+rsDtL18 = all (`elem` ['A'..'Z']) ['H','E','Y','G','U','Y','S','w','h','a','t','s','u','p']  -- False  
+rsDtL19 = any (`elem` ['A'..'Z']) ("HEYGUYSwhatsup" :: [Char])  -- True  
+--------- intermission ------
+--rsDtL20 = 'o' `elem` "Zvon" -- does not complile, because (elem :: (Foldable t, Eq a) => a -> t a -> Bool)
+-- but this works
+rsDtL21 = 'o' `elem` ("Zvon" :: [Char])  
+--- or this works too
+rsDtL22 = 'o' `elem` ['Z','v','o','n']
+rsDtL23 = elem 'o' ("aSdlkfjo"::[Char]) -- this compiles and works too
+
+--- iterate --- takes a function and a starting value. It applies the function to the starting value, 
+--    then it applies that function to the result, then it applies the function to that result again, etc. 
+--    It returns all the results in the form of an infinite list.
+rsDtL24 = take 10 $ iterate (*2) 1  -- [1,2,4,8,16,32,64,128,256,512]  
+rsDtL25 = take 3 $ iterate (++ "haha") "haha"  -- ["haha","hahahaha","hahahahahaha"]
+
+--- splitAt --- takes a number and a list. It then splits the list at that many elements, 
+--    returning the resulting two lists in a tuple.
+rsDtL29 = splitAt 3 "heyman"                        -- ("hey","man")  
+rsDtL26 = splitAt 100 "heyman"                      -- ("heyman","")  
+rsDtL27 = splitAt (-3) "heyman"                     -- ("","heyman")  
+rsDtL28 = let (a,b) = splitAt 3 "foobar" in b ++ a  -- "barfoo"  
+
+--- takeWhile --- is a really useful little function. It takes elements from a list 
+--     while the predicate holds and then when an element is encountered that doesn't satisfy 
+--     the predicate, it's cut off. It turns out this is very useful.
+rsDtL30 = takeWhile (>3) [6,5,4,3,2,1,2,3,4,5,4,3,2,1]  -- [6,5,4]  
+rsDtL31 = takeWhile (/=' ') "This is a sentence"        -- "This"  
+--- example --- Say we wanted to know the sum of all third powers that are under 10,000. 
+--    We can't map (^3) to [1..], apply a filter and then try to sum that up because filtering 
+--    an infinite list never finishes. You may know that all the elements here are ascending 
+--    but Haskell doesn't. That's why we can do this:
+rsDtL32 = sum $ takeWhile (<10000) $ map (^3) [1..]     -- 53361  
+
+--- dropWhile --- is similar, only it drops all the elements while the predicate is true. 
+--    Once predicate equates to False, it returns the rest of the list. 
+--    An extremely useful and lovely function!
+rsDtL33 = dropWhile (/=' ') "This is a sentence"        -- " is a sentence"  
+rsDtL34 = dropWhile (<3) [1,2,2,2,3,4,5,4,3,2,1]        -- [3,4,5,4,3,2,1] 
+--- example --- We're given a list that represents the value of a stock by date. 
+--    The list is made of tuples whose first component is the stock1 value, the second is the year, 
+--    the third is the month and the fourth is the date. We want to know when the stock1 value 
+--    first exceeded one thousand dollars!
+stock1 = [(994.4,2008,9,1),(995.2,2008,9,2),(999.2,2008,9,3),(1001.4,2008,9,4),(998.3,2008,9,5)]  
+rsDtL35 = head (dropWhile (\(val,y,m,d) -> val < 1000) stock1)  -- (1001.4,2008,9,4) 
+
 
