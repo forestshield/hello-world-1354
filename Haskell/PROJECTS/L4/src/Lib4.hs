@@ -406,6 +406,11 @@ someFuncLib4 = do
            \First, we'll begin by mapping the (^2) function to the infinite list [1..].\n\
            \Then we filter them to get the odd ones. Then, we'll take elements from that list\n\
            \while they are smaller than 10,000. Finally, we'll get the sum of that list."
+  specShow ((map (+ 0) [1, 3, 3, 4]), (map (* 0) [1, 3, 3, 4]), 
+            (map (/ 1) [1, 3, 3, 4]), (map (/ 0) [1, 3, 3, 4]))
+           ", \nmap (+ 0) [1, 3, 3, 4]\nmap (* 0) [1, 3, 3, 4]\n\
+           \map (/1 0) [1, 3, 3, 4]\nmap (/ 0) [1, 3, 3, 4]"
+           "simple map ..."
   specShow ( ((map (*) [0..]) !! 4) 5)
            ", (map (*) [0..]) !! 4) 5"           
            "some trics using map"
@@ -422,7 +427,6 @@ someFuncLib4 = do
            \elem2 y ys = foldl (\\acc x -> if x == y then True else acc) False ys\n\
            \elem3 y ys = foldr (\\x acc -> if x == y then True else acc) False ys"
            "elem implementaion with foldl and foldr"
-
   specShow ((foldl (/) 64 [4,2,4]), (foldr (/) 64 [4,2,4]), 
            (foldl (+) 5 [1,2,3,4]), (foldr (+) 5 [1,2,3,4]),
            (foldl (\x y -> (x+y)/2) 54 [12,4,10,6]), (foldr (\x y -> (x+y)/2) 54 [12,4,10,6]) )
@@ -430,11 +434,6 @@ someFuncLib4 = do
            \(foldl (+) 5 [1,2,3,4]), (foldr (+) 5 [1,2,3,4])\n\
            \(foldl (\\x y -> (x+y)/2) 54 [12,4,10,6]), (foldr (\\x y -> (x+y)/2) 54 [12,4,10,6])"
            "foldl vs foldr"
-  specShow (((negate . abs) (-1)), ((reverse . take 10 . enumFrom) 10), 
-           ((abs . snd)(-1,-3)), (((2+).(3*).(4-)) 2) )
-           ", \n(negate . abs) (-1)\n(reverse . take 10 . enumFrom) 10\
-           \\n(abs . snd)(-1,-3)\n((2+).(3*).(4-)) 2"
-           "function composition (.)"
   specShow ((take 10 (enumFrom 'a') ), (take 10 (enumFrom 23)), 
            (enumFrom BB), (enumFrom Green) )
            ",\ntake 10 (enumFrom 'a')\ntake 10 (enumFrom 23)\n\
@@ -443,11 +442,39 @@ someFuncLib4 = do
            \     data Color  = Blue | Green | Read deriving (Show, Read, Eq, Enum)\n\
            \enumFrom Green"
            "EnumFrom"
-
+  specShow ((sum (filter (> 10) (map (*2) [2..10]))), 
+           (sum $ filter (> 10) $ map (*2) [2..10]), 
+           (map ($ 3) [(4+), (10*), (^2), sqrt]))
+           ",\n#1. sum (filter (> 10) (map (*2) [2..10])) ==  sum $ filter (> 10) $ map (*2) [2..10]\n\
+           \#2. map ($ 3) [(4+), (10*), (^2), sqrt] !!! mapping over list of\  \ functions !!!"
+           "function application $"
+  specShow (((negate . abs) (-1)), ((reverse . take 10 . enumFrom) 10), 
+           ((abs . snd)(-1,-3)), (((2+).(3*).(4-)) 2) )
+           ", \n(negate . abs) (-1)\n(reverse . take 10 . enumFrom) 10\
+           \\n(abs . snd)(-1,-3)\n((2+).(3*).(4-)) 2"
+           "function composition (.)"
+  specShow ((map (\x -> negate (abs x)) [5,-3,-6,7,-3,2,-19,24]),
+            (map (negate . abs) [5,-3,-6,7,-3,2,-19,24]))
+           ", \nmap (\\x -> negate (abs x)) [5,-3,-6,7,-3,2,-19,24], using lambda\n\
+           \map (negate . abs) [5,-3,-6,7,-3,2,-19,24], using function composition"
+           "function composition or lambda?"
+  specShow ((sum (replicate 5 (max 6.7 8.9))), ((sum.replicate 5 . max 6.7) 8.9), 
+            (sum . replicate 5 . max 6.7 $ 8.9) )
+           ", \nsum (replicate 5 (max 6.7 8.9))\n\
+           \sum.replicate 5 . max 6.7) 8.9\n\
+           \sum . replicate 5 . max 6.7 $ 8.9"
+           "point free style of function composition"
+  specShow ((ceiling 3.000001), (ceiling 3), (ceiling (-3.7)), 
+           (cos pi/3), (tan pi/16))
+           "\nceiling 3.000001, ceiling 3, ceiling (-3.7)\n\
+           \cos pi/3, tan pi/16"
+           "ceiling cos tan"
   specShow ()
            ", \n\
            \"
            ""
+
+
 
 -- some cool stuff
   putStrLn $ show $ sum' []
@@ -1764,6 +1791,12 @@ resMap5 = map (print) [1,3,5,6,7]
 -- here is lambda func again                        
 resMap6 = map (\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]  -- [3,8,9,8,7]  
 
+-- simple map ---
+rsMps1 = map (+ 0) [1, 3, 3, 4] -- [1,3,3,4]
+rsMps2 = map (* 0) [1, 3, 3, 4] -- [0,0,0,0]
+rsMps3 = map (/ 1) [1, 3, 3, 4] -- [1.0,3.0,3.0,4.0]
+rsMps4 = map (/ 0) [1, 3, 3, 4] -- [Infinity,Infinity,Infinity,Infinity]
+
 --------------- intermission -----------------
 -- recip ----
 -- Fractional a => a -> a
@@ -1772,12 +1805,81 @@ rsRcp1 = recip 0.1           -- 10.0
 rsRcp2 = recip 4             -- 0.25
 
 -- . -----
--- function composition
--- (a -> b) -> (c -> a) -> c -> b
+-- function composition. In math  (f o g)(x) = f(g(x))
+-- (.)   :: (b -> c) -> (a -> b) -> a -> c  
+-- f . g = \x -> f (g x) 
 rsDot1 = (negate . abs) (-1)                  -- -1
 rsDot2 = (reverse . take 10 . enumFrom) 10    --  [19,18,17,16,15,14,13,12,11,10]
 rsDot3 = (abs . snd)(-1,-3)                   -- 3
 rsDot4 = ((2+).(3*).(4-)) 2                   -- 8
+
+--- compare, which one is clearer and more concise
+rsLmb1 = map (\x -> negate (abs x)) [5,-3,-6,7,-3,2,-19,24]  -- [-5,-3,-6,-7,-3,-2,-19,-24]
+rsDot6 = map (negate . abs) [5,-3,-6,7,-3,2,-19,24]          -- [-5,-3,-6,-7,-3,-2,-19,-24] 
+---
+rsLmb2 = map (\xs -> negate (sum (tail xs))) [[1..5],[3..6],[1..7]]   -- [-14,-15,-27] 
+rsDot7 = map (negate . sum . tail) [[1..5],[3..6],[1..7]]             -- [-14,-15,-27]
+
+-- using (.) with functions having several parameters -------------
+-- we have to partially apply them just so much that each function takes just one parameter
+rsToMdf1 = sum (replicate 5 (max 6.7 8.9))          -- 44.5
+-- modified versions
+rsMdfyd1 = (sum.replicate 5 . max 6.7) 8.9          -- 44.5
+rsMdfyd2 = sum . replicate 5 . max 6.7 $ 8.9        -- 44.5
+---
+rsToMdf2 = replicate 10 (product (map (*3) (zipWith max [1,2,3,4,5] [4,5,6,7,8])))
+        -- [1632960,1632960,1632960,1632960,1632960,1632960,1632960,1632960,1632960,1632960]
+rsMdfyd4 = replicate 10 . product . map (*3) . zipWith max [1,2,3,4,5] $ [4,5,6,7,8]
+        -- [1632960,1632960,1632960,1632960,1632960,1632960,1632960,1632960,1632960,1632960]
+
+------- point free style of function definitions ------------
+-- Another common use of function composition is defining functions in the so-called 
+-- point free style (also called the pointless style)
+sum5    :: (Num a) => [a] -> a     
+--sum5 xs = foldl (+) 0 xs      -- xs is exposed on both sides, because of curring we can omit xs
+sum5 = foldl (+) 0              -- this version is written in point free style
+---
+fn :: (RealFrac a, Integral b, Floating a) => a -> b 
+fn x = ceiling (negate (tan (cos (max 50 x))))
+---
+--fn' :: (RealFrac a, Integral b, Floating a) => a -> b 
+fn' :: Double -> Integer
+fn'  = ceiling . negate . tan . cos . max 50              -- point free style too
+
+-- ceiling --- returns the least integer not less than argument
+rsCeil1 = ceiling 3.000001      -- 4
+rsCeil2 = ceiling 3             -- 3 
+rsCeil3 = ceiling (-3.7)        -- -3
+
+-- cos  --- cosine
+-- cos :: Floating a => a -> a
+rsCos1  = cos (pi/2)            -- 0.0
+-- tan  --- tangent
+-- tan :: Floating a => a -> a
+rsTan1  = tan (pi/16)            -- 0.19891236737965798
+
+-------------- another example of function composition -------------
+--- regular function
+oddSquareSum :: Integer  
+oddSquareSum = sum (takeWhile (<10000) (filter odd (map (^2) [1..])))         -- 166650
+---  point free style with function composition 
+oddSquareSum' :: Integer  
+oddSquareSum' = sum . takeWhile (<10000) . filter odd . map (^2) $ [1..]      -- 166650
+---  more readable version, which is better for people who will read this func
+oddSquareSum'' :: Integer  
+oddSquareSum'' =                                                              -- 166650
+    let oddSquares = filter odd $ map (^2) [1..]  
+        belowLimit = takeWhile (<10000) oddSquares  
+    in  sum belowLimit 
+
+
+
+
+
+
+
+
+
 
 -- enumFrom ----
 -- Enum a => a -> [a]
@@ -1817,22 +1919,68 @@ reverseF :: [a] -> [a]
 reverseF = foldl (\acc x -> x : acc) []  
 --
 reverseFr :: [a] -> [a]  
-reverseFr = foldr (\ x acc -> x : acc) []     -- this will not work (does not reverse)
+--reverseFr = foldr (\ x acc -> x : acc) []   -- this will not work (does not reverse)
 --reverseFr = foldr (\acc x -> x : acc) []    -- this does not compile
+reverseFr = foldl (flip (:)) []
 --  
 productF :: (Num a) => [a] -> a  
 productF = foldr1 (*)  
+---
+productFl :: (Num a) => [a] -> a  
+productFl = foldl1 (*)  
 ---  
 filterF   :: (a -> Bool) -> [a] -> [a]  
 filterF p = foldr (\x acc -> if p x then x : acc else acc) []  
 ---  
---head is better implemented by pattern ma
 headF :: [a] -> a  
-headF = foldr1 (\x _ -> x)  
+headF = foldr1 (\x _ -> x)   --head is better implemented by pattern matching
+--
+headF2 :: [a] -> a  
+headF2 = foldl1 (\x _ -> x)  --head is better implemented by pattern matching
 ---  
 lastF :: [a] -> a  
 lastF = foldl1 (\_ x -> x)  
+--
+lastF2 :: [a] -> a  
+lastF2 = foldr1 (\_ x -> x)  
 
+--------------------- scanl, scanr, scanl1, scanr1 -----------------
+-- scanl and scanr are like foldl and foldr, only they report all the intermediate accumulator 
+-- states in the form of a list. 
+-- There are also scanl1 and scanr1, which are analogous to foldl1 and foldr1
+-- Scans are used to monitor the progression of a function that can be implemented as a fold.
+rsScL0 = scanl (+) 0 [1,2,3,4]           -- [0,1,3,6,10]
+rsFlL0 = foldl (+) 0 [1,2,3,4]           -- 10
+rsCcR0 = scanr (+) 0 [3,5,2,1]           -- [11,8,3,1,0]
+rsFcR0 = foldr (+) 0 [3,5,2,1]           -- 11
+---
+rsScL2 = scanl1 (\acc x -> if x > acc then x else acc) [3,4,5,3,7,9,2,1]  -- [3,4,5,5,7,9,9,9]
+rsScL3 = scanl (flip (:)) [] [3,2,1]                                      -- [[],[3],[2,3],[1,2,3]]
+
+-- Question: How many elements does it take for the sum of the roots of 
+-- all natural numbers to exceed 1000? 
+-- To get the squares of all natural numbers we just use map sqrt [1..]
+-- Now we will use scan (to get result, we could use fold)
+sqrtSums :: Int  
+sqrtSums = length (takeWhile (<1000) (scanl1 (+) (map sqrt [1..]))) + 1
+---
+rsSum1 = sum (map sqrt [1..130])  -- 993.6486803921487
+rsSum2 = sum (map sqrt [1..131])  -- 1005.0942035344083
+
+----------------- function application   $    ---------------
+-- ($) :: (a -> b) -> a -> b  
+-- f $ x = f x 
+-- f a b c == ((f a) b) c 
+-- f (g (z x)) == f $ g $ z x
+-- sum (filter (> 10) (map (*2) [2..10]))   ==   sum $ filter (> 10) $ map (*2) [2..10]
+-- =========================================================
+-- But apart from getting rid of parentheses, $ means that function application can be treated
+-- just like another function. That way, we can, for instance, map function application 
+-- over a list of functions.  
+-- ========================================================= !!!!!!!
+rsMapS1 = map ($ 3) [(4+), (10*), (^2), sqrt]      -- [7.0,30.0,9.0,1.7320508075688772]  
+
+-- 
 
 
 
