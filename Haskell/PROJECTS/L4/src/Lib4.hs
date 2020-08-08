@@ -10,6 +10,10 @@ import Data.List
 --import qualified Data.Map      -- if we want call funcs like "Data.Map.nub"
 --import qualified Data.Map as M -- if we want call funcs like "M.nub"  
 
+import Data.Function
+
+import Data.Char
+
 import Data.String
 import Data.Int
 --import GHC.Int
@@ -475,11 +479,122 @@ someFuncLib4 = do
            (cos pi/3), (tan pi/16))
            "\nceiling 3.000001, ceiling 3, ceiling (-3.7)\n\
            \cos pi/3, tan pi/16"
-           "ceiling cos tan"
-  specShow ()
-           ", \n\
-           \"
-           ""
+           "ceiling --- cos --- tan"
+
+  putStrLn "\n==================== import Data.List ===================="
+
+  specShow ((nub [1,2,3,4,3,2,1,2,4,3,5]),(nub "asdfsadsa"),(nub [1,2.0,3,4,3,2,1,2,4,3,5]))
+           "\nnub [1,2,3,4,3,2,1,2,4,3,5]\nnub \"asdfsadsa\"\nnub [1,2.0,3,4,3,2,1,2,4,3,5]"
+           "nub"
+  specShow ((intersperse '.' "MONKEY"), (intersperse 0 [1,2,3,4,5,6]),
+            (intercalate " " ["hey","there","guys"]), 
+            (intercalate [0,0,0] [[1,2,3],[4,5,6],[7,8,9]]))
+           "\nintersperse '.' \"MONKEY\"\nintersperse 0 [1,2,3,4,5,6]\n\
+           \intercalate \" \" [\"hey\",\"there\",\"guys\"]\n\
+           \intercalate [0,0,0] [[1,2,3],[4,5,6],[7,8,9]]"
+           "intersperse  --- intercalate"
+  specShow ((transpose [[1,2,3],[4,5,6],[7,8,9]] ), (transpose ["hey","there","guys"]),
+            (map sum $ transpose [[0,3,5,9],[10,0,0,9],[8,5,1,-1]]))
+           "\ntranspose [[1,2,3],[4,5,6],[7,8,9]]\ntranspose [\"hey\",\"there\",\"guys\"]\n\
+           \map sum $ transpose [[0,3,5,9],[10,0,0,9],[8,5,1,-1]]"
+           "transposes  -- looks like matrix operation"      
+  specShow ((concat ["foo","bar","car"]), (concat [[3,4,5],[2,3,4],[2,1,1]]),
+            (concatMap (replicate 4) [1..3]), (concat ( map (replicate 4) [1..3])))
+           "\nconcat [\"foo\",\"bar\",\"car\"]\nconcat [[3,4,5],[2,3,4],[2,1,1]]\n\
+           \concatMap (replicate 4) [1..3] == concat ( map (replicate 4) [1..3])"
+           "concat --- concatMap"           
+  specShow ((and $ map (>4) [5,6,7,8]), (and $ map (==4) [4,4,4,3,4]), 
+            (or $ map (==4) [2,3,4,5,6,1]), (or $ map (>4) [1,2,3]))
+           "\nand $ map (>4) [5,6,7,8]\nand $ map (==4) [4,4,4,3,4]\
+           \\nor $ map (==4) [2,3,4,5,6,1]\nor $ map (>4) [1,2,3]"
+           "and --- or"
+  specShow ((any (==4) [2,3,5,6,1,4]),(any (`elem` ['A'..'Z']) ("HEYGUYSwhatsup" :: [Char])),
+            (all (`elem` ['A'..'Z']) ("HEYGUYSwhatsup" :: [Char])),(all (>4) [6,9,10] ))
+           "\nany (==4) [2,3,5,6,1,4]\nany (`elem` ['A'..'Z']) (\"HEYGUYSwhatsup\" :: [Char])\
+           \\nall (`elem` ['A'..'Z']) (\"HEYGUYSwhatsup\" :: [Char])\nall (>4) [6,9,10]\n"
+           "any --- all"
+  specShow (('o' `elem` ("Zvon" :: [Char])),('o' `elem` ['Z','v','o','n']),
+            (elem 'o' ("aSdlkfjo"::[Char])))
+           "\n'o' `elem` (\"Zvon\" :: [Char])\n'o' `elem` ['Z','v','o','n']\n\
+           \elem 'o' (\"aSdlkfjo\"::[Char])"
+           "intermission `elem` elem"
+  specShow ((take 10 $ iterate (*2) 1),(take 3 $ iterate (++ "haha") "haha"))
+           "\ntake 10 $ iterate (*2) 1\ntake 3 $ iterate (++ \"haha\") \"haha\""
+           "iterate"
+  specShow ((splitAt 3 "heyman"),(splitAt 100 "heyman"),(splitAt (-3) "heyman"),
+            (let (a,b) = splitAt 3 "foobar" in b ++ a),
+            --(do b ++ a where (a,b) = splitAt 3 "foobar"), -- does not compile
+            (rsDtL28'))
+           "\nsplitAt 3 \"heyman\"\nsplitAt 100 \"heyman\"\nsplitAt (-3) \"heyman\"\n\
+           \let (a,b) = splitAt 3 \"foobar\" in b ++ a\n\
+           \do b ++ a where (a,b) = splitAt 3 \"foobar\""
+           "splitAt"
+  specShow ((takeWhile (>3) [6,5,4,3,2,1,2,3,4,5,4,3,2,1]), 
+            (takeWhile (/=' ') "This is a sentence"), 
+            (sum $ takeWhile (<10000) $ map (^3) [1..]))
+           "\ntakeWhile (>3) [6,5,4,3,2,1,2,3,4,5,4,3,2,1]\n\
+           \takeWhile (/=' ') \"This is a sentence\")\n\
+           \sum $ takeWhile (<10000) $ map (^3) [1..]"
+           "takeWhile"
+  specShow ((dropWhile (/=' ') "This is a sentence"), (dropWhile (<3) [1,2,2,2,3,4,5,4,3,2,1]))
+           "\ndropWhile (/=' ') \"This is a sentence\"\n\
+           \dropWhile (<3) [1,2,2,2,3,4,5,4,3,2,1]"
+           "dropWhile"
+  specShow (span (/=' ') "This is a sentence",
+            let (fw, rest) = span (/=' ') "This is a sentence" in "First word:" ++ fw ++ ", the rest:" ++ rest)
+           "\nspan (/=' ') \"This is a sentence\"\
+           \\nlet (fw, rest) = span (/=' ') \"This is a sentence\" in \"First word:\" \
+           \++ fw ++ \", the rest:\" ++ rest"
+           "span"
+  specShow ((break (==4) [1,2,3,4,5,6,7]), (span (/=4) [1,2,3,4,5,6,7]), 
+            (sort [8,5,3,2,1,6,4,2]), (sort "This will be sorted soon"))
+           "\nbreak (==4) [1,2,3,4,5,6,7]\nspan (/=4) [1,2,3,4,5,6,7]\n\
+           \sort [8,5,3,2,1,6,4,2]\nsort \"This will be sorted soon\""
+           "break span sort"
+  specShow ((group [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7] ), 
+            (map (\l@(x:xs) -> (x,length l)) . group . sort $ [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7]))
+           "\ngroup [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7]\n\
+           \map (\\l@(x:xs) -> (x,length l)) . group . sort $ [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7]"
+           "group"
+  specShow ((inits "w00t" ), (tails "w00t" ), (let w = "w00t" in zip (inits w) (tails w)))
+           "\ninits \"w00t\"\ntails \"w00t\"\n\
+           \let w = \"w00t\" in zip (inits w) (tails w)"
+           "inits tails"
+  specShow ((search "cat" "im a cat burglar"), ("cat" `isInfixOf` "im a cat burglar"), 
+            ("Cat" `isInfixOf` "im a cat burglar"), 
+            (isInfixOf "cats" "im a cat burglar") )
+           "\nsearch \"cat\" \"im a cat burglar\"\n\"cat\" `isInfixOf` \"im a cat burglar\"\
+           \\n\"Cat\" `isInfixOf` \"im a cat burglar\"\nisInfixOf \"cats\" \"im a cat burglar\""
+           "isInfixOf --- and example: our implementaion seachig a list for subset"
+  specShow (("hey" `isPrefixOf` "hey there!" ), ("hey" `isPrefixOf` "oh hey there!"), 
+            ("there!" `isSuffixOf` "oh hey there!"), 
+            ("there!" `isSuffixOf` "oh hey there"))
+           "\n\"hey\" `isPrefixOf` \"hey there!\"\n\"hey\" `isPrefixOf` \"oh hey there!\"\
+           \\n\"there!\" `isSuffixOf` \"oh hey there!\"\n\"there!\" `isSuffixOf` \"oh hey there\""
+           "isPrefixOf --- isSuffixOf"
+  specShow ((partition (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"), 
+            (partition (>3) [1,3,5,6,3,2,1,0,3,7]),
+            (partition (`notElem` ['A'..'Z']) "BOBsidneyMORGANeddy"))
+           "\npartition (`elem` ['A'..'Z']) \"BOBsidneyMORGANeddy\"\n\
+           \partition (>3) [1,3,5,6,3,2,1,0,3,7]\n\
+           \partition (`notElem` ['A'..'Z']) \"BOBsidneyMORGANeddy\""
+           "partition --- elem --- notElem"
+  specShow ((partition (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"), 
+            (span (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"), 
+            (break (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"))
+           "\npartition (`elem` ['A'..'Z']) \"BOBsidneyMORGANeddy\"\
+           \\nspan (`elem` ['A'..'Z']) \"BOBsidneyMORGANeddy\"\n\
+           \break (`elem` ['A'..'Z']) \"BOBsidneyMORGANeddy\""
+           "important diff between partition and span and break"
+  specShow ((find (>4) [1,2,3,4,5,6]), (find (>9) [1,2,3,4,5,6]))
+           "\nfind (>4) [1,2,3,4,5,6]\nfind (>9) [1,2,3,4,5,6]"
+           "find   (find :: (a -> Bool) -> [a] -> Maybe a)"
+  specShow ((head (dropWhile (\(val,y,m,d) -> val < 1000) stock1)), 
+            (find (\(val,y,m,d) -> val > 1000) stock1))
+           "\nstock1  = [(994.4,2008,9,1),(995.2,2008,9,2),(999.2,2008,9,3),(1001.4,2008,9,4),(998.3,2008,9,5)]\
+           \\nhead (dropWhile (\\(val,y,m,d) -> val < 1000) stock1) -- unsafe\n\
+           \find (\\(val,y,m,d) -> val > 1000) stock1  -- safe"
+           "unsafe and safe implementations of stock1 function"
 
 
 
@@ -487,8 +602,13 @@ someFuncLib4 = do
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
 {-
+  specShow ((), (), 
+            (), ())
+           "\n\n\
+           \\n"
+           ""
   specShow ()
-           ", \n\
+           "\n\
            \"
            ""
 -}
@@ -2198,7 +2318,7 @@ rsDtL26 = splitAt 100 "heyman"                      -- ("heyman","")
 rsDtL27 = splitAt (-3) "heyman"                     -- ("","heyman")  
 rsDtL28 = let (a,b) = splitAt 3 "foobar" in b ++ a  -- "barfoo"  
 rsDtL28' = do b ++ a where (a,b) = splitAt 3 "foobar"  -- "barfoo"  
-
+            
 --- takeWhile --- is a really useful little function. It takes elements from a list 
 --     while the predicate holds and then when an element is encountered that doesn't satisfy 
 --     the predicate, it's cut off. It turns out this is very useful.
@@ -2231,7 +2351,7 @@ rsDtL35 = head (dropWhile (\(val,y,m,d) -> val < 1000) stock1)  -- (1001.4,2008,
 --    the part of the list that would have been dropped.
 rsDtL38 = let (fw, rest) = span (/=' ') "This is a sentence" 
             in "First word:" ++ fw ++ ", the rest:" ++ rest  -- "First word: This, the rest: is a sentence"  
-
+rsDtL38' = span (/=' ') "This is a sentence"
 --- break --- Whereas span spans the list while the predicate is true, break breaks it 
 --    when the predicate is first true. Doing break p is the equivalent of doing span (not . p).
 rsDtL36  = break (==4) [1,2,3,4,5,6,7]        -- ([1,2,3],[4,5,6,7])  
@@ -2257,7 +2377,7 @@ rsDtL42 = map (\l@(x:xs) -> (x,length l)) . group . sort $ [1,1,1,1,2,2,2,2,3,3,
 --- inits --- tails --- inits and tails are like init and tail, only they recursively apply that 
 --      to a list until there's nothing left. Observe.
 rsDtL43 = inits "w00t"                    -- ["","w","w0","w00","w00t"]  
-rsDtL44 = tails "w00t"                    -- ["w00t","00t","0t","t",""]  
+rsDtL44 = tails "w00t"                     -- ["w00t","00t","0t","t",""]  
 rsDtL45 = let w = "w00t" in zip (inits w) (tails w)  
                                           -- [("","w00t"),("w","00t"),("w0","0t"),("w00","t"),("w00t","")]
 
@@ -2269,7 +2389,7 @@ search needle haystack =
 -- First we call tails with the list in which we're searching. Then we go over each tail and see 
 --      if it starts with what we're looking for. 
 --      With that, we actually just made a function that behaves like isInfixOf. 
-
+rsDtL46' = search "cat" "im a cat burglar"
 --- isInfixOf --- searches for a sublist within a list and returns True if the sublist we're 
 --      looking for is somewhere inside the target list.
 rsDtL46 = "cat" `isInfixOf` "im a cat burglar"  -- True  
@@ -2284,11 +2404,12 @@ rsDtL51 = "there!" `isSuffixOf` "oh hey there!"   -- True
 rsDtL52 = "there!" `isSuffixOf` "oh hey there"    -- False  
 
 --- elem --- notElem --- check if an element is or isn't inside a list
---- partition --- takes a list and a predicate and returns a pair of lists. The first list in 
+--- partition --- takes a predicate and a list and returns a pair of lists. The first list in 
 --      the result contains all the elements that satisfy the predicate, the second contains 
 --      all the ones that don't.
 rsDtL53 = partition (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"   -- ("BOBMORGAN","sidneyeddy")  
-rsDtL54 = partition (>3) [1,3,5,6,3,2,1,0,3,7]                  -- ([5,6,7],[1,3,3,2,1,0,3]) 
+rsDtL54 = partition (>3) [1,3,5,6,3,2,1,0,3,7]                  -- ([5,6,7],[1,3,3,2,1,0,3])
+rsDtL53' = partition (`notElem` ['A'..'Z']) "BOBsidneyMORGANeddy"   -- ("BOBMORGAN","sidneyeddy")  
 -- It's important to understand how this is different from span and break:
 rsDtL55 = span (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"        -- ("BOB","sidneyMORGANeddy") 
 rsDtL56 = break (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"       -- ("","BOBsidneyMORGANeddy") 
@@ -2321,3 +2442,137 @@ rsDtL59 = find (\(val,y,m,d) -> val > 1000) stock1  -- Just (1001.4,2008,9,4)
 --elemIndex :: (Eq a) => a -> [a] -> Maybe Int  
 rsDtL60 = 4 `elemIndex` [1,2,3,4,5,6]               -- Just 3  
 rsDtL61 = 10 `elemIndex` [1,2,3,4,5,6]              -- Nothing  
+
+--- elemIndices --- elemIndices is like elemIndex, only it returns a list of indices, 
+--      in case the element we're looking for crops up in our list several times. 
+--      Because we're using a list to represent the indices, we don't need a Maybe type, 
+--      because failure can be represented as the empty list, which is very much synonymous to Nothing
+rsDtL62 = ' ' `elemIndices` "Where are the spaces?" -- [5,9,13]
+
+--- findIndex --- findIndices --- findIndex is like find, but it maybe returns the index of the first 
+--      element that satisfies the predicate. findIndices returns the indices of all elements that 
+--      satisfy the predicate in the form of a list.
+rsDtL63 = findIndex (==4) [5,3,2,1,6,4]                             -- Just 5  
+rsDtL64 = findIndex (==7) [5,3,2,1,6,4]                             -- Nothing  
+rsDtL65 = findIndices (`elem` ['A'..'Z']) "Where Are The Caps?"     -- [0,6,10,14]
+
+--- zip --- zipWith ---  up to 7 
+rsDtL66 = zipWith3 (\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]  -- [7,9,8]  
+rsDtL67 = zip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2]                      -- [(2,2,5,2),(3,2,5,2),(3,2,3,2)]
+
+--- lines --- unlines --- words --- unwords --- is a useful function when dealing with files or input 
+--      from somewhere. It takes a string and returns every line of that string in a separate list
+--      unlines is the inverse function of lines. It takes a list of strings and joins 
+--      them together using a '\n'. words and unwords are for splitting a line of text into words 
+--      or joining a list of words into a text. Very useful.
+rsDtL68 = lines "first line\nsecond line\nthird line"         -- ["first line","second line","third line"]
+rsDtL69 = unlines ["first line", "second line", "third line"] -- "first line\nsecond line\nthird line\n" 
+rsDtL70 = words "hey these are the words in this sentence"    
+                                          -- ["hey","these","are","the","words","in","this","sentence"]  
+rsDtL71 = words "hey these           are    the words in this\nsentence"  
+                                          -- ["hey","these","are","the","words","in","this","sentence"]  
+rsDtL72 = unwords ["hey","there","mate"]  -- "hey there mate"
+
+--- delete --- takes an element and a list and deletes the first occurence of that element in the list.
+rsDtL73 = delete 'h' "hey there ghang!"                               -- "ey there ghang!"  
+rsDtL74 = delete 'h' . delete 'h' $ "hey there ghang!"                -- "ey tere ghang!"  
+rsDtL75 = delete 'h' . delete 'h' . delete 'h' $ "hey there ghang!"   -- "ey tere gang!" 
+
+--- \\ --- "\\" is the list difference function. It acts like a set difference, basically. For every 
+--      element in the right-hand list, it removes a matching element in the left one
+rsDtL76 = [1..10] \\ [2,5,9]        -- [1,3,4,6,7,8,10]  
+rsDtL77 = "Im a big baby" \\ "big"  -- "Im a  baby"
+-- Doing [1..10] \\ [2,5,9] is like doing delete 2 . delete 5 . delete 9 $ [1..10].
+
+--- union --- also acts like a function on sets. It returns the union of two lists. It pretty much goes 
+--      over every element in the second list and appends it to the first one if it isn't already in yet. 
+--      Watch out though, duplicates are removed from the second list!
+rsDtL78 = "hey man" `union` "man what's up"         -- "hey manwt'sup" 
+rsDtL79 = "hey man"
+rsDtL80 = "man what's up"
+rsDtL81 = rsDtL79 `union` rsDtL80                   -- "hey manwt'sup"
+---
+rsDtL82 = [1..7] `union` [5..10]                    -- [1,2,3,4,5,6,7,8,9,10]
+
+--- intersect --- works like set intersection. It returns only the elements that are found in both lists.
+rsDtL83 = [1..7] `intersect` [5..10]              -- [5,6,7] 
+
+--- insert --- takes an element and a list of elements that can be sorted and inserts it into the last 
+--      position where it's still less than or equal to the next element. In other words, insert will 
+--      start at the beginning of the list and then keep going until it finds an element that's equal 
+--      to or greater than the element that we're inserting and it will insert it just before the element.
+rsDtL84 = insert 4 [3,5,1,2,8,2]                  -- [3,4,5,1,2,8,2]  
+rsDtL85 = insert 4 [1,3,4,4,1]                    -- [1,3,4,4,4,1]
+--      The 4 is inserted right after the 3 and before the 5 in the first example and in between the 3 
+--      and 4 in the second example.
+--      If we use insert to insert into a sorted list, the resulting list will be kept sorted.
+rsDtL86 = insert 4 [1,2,3,5,6,7]                  -- [1,2,3,4,5,6,7]  
+rsDtL87 = insert 'g' $ ['a'..'f'] ++ ['h'..'z']   -- "abcdefghijklmnopqrstuvwxyz"  
+rsDtL88 = insert 3 [1,2,4,3,2,1]                  -- [1,2,3,4,3,2,1]
+
+-- !!! ================================================================================= !!! --
+--      What "length", "take", "drop", "splitAt", "!!" and "replicate" have in common is that they 
+--      take an Int as one of their parameters (or return an Int), even though they could be more generic
+--      and usable if they just took any type that's part of the Integral or Num typeclasses 
+--      (depending on the functions). They do that for historical reasons. However, fixing that would 
+--      probably break a lot of existing code. That's why Data.List has their more generic equivalents, 
+--      named genericLength, genericTake, genericDrop, genericSplitAt, genericIndex and genericReplicate
+--      N.B. "let xs = [1..6] in sum xs / length xs", we get a type error, because you can't 
+--      use / with an Int. But "let xs = [1..6] in sum xs / genericLength xs" works out just fine
+-- !!! ================================================================================= !!! --
+
+--- genericLength --- genericTake --- genericDrop --- genericSplitAt --- genericIndex --- genericReplicate 
+--      length :: Foldable t => t a -> Int
+--      genericLength :: Num i => [a] -> i
+
+--- nubBy --- deleteBy --- unionBy --- intersectBy --- groupBy --- 
+--      The nub, delete, union, intersect and group functions all have their more general counterparts 
+--      called nubBy, deleteBy, unionBy, intersectBy and groupBy. The difference between them is that the
+--      first set of functions use == to test for equality, whereas the By ones also take an equality 
+--      function and then compare them by using that equality function. group is the same as groupBy (==).
+
+--      For instance, say we have a list that describes the value of a function for every second. We want 
+--      to segment it into sublists based on when the value was below zero and when it went above. If we 
+--      just did a normal group, it would just group the equal adjacent values together. But what we want
+--      is to group them by whether they are negative or not. That's where groupBy comes in! The equality
+--      function supplied to the By functions should take two elements of the same type and return True 
+--      if it considers them equal by its standards.
+rsDtL89 = [-4.3, -2.4, -1.2, 0.4, 2.3, 5.9, 10.5, 29.1, 5.3, -2.4, -14.5, 2.9, 2.3]  
+rsDtL90 = groupBy (\x y -> (x > 0) == (y > 0)) rsDtL89 
+                                  -- [[-4.3,-2.4,-1.2],[0.4,2.3,5.9,10.5,29.1,5.3],[-2.4,-14.5],[2.9,2.3]]
+--      From this, we clearly see which sections are positive and which are negative. The equality 
+--      function supplied takes two elements and then returns True only if they're both negative or if 
+--      they're both positive. This equality function can also be written as
+--      "\x y -> (x > 0) && (y > 0) || (x <= 0) && (y <= 0)", although I think the first way is more readable.
+
+---- intermission --------   "on" --- function from Data.Function.
+--      on :: (b -> b -> c) -> (a -> b) -> a -> a -> c  
+--      f `on` g = \x y -> f (g x) (g y) 
+
+--      So doing (==) `on` (> 0) returns an equality function that looks like 
+--      "\x y -> (x > 0) == (y > 0)". on is used a lot with the By functions because with it, we can do
+rsDtL91 = groupBy ((==) `on` (> 0)) rsDtL89  
+                                  -- [[-4.3,-2.4,-1.2],[0.4,2.3,5.9,10.5,29.1,5.3],[-2.4,-14.5],[2.9,2.3]]
+--      You can read it out loud: Group this by equality on whether the elements are greater than zero
+
+--- sortBy --- insertBy --- maximumBy --- minimumBy ---
+--      Similarly, the sort, insert, maximum and minimum also have their more general equivalents. 
+--      Functions like groupBy take a function that determines when two elements are equal. 
+--      sortBy, insertBy, maximumBy and minimumBy take a function that determine if one element is 
+--      greater, smaller or equal to the other. The type signature of sortBy is 
+--      "sortBy :: (a -> a -> Ordering) -> [a] -> [a]". If you remember from before, 
+--      the Ordering type can have a value of LT, EQ or GT. sort is the equivalent of sortBy compare, 
+--      because compare just takes two elements whose type is in the Ord typeclass and returns 
+--      their ordering relationship.   
+
+-- example -- Lists can be compared, but when they are, they are compared lexicographically. 
+--      What if we have a list of lists and we want to sort it not based on the inner lists' contents 
+--      but on their lengths? Well, as you've probably guessed, we'll use the sortBy function.
+rsDtL92 = [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]]  
+rsDtL93 = sortBy (compare `on` length) rsDtL92           -- [[],[2],[2,2],[1,2,3],[3,5,4,3],[5,4,5,4,4]]
+--      compare `on` length ... that reads almost like real English!
+--      "compare `on` length" here is the equivalent of "\x y -> length x `compare` length y"
+
+
+-- ============================== import Data.Char ========================
+
