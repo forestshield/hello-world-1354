@@ -635,7 +635,28 @@ someFuncLib4 = do
            "\n[1..10] \\\\ [2,5,9]\n\"Im a big baby\" \\\\ \"big\"\
            \\ndelete 2 . delete 5 . delete 9 $ [1..10] == [1..10] \\\\ [2,5,9]"
            "\\\\"
-
+  specShow (("hey man" `union` "man what's up"), ([1..7] `union` [5..10] ), 
+            ([1..7] `intersect` [5..10]))
+           "\n\"hey man\" `union` \"man what's up\"\n[1..7] `union` [5..10]\
+           \\n[1..7] `intersect` [5..10]"
+           "union --- intersect"
+  specShow ((insert 4 [3,5,1,2,8,2]), (insert 4 [1,3,4,4,1]), 
+            (insert 4 [1,2,3,5,6,7]), (insert 'g' $ ['a'..'f'] ++ ['h'..'z']),
+            (insert 3 [1,2,4,3,2,1]))
+           "\ninsert 4 [3,5,1,2,8,2]\ninsert 4 [1,3,4,4,1]\n\
+           \insert 'g' $ ['a'..'f'] ++ ['h'..'z']\ninsert 3 [1,2,4,3,2,1]"
+           "insert"
+  specShow ((let xs = [1..6] in sum xs / genericLength xs), 
+            (groupBy (\x y -> (x > 0) == (y > 0)) rsDtL89),
+            (groupBy ((==) `on` (> 0)) rsDtL89))
+           "\nlet xs = [1..6] in sum xs / genericLength xs\n\
+           \groupBy (\\x y -> (x > 0) == (y > 0)) value\n\
+           \groupBy ((==) `on` (> 0)) value"
+           "genericLength genericTake genericDrop genericSplitAt genericIndex genericReplicate\n\
+           \nubBy deleteBy unionBy intersectBy groupBy AND 'on'"
+  specShow ((sortBy (compare `on` length) [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]]))
+           "\nsortBy (compare `on` length) [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]]"
+           "sortBy AND 'on'"
 -- some cool stuff
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
