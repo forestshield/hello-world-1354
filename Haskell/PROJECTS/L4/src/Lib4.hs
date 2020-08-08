@@ -2197,6 +2197,7 @@ rsDtL29 = splitAt 3 "heyman"                        -- ("hey","man")
 rsDtL26 = splitAt 100 "heyman"                      -- ("heyman","")  
 rsDtL27 = splitAt (-3) "heyman"                     -- ("","heyman")  
 rsDtL28 = let (a,b) = splitAt 3 "foobar" in b ++ a  -- "barfoo"  
+rsDtL28' = do b ++ a where (a,b) = splitAt 3 "foobar"  -- "barfoo"  
 
 --- takeWhile --- is a really useful little function. It takes elements from a list 
 --     while the predicate holds and then when an element is encountered that doesn't satisfy 
@@ -2218,7 +2219,105 @@ rsDtL34 = dropWhile (<3) [1,2,2,2,3,4,5,4,3,2,1]        -- [3,4,5,4,3,2,1]
 --    The list is made of tuples whose first component is the stock1 value, the second is the year, 
 --    the third is the month and the fourth is the date. We want to know when the stock1 value 
 --    first exceeded one thousand dollars!
-stock1 = [(994.4,2008,9,1),(995.2,2008,9,2),(999.2,2008,9,3),(1001.4,2008,9,4),(998.3,2008,9,5)]  
+--------------------------------------------------------------------
+-- this is unsafe version of stock1 implementation
+stock1  = [(994.4,2008,9,1),(995.2,2008,9,2),(999.2,2008,9,3),(1001.4,2008,9,4),(998.3,2008,9,5)]  
 rsDtL35 = head (dropWhile (\(val,y,m,d) -> val < 1000) stock1)  -- (1001.4,2008,9,4) 
+--- see below the safe implementation, using "find" ----------------
 
+--- span --- is kind of like takeWhile, only it returns a pair of lists. 
+--    The first list contains everything the resulting list from takeWhile would contain 
+--    if it were called with the same predicate and the same list. The second list contains 
+--    the part of the list that would have been dropped.
+rsDtL38 = let (fw, rest) = span (/=' ') "This is a sentence" 
+            in "First word:" ++ fw ++ ", the rest:" ++ rest  -- "First word: This, the rest: is a sentence"  
 
+--- break --- Whereas span spans the list while the predicate is true, break breaks it 
+--    when the predicate is first true. Doing break p is the equivalent of doing span (not . p).
+rsDtL36  = break (==4) [1,2,3,4,5,6,7]        -- ([1,2,3],[4,5,6,7])  
+rsDtL37' = span (not . (==4)) [1,2,3,4,5,6,7] -- ([1,2,3],[4,5,6,7])  
+rsDtL37  = span (/=4) [1,2,3,4,5,6,7]         -- ([1,2,3],[4,5,6,7])  
+--    When using break, the second list in the result will start with the first element 
+--    that satisfies the predicate.
+
+--- sort --- simply sorts a list. The type of the elements in the list has to be 
+--      part of the Ord typeclass, because if the elements of a list can't be put 
+--      in some kind of order, then the list can't be sorted.
+rsDtL39 = sort [8,5,3,2,1,6,4,2]            -- [1,2,2,3,4,5,6,8]  
+rsDtL40 = sort "This will be sorted soon"   -- "    Tbdeehiillnooorssstw" 
+
+--- group --- takes a list and groups adjacent elements into sublists if they are equal.
+rsDtL41 = group [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7]   -- [[1,1,1,1],[2,2,2,2],[3,3],[2,2,2],[5],[6],[7]]
+-- If we sort a list before grouping it, we can find out how many times each element appears in the list.
+rsDtL42 = map (\l@(x:xs) -> (x,length l)) . group . sort $ [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7] 
+                                                    -- [(1,4),(2,7),(3,2),(5,1),(6,1),(7,1)]
+
+--- ======================== find out about "@" later ===========================
+
+--- inits --- tails --- inits and tails are like init and tail, only they recursively apply that 
+--      to a list until there's nothing left. Observe.
+rsDtL43 = inits "w00t"                    -- ["","w","w0","w00","w00t"]  
+rsDtL44 = tails "w00t"                    -- ["w00t","00t","0t","t",""]  
+rsDtL45 = let w = "w00t" in zip (inits w) (tails w)  
+                                          -- [("","w00t"),("w","00t"),("w0","0t"),("w00","t"),("w00t","")]
+
+--- example --- Let's use a fold to implement searching a list for a sublist.
+search :: (Eq a) => [a] -> [a] -> Bool  
+search needle haystack =   
+    let nlen = length needle  
+    in  foldl (\acc x -> if take nlen x == needle then True else acc) False (tails haystack)
+-- First we call tails with the list in which we're searching. Then we go over each tail and see 
+--      if it starts with what we're looking for. 
+--      With that, we actually just made a function that behaves like isInfixOf. 
+
+--- isInfixOf --- searches for a sublist within a list and returns True if the sublist we're 
+--      looking for is somewhere inside the target list.
+rsDtL46 = "cat" `isInfixOf` "im a cat burglar"  -- True  
+rsDtL47 = "Cat" `isInfixOf` "im a cat burglar"  -- False  
+rsDtL48 = "cats" `isInfixOf` "im a cat burglar" -- False  
+
+--- isPrefixOf --- isSuffixOf --- isPrefixOf and isSuffixOf search for a sublist at the beginning 
+--      and at the end of a list, respectively.
+rsDtL49 = "hey" `isPrefixOf` "hey there!"         -- True  
+rsDtL50 = "hey" `isPrefixOf` "oh hey there!"      -- False  
+rsDtL51 = "there!" `isSuffixOf` "oh hey there!"   -- True  
+rsDtL52 = "there!" `isSuffixOf` "oh hey there"    -- False  
+
+--- elem --- notElem --- check if an element is or isn't inside a list
+--- partition --- takes a list and a predicate and returns a pair of lists. The first list in 
+--      the result contains all the elements that satisfy the predicate, the second contains 
+--      all the ones that don't.
+rsDtL53 = partition (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"   -- ("BOBMORGAN","sidneyeddy")  
+rsDtL54 = partition (>3) [1,3,5,6,3,2,1,0,3,7]                  -- ([5,6,7],[1,3,3,2,1,0,3]) 
+-- It's important to understand how this is different from span and break:
+rsDtL55 = span (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"        -- ("BOB","sidneyMORGANeddy") 
+rsDtL56 = break (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy"       -- ("","BOBsidneyMORGANeddy") 
+
+--- ========================================================= --- 
+--- find --- find takes a list and a predicate and returns the first element that satisfies the predicate.
+--      But it returns that element wrapped in a Maybe value. We'll be covering algebraic data types more
+--      in depth in the next chapter but for now, this is what you need to know: a Maybe value can either
+--      be Just something or Nothing. Much like a list can be either an empty list or a list with some 
+--      elements, a Maybe value can be either no elements or a single element. And like the type of 
+--      a list of, say, integers is [Int], the type of maybe having an integer is Maybe Int. 
+--      Anyway, let's take our find function for a spin.
+rsDtL57 = find (>4) [1,2,3,4,5,6]                     -- Just 5               (Just 5 :: Num a => Maybe a)  
+rsDtL58 = find (>9) [1,2,3,4,5,6]                     -- Nothing              (Nothing :: Maybe a)
+-- find :: (a -> Bool) -> [a] -> Maybe a                                      (Just :: a -> Maybe a)
+-- Notice the type of find. Its result is Maybe a. That's kind of like having the type of [a], 
+-- only a value of the type Maybe can contain either no elements or one element, whereas a list 
+-- can contain no elements, one element or several elements.
+
+-------------------------------------------------
+--- safe implementation of stock1, using find ---
+--stock1  = [(994.4,2008,9,1),(995.2,2008,9,2),(999.2,2008,9,3),(1001.4,2008,9,4),(998.3,2008,9,5)]  
+--rsDtL35 = head (dropWhile (\(val,y,m,d) -> val < 1000) stock1)  -- (1001.4,2008,9,4)
+rsDtL59 = find (\(val,y,m,d) -> val > 1000) stock1  -- Just (1001.4,2008,9,4)
+
+--- elemIndex --- elemIndex is kind of like elem, only it doesn't return a boolean value. 
+--      It maybe returns the index of the element we're looking for. If that element isn't in our list, 
+--      it returns a Nothing.
+--ghci> :t elemIndex  
+--elemIndex :: (Eq a) => a -> [a] -> Maybe Int  
+rsDtL60 = 4 `elemIndex` [1,2,3,4,5,6]               -- Just 3  
+rsDtL61 = 10 `elemIndex` [1,2,3,4,5,6]              -- Nothing  
