@@ -595,8 +595,46 @@ someFuncLib4 = do
            \\nhead (dropWhile (\\(val,y,m,d) -> val < 1000) stock1) -- unsafe\n\
            \find (\\(val,y,m,d) -> val > 1000) stock1  -- safe"
            "unsafe and safe implementations of stock1 function"
-
-
+  specShow ((elemIndex 4 [1,2,3,4,5,6]), (10 `elemIndex` [1,2,3,4,5,6]), 
+            ( ' ' `elemIndices` "Where are the spaces?"))
+           "\nelemIndex 4 [1,2,3,4,5,6]\n10 `elemIndex` [1,2,3,4,5,6]\
+           \\n ' ' `elemIndices` \"Where are the spaces?\""
+           "elemIndex --- elemIndices"
+  specShow ((findIndex (==4) [5,3,2,1,6,4]), (findIndex (==7) [5,3,2,1,6,4] ), 
+            (findIndices (`elem` ['A'..'Z']) "Where Are The Caps?"))
+           "\nfindIndex (==4) [5,3,2,1,6,4]\nfindIndex (==7) [5,3,2,1,6,4] \
+           \\nfindIndices (`elem` ['A'..'Z']) \"Where Are The Caps?\""
+           "findIndex --- findIndices"
+{-           
+ specShow ((zip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2] )
+--           (zipWith3 (\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]))
+--           "\n(zipWith3 (\\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]\
+--           \\nzip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2]"
+           "\n\n\
+           \\n"
+           "zipWith3,4,5,6,7 --- zip3,4,5,6,7"
+-}           
+  specShow ((lines "first line\nsecond line\nthird line" ), 
+            (unlines ["first line", "second line", "third line"]), 
+            (words "hey these are the words in this sentence"), 
+            (words "hey these           are    the words in this\nsentence"),
+            (unwords ["hey","there","mate"] ))
+           "\nlines \"first line\nsecond line\nthird line\"\n\
+           \unlines [\"first line\", \"second line\", \"third line\"]\n\
+           \words \"hey these are the words in this sentence\"\n\
+           \words \"hey these           are    the words in this\nsentence\"\n\
+           \unwords [\"hey\",\"there\",\"mate\"]"
+           "lines --- unlines --- words --- unwords"
+  specShow ((delete 'h' "hey there ghang!"), (delete 'h' . delete 'h' $ "hey there ghang!"), 
+            (delete 'h' . delete 'h' . delete 'h' $ "hey there ghang!"), ())
+           "\ndelete 'h' \"hey there ghang!\"\ndelete 'h' . delete 'h' $ \"hey there ghang!\"\n\
+           \delete 'h' . delete 'h' . delete 'h' $ \"hey there ghang!\"\n"
+           "delete"
+  specShow (([1..10] \\ [2,5,9]), ("Im a big baby" \\ "big"), 
+            (delete 2 . delete 5 . delete 9 $ [1..10]))
+           "\n[1..10] \\\\ [2,5,9]\n\"Im a big baby\" \\\\ \"big\"\
+           \\ndelete 2 . delete 5 . delete 9 $ [1..10] == [1..10] \\\\ [2,5,9]"
+           "\\\\"
 
 -- some cool stuff
   putStrLn $ show $ sum' []
