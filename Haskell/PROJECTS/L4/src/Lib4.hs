@@ -657,6 +657,48 @@ someFuncLib4 = do
   specShow ((sortBy (compare `on` length) [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]]))
            "\nsortBy (compare `on` length) [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]]"
            "sortBy AND 'on'"
+
+  putStrLn "\n==================== import Data.Char ===================="
+  putStrLn " All these predicates have a type signature of \"Char -> Bool\"\n"
+  
+  putStrLn "isControl checks whether a character is a control character."
+  putStrLn "isSpace checks whether a character is a white-space characters. That includes spaces, tab characters, newlines, etc."
+  putStrLn "isLower checks whether a character is lower-cased."
+  putStrLn "isUpper checks whether a character is upper-cased."
+  putStrLn "isAlpha checks whether a character is a letter."
+  putStrLn "isAlphaNum checks whether a character is a letter or a number."
+  putStrLn "isPrint checks whether a character is printable. Control characters, for instance, are not printable."
+  putStrLn "isDigit checks whether a character is a digit."
+  putStrLn "isOctDigit checks whether a character is an octal digit."
+  putStrLn "isHexDigit checks whether a character is a hex digit."
+  putStrLn "isLetter checks whether a character is a letter."
+  putStrLn "isMark checks for Unicode mark characters. Those are characters that combine with preceding letters"
+  putStrLn "      to form latters with accents. Use this if you are French."
+  putStrLn "isNumber checks whether a character is numeric."
+  putStrLn "isPunctuation checks whether a character is punctuation."
+  putStrLn "isSymbol checks whether a character is a fancy mathematical or currency symbol."
+  putStrLn "isSeparator checks for Unicode spaces and separators."
+  putStrLn "isAscii checks whether a character falls into the first 128 characters of the Unicode character set."
+  putStrLn "isLatin1 checks whether a character falls into the first 256 characters of Unicode."
+  putStrLn "isAsciiUpper checks whether a character is ASCII and upper-case."
+  putStrLn "isAsciiLower checks whether a character is ASCII and lower-case."
+  specShow ((all isAlphaNum ("bobby283" :: [Char])), 
+            (all isAlphaNum ("eddy the fish!" :: String)), 
+            (words "hey guys its me"), (groupBy ((==) `on` isSpace) "hey guys its me"),
+            filter (not . any isSpace) . groupBy ((==) `on` isSpace) $ "hey guys its me")
+           "\nall isAlphaNum (\"bobby283\" :: [Char])\nall isAlphaNum (\"eddy the fish!\" :: String)\
+           \\nwords \"hey guys its me\"\ngroupBy ((==) `on` isSpace) \"hey guys its me\"\
+           \\nfilter (not . any isSpace) . groupBy ((==) `on` isSpace) $ \"hey guys its me\""
+           "isAlphaNum --- isSpace"
+  specShow ((generalCategory someChar1 == Space),
+            (generalCategory 'A'), (generalCategory '.'),
+            (generalCategory '9'), (generalCategory 'b'))  
+           "\nsomeChar1 = ' '\n\
+           \generalCategory someChar1 == Space\ngeneralCategory 'A'\n\
+           \generalCategory '.'\ngeneralCategory '9'\n\
+           \generalCategory 'b'"
+           "generalCategory"
+
 -- some cool stuff
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
@@ -672,7 +714,7 @@ someFuncLib4 = do
            ""
 -}
 
--- specShow --------------------------------
+-- specShow   putStrLn "\n-----------------------------
 specShow :: Show a => a -> String -> String -> IO ()
 specShow a b c = do
   specHeader c    
@@ -2634,4 +2676,151 @@ rsDtL93 = sortBy (compare `on` length) rsDtL92           -- [[],[2],[2,2],[1,2,3
 
 
 -- ============================== import Data.Char ========================
+---- All these predicates have a type signature of "Char -> Bool"  
+--- isControl checks whether a character is a control character.
+--- isSpace checks whether a character is a white-space characters. That includes spaces, tab characters, 
+--      newlines, etc.
+--- isLower checks whether a character is lower-cased.
+--- isUpper checks whether a character is upper-cased.
+--- isAlpha checks whether a character is a letter.
+--- isAlphaNum checks whether a character is a letter or a number.
+--- isPrint checks whether a character is printable. Control characters, for instance, are not printable.
+--- isDigit checks whether a character is a digit.
+--- isOctDigit checks whether a character is an octal digit.
+--- isHexDigit checks whether a character is a hex digit.
+--- isLetter checks whether a character is a letter.
+--- isMark checks for Unicode mark characters. Those are characters that combine with preceding letters 
+--    to form latters with accents. Use this if you are French.
+--- isNumber checks whether a character is numeric.
+--- isPunctuation checks whether a character is punctuation.
+--- isSymbol checks whether a character is a fancy mathematical or currency symbol.
+--- isSeparator checks for Unicode spaces and separators.
+--- isAscii checks whether a character falls into the first 128 characters of the Unicode character set.
+--- isLatin1 checks whether a character falls into the first 256 characters of Unicode.
+--- isAsciiUpper checks whether a character is ASCII and upper-case.
+--- isAsciiLower checks whether a character is ASCII and lower-case.
+---
+rsDtCh1 = all isAlphaNum ("bobby283" :: [Char])           -- True  
+rsDtCh2 = all isAlphaNum ("eddy the fish!" :: String)     -- False   
+rsDtCh3 = words "hey guys its me"                         -- ["hey","guys","its","me"]  
+rsDtCh4 = groupBy ((==) `on` isSpace) "hey guys its me"   -- ["hey"," ","guys"," ","its"," ","me"] 
+rsDtCh5 = filter (not . any isSpace) . groupBy ((==) `on` isSpace) $ "hey guys its me"  
+                                                          -- ["hey","guys","its","me"]
+--- generalCategory --- it has a type 
+--     "generalCategory :: Char -> GeneralCategory"
+rsDtCh6 = generalCategory ' '  -- Space  
+rsDtCh7 = generalCategory 'A'  -- UppercaseLetter  
+rsDtCh8 = generalCategory 'a'  -- LowercaseLetter  
+rsDtCh9 = generalCategory '.'  -- OtherPunctuation  
+rsDtCh10 = generalCategory '9'  -- DecimalNumber  
+rsDtCh11 = map generalCategory " \t\nA9?|"  
+                    -- [Space,Control,Control,UppercaseLetter,DecimalNumber,OtherPunctuation,MathSymbol]
+--- example ---
+someChar1 = ' ' 
+rsDtCh13 = generalCategory someChar1 == Space             -- True
+
+{-
+:i GeneralCategory
+data GeneralCategory
+  = UppercaseLetter
+  | LowercaseLetter
+  | TitlecaseLetter
+  | ModifierLetter
+  | OtherLetter
+  | NonSpacingMark
+  | SpacingCombiningMark
+  | EnclosingMark
+  | DecimalNumber
+  | LetterNumber
+  | OtherNumber
+  | ConnectorPunctuation
+  | DashPunctuation
+  | OpenPunctuation
+  | ClosePunctuation
+  | InitialQuote
+  | FinalQuote
+  | OtherPunctuation
+  | MathSymbol
+  | CurrencySymbol
+  | ModifierSymbol
+  | OtherSymbol
+  | Space
+  | LineSeparator
+  | ParagraphSeparator
+  | Control
+  | Format
+  | Surrogate
+  | PrivateUse
+  | NotAssigned
+        -- Defined in ‘GHC.Unicode’
+instance Eq GeneralCategory -- Defined in ‘GHC.Unicode’
+instance Ord GeneralCategory -- Defined in ‘GHC.Unicode’
+instance Enum GeneralCategory -- Defined in ‘GHC.Unicode’
+instance Show GeneralCategory -- Defined in ‘GHC.Unicode’
+instance Bounded GeneralCategory -- Defined in ‘GHC.Unicode’
+instance Read GeneralCategory -- Defined in ‘GHC.Read’
+-}
+--------------------------------------------------------
+--- toUpper --- converts a character to upper-case. Spaces, numbers, and the like remain unchanged.
+--- toLower --- converts a character to lower-case.
+--- toTitle --- converts a character to title-case. For most characters, title-case is the same 
+--      as upper-case.
+--- digitToInt --- converts a character to an Int. To succeed, the character must be 
+--      in the ranges '0'..'9', 'a'..'f' or 'A'..'F'.
+rsDtCh14 = map digitToInt "34538"       -- [3,4,5,3,8]  
+rsDtCh15 = map digitToInt "FF85AB"      -- [15,15,8,5,10,11]
+
+--- intToDigit --- is the inverse function of digitToInt. It takes an Int in the range 
+--      of 0..15 and converts it to a lower-case character
+rsDtCh16 = intToDigit 15                -- 'f'  
+rsDtCh17 = intToDigit 5                 -- '5'  
+
+--- ord --- chr --- The ord and chr functions convert characters to their corresponding 
+--      numbers and vice versa
+rsDtCh18 = ord 'a'                      -- 97  
+rsDtCh19 = chr 97                       -- 'a'  
+rsDtCh20 = map ord "abcdefghλж哈"       -- [97,98,99,100,101,102,103,104,955,1078,21704]
+--- The difference between the ord values of two characters is equal to how far apart they 
+--      are in the Unicode table
+
+--- example --- The Caesar cipher is a primitive method of encoding messages by shifting 
+--      each character in them by a fixed number of positions in the alphabet. 
+--      We can easily create a sort of Caesar cipher of our own, only we won't constrict 
+--      ourselves to the alphabet
+encode :: Int -> String -> String  
+encode shift msg = 
+    let ords = map ord msg  
+        shifted = map (+ shift) ords  
+    in  map chr shifted 
+
+-- same functionality, but using composition
+encode' :: Int -> String -> String  
+encode' shift msg =  map (chr . (+ shift) . ord) msg 
+---
+rsDtCh21 = encode 3 "Heeeeey"                       -- "Khhhhh|"  
+rsDtCh22 = encode 4 "Heeeeey"                       -- "Liiiii}"  
+rsDtCh23 = encode 1 "abcd"                          -- "bcde"  
+rsDtCh24 = encode 5 "Marry Christmas! Ho ho ho!"    -- "Rfww~%Hmwnxyrfx&%Mt%mt%mt&"
+
+--- decoding encoded msg ---
+decode :: Int -> String -> String  
+decode shift msg = encode (negate shift) msg
+
+rsDtCh25 = encode 3 "Im a little teapot"                -- "Lp#d#olwwoh#whdsrw"  
+rsDtCh26 = decode 3 "Lp#d#olwwoh#whdsrw"                -- "Im a little teapot"  
+rsDtCh27 = decode 5 . encode 5 $ "This is a sentence"   -- "This is a sentence"
+
+
+-- ============================== import Data.Map ========================
+
+
+
+
+
+
+
+
+
+
+
 
