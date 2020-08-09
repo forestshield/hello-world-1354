@@ -732,9 +732,10 @@ someFuncLib4 = do
             (Map.fromList [(1,2),(3,4),(3,2),(5,5)]))
            "\nfindKey \"penny\" phoneBook\nfindKey \"wilma\" phoneBook\
            \\nMap.fromList [(\"betty\",\"555-2938\"),(\"bonnie\",\"452-2928\"),(\"lucille\",\"205-2928\")]\
-           \Map.fromList [(1,2),(3,4),(3,2),(5,5)]"
+           \Map.fromList [(1,2),(3,4),(3,2),(5,5)]\
+           \findKey' key = foldr (\\(k,v) acc -> if key == k then Just v else acc) Nothing"
            "custom 'findKey' --- Map.fromList"
-
+  -- N.B. Could not put Map.empty into specShow !!! failed to compile
   specShow (({-Map.empty does not compile-} ), (Map.insert 3 100 Map.empty), 
             (Map.insert 5 600 (Map.insert 4 200 ( Map.insert 3 100  Map.empty))), 
             (Map.insert 5 600 . Map.insert 4 200 . Map.insert 3 100 $ Map.empty), 
@@ -744,8 +745,7 @@ someFuncLib4 = do
            \nMap.insert 5 600 . Map.insert 4 200 . Map.insert 3 100 $ Map.empty\
            \\nMap.null Map.empty  -- checks if map is empty?\
            \nMap.null $ Map.fromList [(2,3),(5,5)] - check if map is empty?"
-           "Map.empty --- Map.insert --- Map.null"
-           
+           "Map.empty --- Map.insert --- Map.null"           
   specShow ((Map.size Map.empty), (Map.size $ Map.fromList [(2,4),(3,3),(4,2),(5,4),(6,4)]), 
             (Map.singleton 3 9), (Map.insert 5 9 $ Map.singleton 3 9), 
             (Map.member 3 $ Map.fromList [(3,6),(4,3),(6,9)]), (Map.member 3 $ Map.fromList [(2,5),(4,5)]) )
@@ -774,29 +774,42 @@ someFuncLib4 = do
 
   putStrLn "\n==================== import Data.Set ======================"
 
-
-  specShow ((), (), 
-            (), ())
-           "\n\n\
-           \\n"
-           ""
-
-  specShow ((), (), 
-            (), ())
-           "\n\n\
-           \\n"
-           ""
-
-  specShow ((), (), 
-            (), ())
-           "\n\n\
-           \\n"
-           ""
+  putStrLn "text1 = \"I just had an anime dream. Anime... Reality... Are they so different?\""
+  putStrLn "text2 = \"The old man left his garbage can out and now his trash is all over my lawn!\""
+  specShow ((Set.fromList text1), (Set.fromList text2), (Set.intersection rsDtSt1 rsDtSt2),
+            (Set.difference rsDtSt1 rsDtSt2), (Set.difference rsDtSt2 rsDtSt1),
+            (Set.union rsDtSt1 rsDtSt2))
+           "\n(Set.fromList text1\n(Set.fromList text2\nSet.intersection rsDtSt1 rsDtSt2\
+           \Set.difference rsDtSt1 rsDtSt2\nSet.difference rsDtSt2 rsDtSt1\n\
+           \Set.union rsDtSt1 rsDtSt2\n\
+           \text1=\"I just had an anime dream. Anime... Reality... Are they so different?\"\n\
+           \text2=\"The old man left his garbage can out and now his trash is all over my lawn!\""
+           "fromList --- intersection --- difference --- union"
+  specShow ((Set.null Set.empty), (Set.null $ Set.fromList [3,4,5,5,4,3]), (Set.singleton 9), 
+            (Set.size $ Set.fromList [3,4,5,3,4,5]), (Set.insert 4 $ Set.fromList [9,3,8,1]),
+            (Set.insert 8 $ Set.fromList [5..10]), (Set.delete 4 $ Set.fromList [3,4,5,4,3,4,5]))
+           "\nSet.null Set.empty\nSet.null $ Set.fromList [3,4,5,5,4,3]\nSet.singleton 9\n\
+           \Set.size $ Set.fromList [3,4,5,3,4,5]\nSet.insert 4 $ Set.fromList [9,3,8,1]\n\
+           \Set.insert 8 $ Set.fromList [5..10]\nSet.delete 4 $ Set.fromList [3,4,5,4,3,4,5]"
+           "null --- size --- member --- empty --- singleton --- insert --- delete"
+  specShow ((Set.fromList [2,3,4] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]), 
+            (Set.fromList [1,2,3,4,5] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]), 
+            (Set.fromList [1,2,3,4,5] `Set.isProperSubsetOf` Set.fromList [1,2,3,4,5]), 
+            (Set.fromList [2,3,4,8] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]))
+           "\nSet.fromList [2,3,4] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]\n\
+           \Set.fromList [1,2,3,4,5] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]\n\
+           \Set.fromList [1,2,3,4,5] `Set.isProperSubsetOf` Set.fromList [1,2,3,4,5]\n\
+           \Set.fromList [2,3,4,8] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]"
+           "isSubsetOf --- isProperSubsetOf"
+  specShow ((setNub "HEY WHATS CRACKALACKIN"), (nub "HEY WHATS CRACKALACKIN"))
+           "\nsetNub \"HEY WHATS CRACKALACKIN\"\nnub \"HEY WHATS CRACKALACKIN\"\
+           \n  setNub xs = Set.toList $ Set.fromList xs"
+           "toList --- custom 'setNub'"
 
 
   putStrLn "\n==================== Making your own modules =============="
-  putStrLn "\nsee file Geometry.hs -- Version #1"
-  putStrLn "\nsee Directory Geometry and files: Cube.hs, Sphere.hs, Cuboid.hs -- Version #2"
+  putStrLn "see file Geometry.hs -- Version #1"
+  putStrLn "see Directory Geometry and files: Cube.hs, Sphere.hs, Cuboid.hs -- Version #2"
   
   specShow ((Geom.sphereVolume 10), (Geom.cubeArea 10), (Geom.cuboidVolume 5.1 6.2 7.3),
             (Sphere.volume 10), (Cube.area 10), (Cuboid.volume 5.1 6.2 7.3))
