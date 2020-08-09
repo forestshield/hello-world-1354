@@ -13,6 +13,7 @@ import Data.List
 import Data.Function
 
 import Data.Char
+import qualified GHC.Unicode as U 
 
 import Data.String
 import Data.Int
@@ -694,6 +695,38 @@ someFuncLib4 = do
            \generalCategory '.'\ngeneralCategory '9'\n\
            \generalCategory 'b'"
            "generalCategory"
+  specShow ((map digitToInt "34538cF"), (map digitToInt "FF85AB"), 
+            (intToDigit 15), (intToDigit 5 ))
+           "\nmap digitToInt \"34538\"\nmap digitToInt \"FF85AB\"\
+           \\nintToDigit 15\nintToDigit 5"
+           "toUpper --- toLower --- toTitle --- digitToInt --- intToDigit"
+  specShow ((toUpper 'a'), (toUpper '5'),(toUpper 'λ'), (U.toUpper 'б'),
+            (toLower '𝔹'), (toUpper '𝔹'))
+           "\ntoUpper 'a'\ntoUpper '5'\
+           \\ntoUpper 'λ'\nU.toUpper 'б'\ntoLower '𝔹'\ntoUpper '𝔹'"
+           "toUpper --- U.toUpper -- toLower"
+  specShow ((ord 'a'), (ord 'λ'), (ord 'б'), (ord '哈'), (ord '𝔹'), 
+            (chr 97), (chr 953), (chr 1041), (chr 90), (chr 120120))
+           "\nord 'a', ord 'λ', ord 'б', ord '哈' ord '𝔹'\n\
+           \chr 97, chr 953, chr 1041, chr 90, chr 120120"
+           "ord --- chr"
+  specShow ((encode' 5 "Marry Christmas! Ho ho ho!"), 
+            (decode 3 "Lp#d#olwwoh#whdsrw"))
+           "\nencode 5 \"Marry Christmas! Ho ho ho!\"\n\
+           \decode 3 \"Lp#d#olwwoh#whdsrw\"\n\
+           \\"encode' shift msg =  map (chr . (+ shift) . ord) msg\"\n\
+           \\"decode shift msg = encode (negate shift) msg\""
+           "encode' --- decode --- example"
+  specShow ((), (), 
+            (), ())
+           "\n\n\
+           \\n"
+           ""
+  specShow ((), (), 
+            (), ())
+           "\n\n\
+           \\n"
+           ""
 
 -- some cool stuff
   putStrLn $ show $ sum' []
@@ -2763,13 +2796,26 @@ instance Read GeneralCategory -- Defined in ‘GHC.Read’
 --      as upper-case.
 --- digitToInt --- converts a character to an Int. To succeed, the character must be 
 --      in the ranges '0'..'9', 'a'..'f' or 'A'..'F'.
-rsDtCh14 = map digitToInt "34538"       -- [3,4,5,3,8]  
+rsDtCh14 = map digitToInt "34538cF"       -- [3,4,5,3,8]  
 rsDtCh15 = map digitToInt "FF85AB"      -- [15,15,8,5,10,11]
 
 --- intToDigit --- is the inverse function of digitToInt. It takes an Int in the range 
 --      of 0..15 and converts it to a lower-case character
 rsDtCh16 = intToDigit 15                -- 'f'  
 rsDtCh17 = intToDigit 5                 -- '5'  
+
+--- examples ---
+--rsDtCh38 = toUpper ("abcdef 12345 !@#$%^&*()_+ ZXCVB абвгд ЯШЕРТ") 
+rsDtCh39 = toUpper 'a'                  -- 'A'
+rsDtCh40 = toUpper '5'                  -- '5' 
+rsDtCh41 = toUpper 'λ'                  -- '\923'
+rsDtCh42 = toUpper 'б'                  -- '\1041'
+--- using Unicode version
+rsDtCh43 = U.toUpper 'λ'                  -- '\923'
+rsDtCh44 = U.toUpper 'б'                  -- '\1041'
+
+--(∧) ∷ 𝔹 → 𝔹 → 𝔹  -- some cool Unicode symbols
+rsDtCh45 = '𝔹'                            -- '\120121'
 
 --- ord --- chr --- The ord and chr functions convert characters to their corresponding 
 --      numbers and vice versa
