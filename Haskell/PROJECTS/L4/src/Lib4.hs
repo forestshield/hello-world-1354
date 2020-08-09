@@ -605,15 +605,11 @@ someFuncLib4 = do
            "\nfindIndex (==4) [5,3,2,1,6,4]\nfindIndex (==7) [5,3,2,1,6,4] \
            \\nfindIndices (`elem` ['A'..'Z']) \"Where Are The Caps?\""
            "findIndex --- findIndices"
-{-           
- specShow ((zip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2] )
---           (zipWith3 (\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]))
---           "\n(zipWith3 (\\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]\
---           \\nzip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2]"
-           "\n\n\
-           \\n"
+  specShow ((zip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2]),
+            (zipWith3 (\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]))
+           "\nzip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2]\n\
+           \zipWith3 (\\x y z -> x + y + z) [1,2,3] [4,5,2,2] [2,2,3]"
            "zipWith3,4,5,6,7 --- zip3,4,5,6,7"
--}           
   specShow ((lines "first line\nsecond line\nthird line" ), 
             (unlines ["first line", "second line", "third line"]), 
             (words "hey these are the words in this sentence"), 
