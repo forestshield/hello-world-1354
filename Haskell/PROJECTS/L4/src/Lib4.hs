@@ -14,6 +14,14 @@ import Data.Function
 
 import Data.Char
 import qualified GHC.Unicode as U 
+import qualified Data.Map as Map 
+import qualified Data.Set as Set
+
+import qualified Geometry.Sphere as Sphere  
+import qualified Geometry.Cuboid as Cuboid  
+import qualified Geometry.Cube   as Cube
+
+import qualified Geometry as Geom
 
 import Data.String
 import Data.Int
@@ -717,25 +725,95 @@ someFuncLib4 = do
            \\"encode' shift msg =  map (chr . (+ shift) . ord) msg\"\n\
            \\"decode shift msg = encode (negate shift) msg\""
            "encode' --- decode --- example"
-  specShow ((), (), 
-            (), ())
-           "\n\n\
-           \\n"
-           ""
+
+  putStrLn "\n==================== import Data.Map ===================="
+  specShow ((findKey "penny" phoneBook), (findKey "wilma" phoneBook), 
+            (Map.fromList [("betty","555-2938"),("bonnie","452-2928"),("lucille","205-2928")]), 
+            (Map.fromList [(1,2),(3,4),(3,2),(5,5)]))
+           "\nfindKey \"penny\" phoneBook\nfindKey \"wilma\" phoneBook\
+           \\nMap.fromList [(\"betty\",\"555-2938\"),(\"bonnie\",\"452-2928\"),(\"lucille\",\"205-2928\")]\
+           \Map.fromList [(1,2),(3,4),(3,2),(5,5)]"
+           "custom 'findKey' --- Map.fromList"
+
+  specShow (({-Map.empty does not compile-} ), (Map.insert 3 100 Map.empty), 
+            (Map.insert 5 600 (Map.insert 4 200 ( Map.insert 3 100  Map.empty))), 
+            (Map.insert 5 600 . Map.insert 4 200 . Map.insert 3 100 $ Map.empty), 
+            (Map.null Map.empty), (Map.null $ Map.fromList [(2,3),(5,5)]))
+           "\nMap.empty\nMap.insert 3 100 Map.empty\n\
+           \Map.insert 5 600 (Map.insert 4 200 ( Map.insert 3 100  Map.empty))\
+           \nMap.insert 5 600 . Map.insert 4 200 . Map.insert 3 100 $ Map.empty\
+           \\nMap.null Map.empty  -- checks if map is empty?\
+           \nMap.null $ Map.fromList [(2,3),(5,5)] - check if map is empty?"
+           "Map.empty --- Map.insert --- Map.null"
+           
+  specShow ((Map.size Map.empty), (Map.size $ Map.fromList [(2,4),(3,3),(4,2),(5,4),(6,4)]), 
+            (Map.singleton 3 9), (Map.insert 5 9 $ Map.singleton 3 9), 
+            (Map.member 3 $ Map.fromList [(3,6),(4,3),(6,9)]), (Map.member 3 $ Map.fromList [(2,5),(4,5)]) )
+           "\nMap.size Map.empty\nMap.size $ Map.fromList [(2,4),(3,3),(4,2),(5,4),(6,4)]\nMap.singleton 3 9\
+           \\nMap.insert 5 9 $ Map.singleton 3 9\nMap.member 3 $ Map.fromList [(3,6),(4,3),(6,9)]\n\
+           \Map.member 3 $ Map.fromList [(2,5),(4,5)"
+           "Map.size --- Map.singleton --- Map.member"
+  specShow ((Map.map (*100) $ Map.fromList [(1,1),(2,4),(3,9)]), 
+            (Map.filter isUpper $ Map.fromList [(1,'a'),(2,'A'),(3,'b'),(4,'B')]), 
+            (Map.toList . Map.insert 9 2 $ Map.singleton 4 3))
+           "\nMap.map (*100) $ Map.fromList [(1,1),(2,4),(3,9)]\nMap.filter isUpper $ Map.fromList [(1,'a'),(2,'A'),(3,'b'),(4,'B')]\n\
+           \Map.toList . Map.insert 9 2 $ Map.singleton 4 3\n\n\n"
+           "Map.map --- Map.filter --- Map.toList"
+  specShow ((Map.lookup "patsy" $ phoneBookToMap phoneBook'), (Map.lookup "wendy" $ phoneBookToMap phoneBook'), 
+            (Map.lookup "patsy" $ phoneBookToMap' phoneBook'))
+           "\nMap.lookup \"patsy\" $ phoneBookToMap phoneBook'\nMap.lookup \"wendy\" $ phoneBookToMap phoneBook'\n\
+           \Map.lookup \"patsy\" $ phoneBookToMap' phoneBook'\n\n\n"
+           "Map.lookup"
+  specShow ((Map.fromListWith max [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)] ), 
+            (Map.fromListWith (+) [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)]), 
+            (Map.insertWith (+) 3 100 $ Map.fromList [(3,4),(5,103),(6,339)]))
+           "\nMap.fromListWith max [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)]\
+           \\nMap.fromListWith (+) [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)]\
+           \nMap.insertWith (+) 3 100 $ Map.fromList [(3,4),(5,103),(6,339)]"
+           "Map.fromListWith --- Map.insertWith"
+
+  putStrLn "\n==================== import Data.Set ======================"
+
+
   specShow ((), (), 
             (), ())
            "\n\n\
            \\n"
            ""
 
--- some cool stuff
-  putStrLn $ show $ sum' []
-  putStrLn $ show $ length ("abcdef" :: String)           
-{-
   specShow ((), (), 
             (), ())
            "\n\n\
            \\n"
+           ""
+
+  specShow ((), (), 
+            (), ())
+           "\n\n\
+           \\n"
+           ""
+
+
+  putStrLn "\n==================== Making your own modules =============="
+  putStrLn "\nsee file Geometry.hs -- Version #1"
+  putStrLn "\nsee Directory Geometry and files: Cube.hs, Sphere.hs, Cuboid.hs -- Version #2"
+  
+  specShow ((Geom.sphereVolume 10), (Geom.cubeArea 10), (Geom.cuboidVolume 5.1 6.2 7.3),
+            (Sphere.volume 10), (Cube.area 10), (Cuboid.volume 5.1 6.2 7.3))
+           "\nGeom.sphereVolume 10\nGeom.cubeArea 10\nGeom.cuboidVolume 5.1 6.2 7.3\
+           \\nSphere.volume 10\nCube.area 10\nCuboid.volume 5.1 6.2 7.3"
+           "modules Geom and Sphere, Cube, Cuboid"
+
+  putStrLn "\n=========== Making your own types and Typeclasses ==========="
+
+-- some cool stuff
+  putStrLn $ show $ sum' []
+  putStrLn $ show $ length ("abcdef" :: String)           
+{-
+  specShow ((), (), (), 
+            (), (), ())
+           "\n\n\n\
+           \\n\n\n"
            ""
   specShow ()
            "\n\
@@ -2854,6 +2932,207 @@ rsDtCh27 = decode 5 . encode 5 $ "This is a sentence"   -- "This is a sentence"
 
 
 -- ============================== import Data.Map ========================
+
+phoneBook =   
+    [("betty","555-2938")  
+    ,("bonnie","452-2928")  
+    ,("patsy","493-2928")  
+    ,("lucille","205-2928")  
+    ,("wendy","939-8282")  
+    ,("penny","853-2492")  
+    ] 
+
+--- findKey ---    
+findKey'' :: (Eq k) => k -> [(k,v)] -> v  
+findKey'' key xs = snd . head . filter (\(k,v) -> key == k) $ xs
+--
+findKey' :: (Eq k) => k -> [(k,v)] -> Maybe v  
+findKey' key [] = Nothing  
+findKey' key ((k,v):xs) = if key == k  
+                            then Just v  
+                            else findKey' key xs
+--    Note: It's usually better to use folds for this standard list recursion pattern instead of 
+--    explicitly writing the recursion because they're easier to read and identify. Everyone knows 
+--    it's a fold when they see the foldr call, but it takes some more thinking to read explicit recursion.                            
+findKey :: (Eq k) => k -> [(k,v)] -> Maybe v  
+findKey key = foldr (\(k,v) acc -> if key == k then Just v else acc) Nothing 
+--
+rsDtMp1 = findKey "penny" phoneBook                     -- Just "853-2492"  
+rsDtMp2 = findKey "betty" phoneBook                     -- Just "555-2938"  
+rsDtMp3 = findKey "wilma" phoneBook                     -- Nothing  
+
+--- fromList --- The fromList function takes an association list (in the form of a list) and returns 
+--      a map with the same associations
+rsDtMp4 = Map.fromList [("betty","555-2938"),("bonnie","452-2928"),("lucille","205-2928")]  
+                          -- fromList [("betty","555-2938"),("bonnie","452-2928"),("lucille","205-2928")]  
+rsDtMp5 = Map.fromList [(1,2),(3,4),(3,2),(5,5)]          -- fromList [(1,2),(3,2),(5,5)]
+-- Map.fromList :: (Ord k) => [(k, v)] -> Map.Map k v 
+
+--- empty --- represents an empty map. It takes no arguments, it just returns an empty map.
+rsDtMp6 = Map.empty                                       -- fromList []  
+
+--- insert --- takes a key, a value and a map and returns a new map that's just like the old one, 
+--      only with the key and value inserted.
+rsDtMp7 = Map.empty                                       -- fromList []  
+rsDtMp8 = Map.insert 3 100 Map.empty                      -- fromList [(3,100)]  
+rsDtMp9 = Map.insert 5 600 (Map.insert 4 200 ( Map.insert 3 100  Map.empty))  
+                                                          -- fromList [(3,100),(4,200),(5,600)]  
+rsDtMp10 = Map.insert 5 600 . Map.insert 4 200 . Map.insert 3 100 $ Map.empty  
+                                                          -- fromList [(3,100),(4,200),(5,600)]  
+--      We can implement our own fromList' by using the empty map, insert and a fold
+fromList' :: (Ord k) => [(k,v)] -> Map.Map k v  
+fromList' = foldr (\(k,v) acc -> Map.insert k v acc) Map.empty  
+--      It's a pretty straightforward fold. We start of with an empty map and we fold it up 
+--      from the right, inserting the key value pairs into the accumulator as we go along.
+
+--- null --- checks if a map is empty
+rsDtMp11 = Map.null Map.empty                     -- True  
+rsDtMp12 = Map.null $ Map.fromList [(2,3),(5,5)]  -- False  
+
+--- size --- reports the size of a map.
+rsDtMp13 = Map.size Map.empty                     -- 0  
+rsDtMp14 = Map.size $ Map.fromList [(2,4),(3,3),(4,2),(5,4),(6,4)]  -- 5  
+
+--- singleton --- takes a key and a value and creates a map that has exactly one mapping.
+rsDtMp15 = Map.singleton 3 9                      -- fromList [(3,9)]  
+rsDtMp16 = Map.insert 5 9 $ Map.singleton 3 9     -- fromList [(3,9),(5,9)]
+
+--- lookup --- works like the Data.List lookup, only it operates on maps. It returns Just something 
+--      if it finds something for the key and Nothing if it doesn't.
+
+--- member --- is a predicate takes a key and a map and reports whether the key is in the map or not.
+rsDtMp17 = Map.member 3 $ Map.fromList [(3,6),(4,3),(6,9)]   -- True  
+rsDtMp18 = Map.member 3 $ Map.fromList [(2,5),(4,5)]         -- False  
+
+--- map --- and --- filter--- work much like their list equivalents.
+rsDtMp19 = Map.map (*100) $ Map.fromList [(1,1),(2,4),(3,9)]  -- fromList [(1,100),(2,400),(3,900)]  
+rsDtMp20 = Map.filter isUpper $ Map.fromList [(1,'a'),(2,'A'),(3,'b'),(4,'B')]  
+                                                              -- fromList [(2,'A'),(4,'B')]  
+
+--- toList --- is the inverse of --- fromList ---.
+rsDtMp21 = Map.toList . Map.insert 9 2 $ Map.singleton 4 3    -- [(4,3),(9,2)]  
+--- keys --- and --- elems --- return lists of keys and values respectively. 
+--      keys is the equivalent of "map fst . Map.toList" and 
+--      elems is the equivalent of "map snd . Map.toList"
+
+--- fromListWith --- is a cool little function. It acts like fromList, only it doesn't discard 
+--      duplicate keys but it uses a function supplied to it to decide what to do with them. 
+---     Let's say that a girl can have several numbers and we have an association list set up like this.
+phoneBook' =   
+    [("betty","555-2938")  
+    ,("betty","342-2492")  
+    ,("bonnie","452-2928")  
+    ,("patsy","493-2928")  
+    ,("patsy","943-2929")  
+    ,("patsy","827-9162")  
+    ,("lucille","205-2928")  
+    ,("wendy","939-8282")  
+    ,("penny","853-2492")  
+    ,("penny","555-2111")  
+    ]
+--      Now if we just use fromList to put that into a map, we'll lose a few numbers! 
+--      So here's what we'll do:  
+phoneBookToMap :: (Ord k) => [(k, String)] -> Map.Map k String  
+phoneBookToMap xs = Map.fromListWith (\number1 number2 -> number1 ++ ", " ++ number2) xs  
+rsDtMp22 = Map.lookup "patsy" $ phoneBookToMap phoneBook'  -- "827-9162, 943-2929, 493-2928"  
+rsDtMp23 = Map.lookup "wendy" $ phoneBookToMap phoneBook'  -- "939-8282"  
+rsDtMp24 = Map.lookup "betty" $ phoneBookToMap phoneBook'  -- "342-2492, 555-2938"  
+
+--      If a duplicate key is found, the function we pass is used to combine the values of 
+--      those keys into some other value. We could also first make all the values in the association 
+--      list singleton lists and then we can use ++ to combine the numbers.
+phoneBookToMap' :: (Ord k) => [(k, a)] -> Map.Map k [a]  
+phoneBookToMap' xs = Map.fromListWith (++) $ map (\(k,v) -> (k,[v])) xs  
+rsDtMp25 = Map.lookup "patsy" $ phoneBookToMap' phoneBook' -- ["827-9162","943-2929","493-2928"]  
+
+--- Map.formListWith --- 
+--      Another use case is if we're making a map from an association list of numbers and when 
+--      a duplicate key is found, we want the biggest value for the key to be kept.
+rsDtMp26 = Map.fromListWith max [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)]  
+                                                            -- fromList [(2,100),(3,29),(4,22)]
+rsDtMp27 = Map.fromListWith (+) [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)]  
+                                                            -- fromList [(2,108),(3,62),(4,37)]
+
+--- insertWith --- is to insert what fromListWith is to fromList. It inserts a key-value pair 
+--      into a map, but if that map already contains the key, it uses the function passed to it 
+--      to determine what to do.
+rsDtMp28 = Map.insertWith (+) 3 100 $ Map.fromList [(3,4),(5,103),(6,339)]  
+                                                            -- fromList [(3,104),(5,103),(6,339)] 
+
+-- ============================== import Data.Set ========================
+
+text1 = "I just had an anime dream. Anime... Reality... Are they so different?"  
+text2 = "The old man left his garbage can out and now his trash is all over my lawn!" 
+
+--- fromList --- The fromList function works much like you would expect. It takes a list and 
+--      converts it into a set.
+rsDtSt1 = Set.fromList text1                                -- fromList " .?AIRadefhijlmnorstuy"  
+rsDtSt2 = Set.fromList text2                                -- fromList " !Tabcdefghilmnorstuvwy"
+  
+--- intersection --- function to see which elements they both share.  
+rsDtSt3 = Set.intersection rsDtSt1 rsDtSt2                  -- fromList " adefhilmnorstuy"
+
+--- difference --- to see which letters are in the first set but aren't in the second one and vice versa
+rsDtSt4 = Set.difference rsDtSt1 rsDtSt2                    -- fromList ".?AIRj"  
+rsDtSt5 = Set.difference rsDtSt2 rsDtSt1                    -- fromList "!Tbcgvw"
+
+--- union --- we can see all the unique letters used in both sentences by using union
+rsDtSt6 = Set.union rsDtSt1 rsDtSt2                         -- fromList " !.?AIRTabcdefghijlmnorstuvwy"
+
+--- null --- size --- member --- empty --- singleton --- insert --- delete --- 
+--      The null, size, member, empty, singleton, insert and delete functions all work like you'd expect.
+rsDtSt7 = Set.null Set.empty                                -- True  
+rsDtSt8 = Set.null $ Set.fromList [3,4,5,5,4,3]             -- False  
+rsDtSt9 = Set.size $ Set.fromList [3,4,5,3,4,5]             -- 3  
+rsDtSt10 = Set.singleton 9                                  -- fromList [9]  
+rsDtSt11 = Set.insert 4 $ Set.fromList [9,3,8,1]            -- fromList [1,3,4,8,9]  
+rsDtSt12 = Set.insert 8 $ Set.fromList [5..10]              -- fromList [5,6,7,8,9,10]  
+rsDtSt13 = Set.delete 4 $ Set.fromList [3,4,5,4,3,4,5]      -- fromList [3,5]  
+
+--- isSubsetOf --- isProperSubsetOf --- Set A is a subset of set B if B contains all the elements 
+--      that A does. Set A is a proper subset of set B if B contains all the elements that A does 
+--      but has more elements
+rsDtSt14 = Set.fromList [2,3,4] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]             -- True  
+rsDtSt15 = Set.fromList [1,2,3,4,5] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]         -- True  
+rsDtSt16 = Set.fromList [1,2,3,4,5] `Set.isProperSubsetOf` Set.fromList [1,2,3,4,5]   -- False  
+rsDtSt17 = Set.fromList [2,3,4,8] `Set.isSubsetOf` Set.fromList [1,2,3,4,5]           -- False  
+
+--- toList --- Sets are often used to weed a list of duplicates from a list by first making it 
+--      into a set with fromList and then converting it back to a list with toList. 
+--      The Data.List function nub already does that, but weeding out duplicates for large lists is 
+--      much faster if you cram them into a set and then convert them back to a list than using nub. 
+--      But using nub only requires the type of the list's elements to be part of the Eq typeclass, 
+--      whereas if you want to cram elements into a set, the type of the list has to be in Ord. 
+setNub xs = Set.toList $ Set.fromList xs  
+rsDtSt19 = setNub "HEY WHATS CRACKALACKIN"              -- " ACEHIKLNRSTWY"  
+rsDtSt20 = nub "HEY WHATS CRACKALACKIN"                 -- "HEY WATSCRKLIN"
+--      setNub is generally faster than nub on big lists but as you can see, 
+--      nub preserves the ordering of the list's elements, while setNub does not
+
+-- ============================== Making your own modules =====================================
+-- see file Geometry.hs -- Version #1.
+-- see Directory Geometry and files: Cube.hs, Sphere.hs, Cuboid.hs -- Version #2.
+
+rsDtMd1 = Sphere.volume 10                  -- 4188.7905
+rsDtMd2 = Cube.area 10                      -- 600.0
+rsDtMd3 = Cuboid.volume 5.1 6.2 7.3         -- 230.826
+
+rsDtMd4 = Geom.sphereVolume 10              -- 4188.7905
+rsDtMd5 = Geom.cubeArea 10                  -- 600.0
+rsDtMd6 = Geom.cuboidVolume 5.1 6.2 7.3     -- 230.826
+
+-- ============================== Making your own types and Typeclasses =======================
+
+
+
+
+
+
+
+
+
+
+
 
 
 
