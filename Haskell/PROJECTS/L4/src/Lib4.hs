@@ -23,6 +23,8 @@ import qualified Geometry.Cube   as Cube
 
 import qualified Geometry as Geom
 
+import Shapes
+
 import Data.String
 import Data.Int
 --import GHC.Int
@@ -1168,16 +1170,16 @@ circleArea diameter = pi * radius * radius
   where
     radius = diameter / 2.0       -- local binding
 
--- Point, using Tuples
-type Point = (Int, Int)
+-- Point', using Tuples
+type Point' = (Int, Int)
 --
-origin' :: Point
+origin' :: Point'
 origin' = (0, 0)
 -- move a given point to the right
-moveRight :: Point -> Int -> Point
+moveRight :: Point' -> Int -> Point'
 moveRight (x, y) distance'  = (x + distance', y)
 -- move a given point to upwards
-moveUp :: Point -> Int -> Point
+moveUp :: Point' -> Int -> Point'
 moveUp (x, y) distance'  = (x, y + distance')
 
 -- Color
@@ -3135,15 +3137,27 @@ rsDtMd5 = Geom.cubeArea 10                  -- 600.0
 rsDtMd6 = Geom.cuboidVolume 5.1 6.2 7.3     -- 230.826
 
 -- ============================== Making your own types and Typeclasses =======================
+---
+data Shape' = Circle' Float Float Float | Rectangle' Float Float Float Float deriving (Show)
+---
+surface' :: Shape' -> Float  
+surface' (Circle' _ _ r) = pi * r ^ 2  
+surface' (Rectangle' x1 y1 x2 y2) = (abs $ x2 - x1) * (abs $ y2 - y1)
+--
+rsMyDt1 = surface' $ Circle' 10 20 10         -- 314.15927  
+rsMyDt2 = surface' $ Rectangle' 0 0 100 100   -- 10000.0
+--
+rsMyDt3 = map (Circle' 10 20) [4,5,6,6]      
+          -- [Circle' 10.0 20.0 4.0,Circle' 10.0 20.0 5.0,Circle' 10.0 20.0 6.0,Circle' 10.0 20.0 6.0]
+---
+rsMyDt4 = surface (Rectangle (Point 0 0) (Point 100 100))   -- 10000.0  
+rsMyDt5 = surface (Circle (Point 0 0) 24)                   -- 1809.5574
+rsMyDt6 = nudge (Circle (Point 34 34) 10) 5 10
+rsMyDt7 = nudge (baseRect 40 100) 60 23         -- Rectangle (Point 60.0 23.0) (Point 100.0 123.0)  
+------------------
+rsMyDt8 = rsMyDtS4 -- rsMyDtS4 is imported from module Shapes.hs
 
-
-
-
-
-
-
-
-
+--rsMyDt9 = rsMyDtS1 -- this one does not compile, because rsMyDtS1 is not exported
 
 
 
