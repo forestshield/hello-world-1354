@@ -667,7 +667,6 @@ someFuncLib4 = do
 
   putStrLn "\n==================== import Data.Char ===================="
   putStrLn " All these predicates have a type signature of \"Char -> Bool\"\n"
-  
   putStrLn "isControl checks whether a character is a control character."
   putStrLn "isSpace checks whether a character is a white-space characters. That includes spaces, tab characters, newlines, etc."
   putStrLn "isLower checks whether a character is lower-cased."
@@ -775,7 +774,6 @@ someFuncLib4 = do
            "Map.fromListWith --- Map.insertWith"
 
   putStrLn "\n==================== import Data.Set ======================"
-
   putStrLn "text1 = \"I just had an anime dream. Anime... Reality... Are they so different?\""
   putStrLn "text2 = \"The old man left his garbage can out and now his trash is all over my lawn!\""
   specShow ((Set.fromList text1), (Set.fromList text2), (Set.intersection rsDtSt1 rsDtSt2),
@@ -808,11 +806,9 @@ someFuncLib4 = do
            \n  setNub xs = Set.toList $ Set.fromList xs"
            "toList --- custom 'setNub'"
 
-
   putStrLn "\n==================== Making your own modules =============="
   putStrLn "see file Geometry.hs -- Version #1"
   putStrLn "see Directory Geometry and files: Cube.hs, Sphere.hs, Cuboid.hs -- Version #2"
-  
   specShow ((Geom.sphereVolume 10), (Geom.cubeArea 10), (Geom.cuboidVolume 5.1 6.2 7.3),
             (Sphere.volume 10), (Cube.area 10), (Cuboid.volume 5.1 6.2 7.3))
            "\nGeom.sphereVolume 10\nGeom.cubeArea 10\nGeom.cuboidVolume 5.1 6.2 7.3\
@@ -820,6 +816,55 @@ someFuncLib4 = do
            "modules Geom and Sphere, Cube, Cuboid"
 
   putStrLn "\n=========== Making your own types and Typeclasses ==========="
+  specShow ((neo1), (trin1), (morf1), (neo2),
+            (morf1 == neo1), (neo1 > trin1), (neo2 > neo1))
+           "\nmorf1 == neo1\nneo1 > trin1\n\
+           \neo2 > neo1"
+           "data Person"
+  specShow ((Car "lexus"  "RX350"  2014), (Car {company = "ford", model = "Mustang", year = 1967}), 
+            (rsMyDt18 < c1 ), (tellCar c1), (tellCar rsMyDt18))
+           "\nc1 = Car \"lexus\"  \"RX350\"  2014\n\
+           \rsMyDt18 = Car {company = \"ford\", model = \"Mustang\", year = 1967}\n\
+           \rsMyDt18 < c1\ntellCar c1\ntellCar rsMyDt18"
+           "data Car"
+  specShow ((Vector 3 5 8 `vplus` Vector 9 2 8), 
+            (Vector 3 5 8 `vplus` Vector 9 2 8 `vplus` Vector 0 2 3), 
+            (Vector 3 9 7 `vectMult` 10), 
+            (Vector 4 9 5 `scalarMult` Vector 9.0 2.0 4.0), 
+            (Vector 2 9 3 `vectMult` (Vector 4 9 5 `scalarMult` Vector 9 2 4)))
+           "\nVector 3 5 8 `vplus` Vector 9 2 8\n\
+           \Vector 3 5 8 `vplus` Vector 9 2 8 `vplus` Vector 0 2 3\n\
+           \Vector 3 9 7 `vectMult` 10\nVector 4 9 5 `scalarMult` Vector 9.0 2.0 4.0\n\
+           \Vector 2 9 3 `vectMult` (Vector 4 9 5 `scalarMult` Vector 9 2 4)"
+           "data Vector (3D Vector)"
+  specShow (((read "Person {firstName =\"Neo\", lastName =\"Anderson\", age = 40, height = 184, phoneNumber = \"555-555\", flavor = \"butter-scotch\" }" :: Person) == neo1), 
+            ((read "Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43, height = 178, phoneNumber = \"555-999\", flavor = \"vanilla\" }" :: Person) > neo1) )
+           "(read \"Person {firstName =\"Neo\", lastName =\"Anderson\", age = 40, height = 184, phoneNumber = \"555-555\", flavor = \"butter-scotch\" }\" :: Person) == neo1\n\
+           \(read \"Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43, height = 178, phoneNumber = \"555-999\", flavor = \"vanilla\" }\" :: Person) > neo1"           
+           "read 'custom' --- Derived instances"
+  specShow ((read "Just 80" :: Maybe Int), (read  "Just 't'" :: Maybe Char), 
+            (read "Nothing" :: Maybe Int), (read  "Nothing" :: Maybe Char) )
+           "\nread \"Just 80\" :: Maybe Int\nread  \"Just 't'\" :: Maybe Char\
+           \\nread \"Nothing\" :: Maybe Int\nread  \"Nothing\" :: Maybe Char"
+           "read Maybe --- Derived instances"
+  specShow ((True `compare` False), (True > False), 
+            (Nothing < Just 100), (Nothing > Just (-49999)), 
+            (Just 3 `compare` Just 2), (Just 100 > Just 50))
+           "\nTrue `compare` False\nTrue > False\nNothing < Just 100\
+           \\nNothing > Just (-49999)\nJust 3 `compare` Just 2\n\
+           \Just 100 > Just 50"
+           "compare Bool --- Maybe"
+  specShow ((show Wednesday), (read "Saturday" :: Day), (Saturday == Sunday), 
+            (Monday `compare` Wednesday), (minBound :: Day), (succ Monday),
+            (pred Saturday), ([Thursday .. Sunday]) )
+           "\nshow Wednesday\nread \"Saturday\" :: Day\nSaturday == Sunday\
+           \\nMonday `compare` Wednesday\nminBound :: Day\nsucc Monday\n\
+           \[Thursday .. Sunday]\n[minBound .. maxBound] :: [Day]\n\
+           \N.B. succ Sunday *** Exception: succ{Day}: tried to take `succ' of last tag in enumeration\n\
+           \N.B. pred Monday *** Exception: pred{Day}: tried to take `pred' of first tag in enumeration"
+           "Data Day --- deriving (Eq, Ord, Show, Read, Bounded, Enum)"
+
+
 
 -- some cool stuff
   putStrLn $ show $ sum' []
@@ -957,7 +1002,7 @@ curryAddTupl = undefined
 data Car = Car  { company :: String
                 , model :: String 
                 , year :: Int               
-                } deriving (Show, Read, Eq)
+                } deriving (Show, Read, Eq, Ord)
 c1   = Car "lexus"  "RX350"  2014
 c2   = Car "lexus"  "RX350"  2014
 bDif = c1 == c2 
@@ -3156,12 +3201,314 @@ rsMyDt6 = nudge (Circle (Point 34 34) 10) 5 10
 rsMyDt7 = nudge (baseRect 40 100) 60 23         -- Rectangle (Point 60.0 23.0) (Point 100.0 123.0)  
 ------------------
 rsMyDt8 = rsMyDtS4 -- rsMyDtS4 is imported from module Shapes.hs
-
 --rsMyDt9 = rsMyDtS1 -- this one does not compile, because rsMyDtS1 is not exported
 
+----------------------------------------------------
+data Person' = Person' String String Int Float String String deriving (Show)
+guy = Person' "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate"  
+        -- Person' "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate"
+firstName' :: Person' -> String  
+firstName' (Person' firstname' _ _ _ _ _) = firstname'  
+--  
+lastName' :: Person' -> String  
+lastName' (Person' _ lastname' _ _ _ _) = lastname'  
+--  
+age' :: Person' -> Int  
+age' (Person' _ _ age' _ _ _) = age'  
+--  
+height' :: Person' -> Float  
+height' (Person' _ _ _ height' _ _) = height'  
+--  
+phoneNumber' :: Person' -> String  
+phoneNumber' (Person' _ _ _ _ number' _) = number'  
+--  
+flavor' :: Person' -> String  
+flavor' (Person' _ _ _ _ _ flavor') = flavor'
+--
+rsMyDt10 = firstName' guy      -- "Buddy"
+
+-------- better way to write data type -----------------
+data Person = Person { firstName :: String  
+                     , lastName :: String  
+                     , age :: Int  
+                     , height :: Float  
+                     , phoneNumber :: String  
+                     , flavor :: String  
+                     } deriving (Show, Ord, Eq, Read)
+
+neo1  = Person "Neo" "Anderson" 40 184 "555-555" "butter-scotch"
+neo2  = Person "Neo" "Anderson" 40 184 "555-555" "vanilla"
+trin1 = Person "Trinity" "Unknown" 40 172 "555-666" "vanilla"
+morf1 = Person {firstName     = "Morfeus"
+                , lastName    = "Unknown0"
+                , age         = 55  
+                , height      = 182  
+                , phoneNumber = "555-000"
+                , flavor      = "chocolate"
+                }
+rsMyDt11 = neo1  == morf1             -- False
+rsMyDt12 = neo1  >  trin1             -- False
+rsMyDt13 = trin1 >  morf1             -- True
+rsMyDt14 = neo2  >  neo1              -- True
+
+---------- type parameters -----------------------------
+--- data Maybe a = Nothing | Just a 
+rsMyDt15 = Just "Haha"                -- Just "Haha"  
+rsMyDt16 = Just 84                    -- Just 84  
+--ghci> :t Just "Haha"  
+                                      -- Just "Haha" :: Maybe [Char]  
+--ghci> :t Just 84  
+                                      -- Just 84 :: (Num t) => Maybe t  
+--ghci> :t Nothing  
+                                      -- Nothing :: Maybe a  
+rsMyDt17 = Just 10 :: Maybe Double    -- Just 10.0  
+
+------------------------
+--data Car = Car  { company :: String
+--                , model :: String 
+--                , year :: Int               
+--                } deriving (Show, Read, Eq)
+--c1   = Car "lexus"  "RX350"  2014
+--c2   = Car "lexus"  "RX350"  2014
+--bDif = c1 == c2
+rsMyDt18 = Car {company = "ford", model = "Mustang", year = 1967}
+rsMyDt19 = c1 == rsMyDt18
+rsMyDt20 = rsMyDt18 < c1 
+---
+--tellCar :: (Show a) => Car String String a -> String  
+tellCar :: Car -> [Char]
+tellCar (Car {company = c, model = m, year = y}) = "This " ++ c ++ " " ++ m ++ " was made in " ++ show y
+
+-------------------------
+-- If we were defining a mapping type, we could add a typeclass constraint 
+--      in the data declaration:
+--      data (Ord k) => Map k v = ...  
+-- !!! However, it's a very strong convention in Haskell to never add typeclass constraints 
+--      in data declarations. !!! ------------
+-- !!! Don't put type constraints into data declarations !!! --
+
+--- data 3D Vector ---
+data Vector a = Vector a a a deriving (Show)  
+  
+vplus :: (Num t) => Vector t -> Vector t -> Vector t  
+(Vector i j k) `vplus` (Vector l m n) = Vector (i+l) (j+m) (k+n)  
+  
+vectMult :: (Num t) => Vector t -> t -> Vector t  
+(Vector i j k) `vectMult` m = Vector (i*m) (j*m) (k*m)  
+  
+scalarMult :: (Num t) => Vector t -> Vector t -> t  
+(Vector i j k) `scalarMult` (Vector l m n) = i*l + j*m + k*n
+
+--- !!!  it's very important to distinguish between 
+--       the type constructor and the value constructor( coulbe separeated by '|')
+--           [--------------]     [---------------------------]
+--             data Vector a   =   Vector a a a deriving (Show)
+
+rsMyDt21 = Vector 3 5 8 `vplus` Vector 9 2 8                        -- Vector 12 7 16  
+rsMyDt22 = Vector 3 5 8 `vplus` Vector 9 2 8 `vplus` Vector 0 2 3   -- Vector 12 9 19  
+rsMyDt23 = Vector 3 9 7 `vectMult` 10                               -- Vector 30 90 70  
+rsMyDt24 = Vector 4 9 5 `scalarMult` Vector 9.0 2.0 4.0             -- 74.0  
+rsMyDt25 = Vector 2 9 3 `vectMult` (Vector 4 9 5 `scalarMult` Vector 9 2 4)  
+                                                                    -- Vector 148 666 222
+
+------------------ Basic Typeclasses --------------------------
+-- A typeclass is a sort of interface that defines some behavior. If a type is a part of a 
+--      typeclass, that means that it supports and implements the behavior the typeclass 
+--      describes. A lot of people coming from OOP get confused by typeclasses because they 
+--      think they are like classes in object oriented languages. 
+--      Well, they're not. You can think of them kind of as Java interfaces, only better.
+
+--- Eq --- is used for types that support equality testing. The functions: "==" and "/="
+--- Ord --- is used for types that have an ordering. The functions: ">","<",">=","<=",compare 
+--      Ordering is a type that can be GT, LT or EQ
+--- Show --- Members of Show can be presented as strings. Function "show" is member of this typeclass
+--- Read --- The read function takes a string and returns a type which is a member of Read. Func "read"
+--- Enum --- Enum members are sequentially ordered types — they can be enumerated. The main 
+--      advantage of the Enum typeclass is that we can use its types in list ranges. They also 
+--      have defined successors and predecesors, which you can get with the "succ" and "pred" 
+--      functions. Types in this class: (), Bool, Char, Ordering, Int, Integer, Float and Double.
+--- Bounded --- Bounded members have an upper and a lower bound. "minBound", "maxBound", Int, Char, Bool
+--- Num --- Num is a numeric typeclass. Its members have the property of being able to act 
+--      like numbers. Let's examine the type of a number. Int, Integer, Float, Double
+--- Integral --- Integral is also a numeric typeclass. Num includes all numbers, including 
+--      real numbers and integral numbers, Integral includes only integral (whole) numbers. 
+--      In this typeclass are Int and Integer
+--- Floating --- Floating includes only floating point numbers, so Float and Double.
+
+-- A very useful function for dealing with numbers is fromIntegral
+--- fromIntegral ---
+--      It has a type declaration of fromIntegral :: (Num b, Integral a) => a -> b. 
+--      From its type signature we see that it takes an integral number and turns it into a 
+--      more general number. That's useful when you want integral and floating point types 
+--      to work together nicely. For instance, the length function has a type declaration of 
+--      length :: [a] -> Int instead of having a more general type of (Num b) => length :: [a] -> b. 
+--      if we try to get a length of a list and then add it to 3.2, we'll get an error because 
+--      we tried to add together an Int and a floating point number. So to get around this, 
+--      we do fromIntegral (length [1,2,3,4]) + 3.2 and it all works out.
 
 
 
+------------------ Derived instances -----------------------------------------
+-- Example: the Int type is an instance of the Eq typeclass because the Eq typeclass defines 
+--      behavior for stuff that can be equated.
+---------------- typeclasses: Eq, Ord, Enum, Bounded, Show, Read -------------
+{-
+neo1  = Person "Neo" "Anderson" 40 184 "555-555" "butter-scotch"
+neo2  = Person "Neo" "Anderson" 40 184 "555-555" "vanilla"
+trin1 = Person "Trinity" "Unknown" 40 172 "555-666" "vanilla"
+morf1 = Person {firstName     = "Morfeus"
+                , lastName    = "Unknown0"
+                , age         = 55  
+                , height      = 182  
+                , phoneNumber = "555-000"
+                , flavor      = "chocolate"
+                }
+-}
+rsMyDt26 = read "Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43, height = 178, phoneNumber = \"555-999\", flavor = \"vanilla\" }" :: Person
+      -- Person {firstName = "Michael", lastName = "Diamond", age = 43, height = 178.0, phoneNumber = "555-999", flavor = "vanilla"}
+rsMyDt27 = read "Person {firstName =\"Neo\", lastName =\"Anderson\", age = 40, height = 184, phoneNumber = \"555-555\", flavor = \"butter-scotch\" }" :: Person  
+      -- Person {firstName = "Neo", lastName = "Anderson", age = 40, height = 184.0, phoneNumber = "555-555", flavor = "butter-scotch"}
+rsMyDt28 = rsMyDt27 == neo1
+
+--- !!!! We can also read parameterized types, but we have to fill in the type parameters. 
+--      So we can't do read "Just 't'" :: Maybe a, but we can do read "Just 't'" :: Maybe Char.
+rsMyDt29 = "Just 80"
+rsMyDt32 = "Just 't'"
+rsMyDt33 = "Nothing"
+rsMyDt30 = read rsMyDt29 :: Maybe Int          -- Just 80
+rsMyDt31 = read rsMyDt32 :: Maybe Char         -- Just 't'
+rsMyDt34 = read rsMyDt33 :: Maybe Char         -- Nothing
+rsMyDt35 = read rsMyDt33 :: Maybe Int          -- Nothing 
+------------------------------ 
+{-
+λ>:i Maybe
+data Maybe a = Nothing | Just a   -- Defined in ‘GHC.Maybe’
+instance Applicative Maybe        -- Defined in ‘GHC.Base’
+instance Eq a => Eq (Maybe a)     -- Defined in ‘GHC.Maybe’
+instance Functor Maybe            -- Defined in ‘GHC.Base’
+instance Monad Maybe              -- Defined in ‘GHC.Base’
+instance MonadPlus Maybe          -- Defined in ‘GHC.Base’
+instance Semigroup a => Monoid (Maybe a)      -- Defined in ‘GHC.Base’
+instance Ord a => Ord (Maybe a)   -- Defined in ‘GHC.Maybe’
+instance Semigroup a => Semigroup (Maybe a)   -- Defined in ‘GHC.Base’
+instance Show a => Show (Maybe a) -- Defined in ‘GHC.Show’
+instance Read a => Read (Maybe a) -- Defined in ‘GHC.Read’
+instance Foldable Maybe           -- Defined in ‘Data.Foldable’
+instance Traversable Maybe        -- Defined in ‘Data.Traversable’
+instance MonadFail Maybe          -- Defined in ‘Control.Monad.Fail’
+-}
+---------
+-- data Bool = False | True deriving (Ord) 
+rsMyDt36 = True `compare` False         -- GT  
+rsMyDt37 = True > False                 -- True  
+--
+rsMyDt38 = Nothing < Just 100           -- True  
+rsMyDt39 = Nothing > Just (-49999)      -- False  
+rsMyDt40 = Just 3 `compare` Just 2      -- GT  
+rsMyDt41 = Just 100 > Just 50           -- True  
+
+--- But we can't do something like Just (*3) > Just (*2), because (*3) and (*2) are functions,
+--      which aren't instances of Ord
+
+--------------------------------
+-- data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday  
+--      Because all the value constructors are nullary (take no parameters, i.e. fields), 
+--      we can make it part of the Enum typeclass. The Enum typeclass is for things that 
+--      have predecessors and successors. We can also make it part of the Bounded typeclass,
+--      which is for things that have a lowest possible value and highest possible value. 
+--      And while we're at it, let's also make it an instance of all the other derivable 
+--      typeclasses and see what we can do with it.
+
+data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday   
+           deriving (Eq, Ord, Show, Read, Bounded, Enum)  
+--      Because it's part of the Show and Read typeclasses, we can convert values of this type
+--      to and from strings.
+
+rsMyDt42 = Wednesday                    -- Wednesday  
+rsMyDt43 = show Wednesday               -- "Wednesday"  
+rsMyDt44 = read "Saturday" :: Day       -- Saturday  
+
+--      Because it's part of the Eq and Ord typeclasses, we can compare or equate days.
+rsMyDt45 = Saturday == Sunday           -- False  
+rsMyDt46 = Saturday == Saturday         -- True  
+rsMyDt47 = Saturday > Friday            -- True  
+rsMyDt48 = Monday `compare` Wednesday   -- LT  
+
+--      It's also part of Bounded, so we can get the lowest and highest day.
+rsMyDt49 = minBound :: Day              -- Monday  
+rsMyDt50= maxBound :: Day               -- Sunday  
+
+--      It's also an instance of Enum. We can get predecessors and successors of days 
+--      and we can make list ranges from them!
+rsMyDt51 = succ Monday                  -- Tuesday  
+rsMyDt52 = pred Saturday                -- Friday  
+rsMyDt53 = [Thursday .. Sunday]         -- [Thursday,Friday,Saturday,Sunday]  
+rsMyDt54 = [minBound .. maxBound] :: [Day]  -- [Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday] 
+
+-- N.B. succ Sunday *** Exception: succ{Day}: tried to take `succ' of last tag in enumeration
+--      pred Monday *** Exception: pred{Day}: tried to take `pred' of first tag in enumeration
+
+------------------------- type synonyms --------------------------
+-- type String = [Char]
+
+--      Let's make a type synonym to convey some more information in the type declaration
+--type PhoneBook   = [(String,String)]
+--      Now the type declaration for our phonebook can be phoneBook :: PhoneBook. Let's 
+--      make a type synonym for String as well.
+type PhoneNumber  = String  
+type Name         = String  
+type PhoneBook    = [(Name,PhoneNumber)]
+
+-- Type synonyms can also be parameterized. If we want a type that represents an association 
+--      list type but still want it to be general so it can use any type as the keys and 
+--      values, we can do this:
+type AssocList k v = [(k,v)] 
+--      Now, a function that gets the value by a key in an association list can have a type of 
+--      (Eq k) => k -> AssocList k v -> Maybe v. AssocList is a type constructor that takes two 
+--      types and produces a concrete type, like AssocList Int String, for instance.
+
+--- Just like we can partially apply functions to get new functions, we can partially apply 
+--      type parameters and get new type constructors from them. Just like we call a function 
+--      with too few parameters to get back a new function, we can specify a type constructor 
+--      with too few type parameters and get back a partially applied type constructor. If we 
+--      wanted a type that represents a map (from Data.Map) from integers to something, we could
+--      either do this:
+type IntMap1 v = Map.Map Int v  
+--      Or we could do it like this:
+type IntMap2 = Map.Map Int  
+--      Either way, the IntMap type constructor takes one parameter and that is the type of 
+--      what the integers will point to
+--      If you're going to try and implement this, you'll probably going to do a qualified 
+--      import of Data.Map. When you do a qualified import, type constructors also have to be 
+--      preceeded with a module name. So you'd write type IntMap = Map.Map Int.
+------------------------------------
+--      Make sure that you really understand the distinction between type constructors and 
+--      value constructors. Just because we made a type synonym called IntMap or AssocList 
+--      doesn't mean that we can do stuff like AssocList [(1,2),(4,5),(7,9)]. All it means is 
+--      that we can refer to its type by using different names. 
+--      We can do [(1,2),(3,5),(8,9)] :: AssocList Int Int, which will make the numbers inside 
+--      assume a type of Int, but we can still use that list as we would any normal list that 
+--      has pairs of integers inside. Type synonyms (and types generally) can only be used in 
+--      the type portion of Haskell. We're in Haskell's type portion whenever we're defining 
+--      new types (so in data and type declarations) or when we're located after 
+--      a ::. The :: is in type declarations or in type annotations.
+
+--- Either --- Another cool data type that takes two types as its parameters is the 
+--      Either a b type. This is roughly how it's defined:
+--data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show) 
+--      It has two value constructors. If the Left is used, then its contents are of type a and
+--      if Right is used, then its contents are of type b. So we can use this type to 
+--      encapsulate a value of one type or another and then when we get a value of type 
+--      Either a b, we usually pattern match on both Left and Right and we different stuff 
+--      based on which one of them it was.
+rsMyDt55 = Right 20           -- Right 20  
+rsMyDt56 = Left "w00t"        -- Left "w00t"  
+--
+--ghci> :t Right 'a'            
+rsMyDt57 = Right 'a' :: Either a Char  
+--
+--ghci> :t Left True  
+rsMyDt58 = Left True :: Either Bool b  
 
 
 
