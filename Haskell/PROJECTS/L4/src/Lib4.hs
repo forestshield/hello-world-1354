@@ -3623,7 +3623,6 @@ rsMyDt72 = 3 `Cons''` (4 `Cons''` (5 `Cons''` Empty''))   -- Cons'' 3 (Cons'' 4 
 --      fixity for :         infixr 5
 --      fixity for ==        infix  4
 
-
 infixr 5 :-:
 data List a = Empty | a :-: (List a) deriving (Show, Read, Eq, Ord)
 --      now we can rewrite our list like this
@@ -3631,4 +3630,52 @@ rsMyDt73 = 3 :-: 4 :-: 5 :-: Empty                -- (:-:) 3 ((:-:) 4 ((:-:) 5 E
 rsMyDt74 = 3 :-: 4 :-: 5 :-: Empty  
 rsMyDt75 = 100 :-: rsMyDt74                       -- (:-:) 100 ((:-:) 3 ((:-:) 4 ((:-:) 5 Empty))) 
 
+---- this is how ++ defined
+-- infixr 5  ++ 
+-- (++) :: [a] -> [a] -> [a]  
+-- []     ++ ys = ys  
+-- (x:xs) ++ ys = x : (xs ++ ys)
 
+--- make our own .++
+infixr 5  .++  
+(.++) :: List a -> List a -> List a   
+Empty .++ ys = ys                         
+(x :-: xs) .++ ys = x :-: (xs .++ ys)
+
+---
+rsMyDt76 = 3 :-: 4 :-: 5 :-: Empty  
+rsMyDt77 = 6 :-: 7 :-: Empty  
+rsMyDt78 = rsMyDt76 .++ rsMyDt77          -- (:-:) 3 ((:-:) 4 ((:-:) 5 ((:-:) 6 ((:-:) 7 Empty))))
+
+---------------- binary search tree ----------------------
+data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
+
+-- utility func for making singltone tree (just one node)
+singleton :: a -> Tree a  
+singleton x = Node x EmptyTree EmptyTree  
+
+-- func to insert an element into a tree  
+treeInsert :: (Ord a) => a -> Tree a -> Tree a  
+treeInsert x EmptyTree = singleton x  
+treeInsert x (Node a left right)   
+    | x == a = Node x left right  
+    | x < a  = Node a (treeInsert x left) right  
+    | x > a  = Node a left (treeInsert x right)
+
+-- func to check if some element is in the tree?
+treeElem :: (Ord a) => a -> Tree a -> Bool  
+treeElem x EmptyTree = False  
+treeElem x (Node a left right)  
+    | x == a = True  
+    | x < a  = treeElem x left  
+    | x > a  = treeElem x right
+
+-- we'll use a fold to build up a tree from a list.
+nums = [8,6,4,1,7,3,5]  
+numsTree = foldr treeInsert EmptyTree nums  
+--numsTree  -- Node 5 (Node 3 (Node 1 EmptyTree EmptyTree) (Node 4 EmptyTree EmptyTree)) (Node 7 (Node 6 EmptyTree EmptyTree) (Node 8 EmptyTree EmptyTree))
+
+rsMyDt79 = 8 `treeElem` numsTree      -- True  
+rsMyDt80 = 100 `treeElem` numsTree    -- False  
+rsMyDt81 = 1 `treeElem` numsTree      -- True  
+rsMyDt82 = 10 `treeElem` numsTree     -- False  
