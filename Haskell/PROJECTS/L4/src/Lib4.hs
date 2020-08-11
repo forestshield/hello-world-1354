@@ -863,13 +863,61 @@ someFuncLib4 = do
            \N.B. succ Sunday *** Exception: succ{Day}: tried to take `succ' of last tag in enumeration\n\
            \N.B. pred Monday *** Exception: pred{Day}: tried to take `pred' of first tag in enumeration"
            "Data Day --- deriving (Eq, Ord, Show, Read, Bounded, Enum)"
+  
+  specShow ((Right 20 :: Either () Int) 
+            ,(Right 'a' :: Either () Char)
+            ,(Right 3.423 :: Either () Double)
+--           ,((Left "w00t" :: Either () String))     -- does not compile
+--           ,(Left True :: Either () Bool)           -- does not compile
+--           ,(Left "Something" :: Either () String)) -- does not compile
+            )
+           "\nRight 20\nRight 'a' :: Either a Char\
+           \\nRight 3.423 :: Either () Double"
+           "data Either a b = Left a | Right b"
+  specShow ((eitherHead [1,2,3,4,5]), (eitherHead "This is a test string") )
+           "\neitherHead [1,2,3,4,5]\neitherHead \"This is a test string\"\n\
+            \eitherHead :: [a] -> Either String a\n\
+            \eitherHead [] = Left \"Empty Head\"\n\
+            \eitherHead (x:xs) = Right x"
+           "safe head implementation, using Either"
+  specShow ((lockerLookup 101 lockers)
+           ,(lockerLookup 100 lockers)
+           ,(lockerLookup 102 lockers)
+           ,(lockerLookup 110 lockers)
+           ,(lockerLookup 105 lockers))
+           "\nlockerLookup 101 lockers\nlockerLookup 100 lockers\nlockerLookup 102 locker\
+           \\nlockerLookup 110 lockers\nlockerLookup 105 lockers"
+           "lockers example, using Either"
+  specShow ((3:(4:(5:6:[]))), (3:4:5:6:[]), ([3,4,5,6]))
+           "\n(3:(4:(5:6:[]))\n3:4:5:6:[]\n[3,4,5,6]"
+           "recursive data structure"
 
 
 
+  -- !!! "putStrLn . show", or "print x = putStrLn (show x)" is exectly a definition of print !!!   
+
+  -- Either print problems !!!
+  --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
+  --putStrLn $ show $ (Right 3.423 :: Either a Double)   -- does not compile
+  --putStrLn $ show $ (Left "Test" :: Either String) -- does not compile
+  --putStrLn $ show $ (Left "Test" :: Either () String) -- does not compile
+  putStrLn $ show $ (Right True :: Either () Bool)   -- working -- Right True
+  putStrLn $ show $ (Right 3.423 :: Either () Double) -- working -- Right 3.423
+  (putStrLn . show) (Right 3.423 :: Either () Double) -- working -- Right 3.423
 -- some cool stuff
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
 {-
+  specShow (()
+           ,()
+           ,()
+           ,()
+           ,()
+           ,()
+           )
+           "\n\n\n\
+           \\n\n\n"
+           ""
   specShow ((), (), (), 
             (), (), ())
            "\n\n\n\
@@ -3503,19 +3551,84 @@ type IntMap2 = Map.Map Int
 --      based on which one of them it was.
 rsMyDt55 = Right 20           -- Right 20  
 rsMyDt56 = Left "w00t"        -- Left "w00t"  
---
---ghci> :t Right 'a'            
+
 rsMyDt57 = Right 'a' :: Either a Char  
---
---ghci> :t Left True  
 rsMyDt58 = Left True :: Either Bool b  
 
+rsMyDt58' = Left "Something" :: Either String a  
+
+-- another implementation of head, using Either, safe one
+-- Listing 38.6. A safer version of head written using Either
+-- https://livebook.manning.com/book/get-programming-with-haskell/chapter-38/90
+
+eitherHead :: [a] -> Either String a
+eitherHead [] = Left "There is no head because the list is empty"
+eitherHead (x:xs) = Right x
+
+rsMyDt64 = eitherHead [1,2,3,4,5]
+rsMyDt65 = eitherHead "This is a test string"
 
 
+----------- locker example -----------
+data LockerState = Taken | Free deriving (Show, Eq)    
+type Code = String    
+type LockerMap = Map.Map Int (LockerState, Code)
+---
+lockerLookup :: Int -> LockerMap -> Either String Code  
+lockerLookup lockerNumber map =   
+    case Map.lookup lockerNumber map of   
+        Nothing -> Left $ "Locker number " ++ show lockerNumber ++ " doesn't exist!"  
+        Just (state, code) -> if state /= Taken   
+                                then Right code  
+                                else Left $ "Locker " ++ show lockerNumber ++ " is already taken!"
+--
+lockers :: LockerMap  
+lockers = Map.fromList   
+    [(100,(Taken,"ZD39I"))  
+    ,(101,(Free,"JAH3I"))  
+    ,(103,(Free,"IQSA9"))  
+    ,(105,(Free,"QOTSA"))  
+    ,(109,(Taken,"893JJ"))  
+    ,(110,(Taken,"99292"))  
+    ]  
+-- Now let's try looking up some locker codes.
+rsMyDt59 = lockerLookup 101 lockers       -- Right "JAH3I"  
+rsMyDt60 = lockerLookup 100 lockers       -- Left "Locker 100 is already taken!"  
+rsMyDt61 = lockerLookup 102 lockers       -- Left "Locker number 102 doesn't exist!"  
+rsMyDt62 = lockerLookup 110 lockers       -- Left "Locker 110 is already taken!"  
+rsMyDt63 = lockerLookup 105 lockers       -- Right "QOTSA"
+
+----------- recursive data structure ------------------
+rsMyDt66 = 3:(4:(5:6:[])) 
+rsMyDt67 = 3:4:5:6:[] 
+rsMyDt68 = [3,4,5,6]
+
+--- our own List ---
+data List' a = Empty' | Cons' a (List' a) deriving (Show, Read, Eq, Ord)
+data List'' a = Empty'' | Cons'' { listHead :: a, listTail :: List'' a} deriving (Show, Read, Eq, Ord)
+---
+rsMyDt69 = Empty''                                  -- Empty''  
+rsMyDt70 = 5 `Cons''` Empty''                         -- Cons'' 5 Empty''  
+rsMyDt71 = 4 `Cons''` (5 `Cons''` Empty'')              -- Cons'' 4 (Cons'' 5 Empty'')  
+rsMyDt72 = 3 `Cons''` (4 `Cons''` (5 `Cons''` Empty''))   -- Cons'' 3 (Cons'' 4 (Cons'' 5 Empty''))
+
+----------- intermission fixity declaration -----------------
+--      We can define functions to be automatically infix by making them comprised of only 
+--      special characters. We can also do the same with constructors, since they're just 
+--      functions that return a data type
+--      fixity for ^         infixr 8  
+--      fixity for *         infixl 7  
+--      fixity for +         infixl 6  
+--      fixity for -         infixl 6  
+--      fixity for :         infixr 5
+--      fixity for ==        infix  4
 
 
-
-
-
+infixr 5 :-:
+data List a = Empty | a :-: (List a) deriving (Show, Read, Eq, Ord)
+--      now we can rewrite our list like this
+rsMyDt73 = 3 :-: 4 :-: 5 :-: Empty                -- (:-:) 3 ((:-:) 4 ((:-:) 5 Empty))  
+rsMyDt74 = 3 :-: 4 :-: 5 :-: Empty  
+rsMyDt75 = 100 :-: rsMyDt74                       -- (:-:) 100 ((:-:) 3 ((:-:) 4 ((:-:) 5 Empty))) 
 
 
