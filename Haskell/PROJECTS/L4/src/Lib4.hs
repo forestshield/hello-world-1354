@@ -326,10 +326,10 @@ someFuncLib4 = do
            "more let <Bindings> in <Expression>"
   specShow ((quicksort [10,2,4,4,8,9]), 
             (quicksort "the quick brown fox jumps over the lazy dog"), 
-            (quicksort [(10,2,5),(3,1,6),(-99,4,2), (3,4.0,8)]), 
+            (quicksort [(10,2,5),(3,1,6),(-99,4,2),(3,4.0,8),(-99,5,-100)]), 
             (quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9]))
            "\nquicksort [10,2,4,4,8,9]\nquicksort \"the quick brown fox jumps over the lazy dog\"\n\
-           \quicksort [(10,2,5),(3,1,6),(-99,4,2), (3,4.0,8)]\n\
+           \quicksort [(10,2,5), (3,1,6), (-99,4,2), (3,4.0,8), (-99,5,-100)]\n\
            \quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9]"
            "Recursions"
   specShow ((multThree 3 5 9), ( ((multThree 3) 5) 9) )
@@ -348,7 +348,6 @@ someFuncLib4 = do
   specShow ((200 / 10), (divideByTen 200), ((/10) 200))
            ", \"200 / 10\" == \"divideByTen 200\" == \"(/10) 200\"\n"
            "partialy applyed infix function"
-
   specShow ((applyTwice (+3) 10), 
             (applyTwice (++ " HAHA") "hey"), (applyTwice ("HAHA " ++) "hey"),
             (applyTwice (multThree 3 4) 10), (applyTwice (3:) [1]))
@@ -457,12 +456,12 @@ someFuncLib4 = do
            \(foldl (\\x y -> (x+y)/2) 54 [12,4,10,6]), (foldr (\\x y -> (x+y)/2) 54 [12,4,10,6])"
            "foldl vs foldr"
   specShow ((take 10 (enumFrom 'a') ), (take 10 (enumFrom 23)), 
-           (enumFrom BB), (enumFrom Green) )
+           (enumFrom BB), (enumFrom Green') )
            ",\ntake 10 (enumFrom 'a')\ntake 10 (enumFrom 23)\n\
            \     data XXX = AA|BB|CC|DD deriving (Enum, Show)\n\
            \enumFrom BB\n\
-           \     data Color  = Blue | Green | Read deriving (Show, Read, Eq, Enum)\n\
-           \enumFrom Green"
+           \     data Color'  = Blue' | Green' | Read' deriving (Show, Read, Eq, Enum)\n\
+           \enumFrom Green'"
            "EnumFrom"
   specShow ((sum (filter (> 10) (map (*2) [2..10]))), 
            (sum $ filter (> 10) $ map (*2) [2..10]), 
@@ -534,8 +533,8 @@ someFuncLib4 = do
            "iterate"
   specShow ((splitAt 3 "heyman"),(splitAt 100 "heyman"),(splitAt (-3) "heyman"),
             (let (a,b) = splitAt 3 "foobar" in b ++ a),
-            --(do b ++ a where (a,b) = splitAt 3 "foobar"), -- does not compile
-            (rsDtL28'))
+            --(do b ++ a where (a,b) = splitAt 3 "foobar") -- does not compile
+            (rsDtL28') )
            "\nsplitAt 3 \"heyman\"\nsplitAt 100 \"heyman\"\nsplitAt (-3) \"heyman\"\n\
            \let (a,b) = splitAt 3 \"foobar\" in b ++ a\n\
            \do b ++ a where (a,b) = splitAt 3 \"foobar\""
@@ -891,7 +890,28 @@ someFuncLib4 = do
   specShow ((3:(4:(5:6:[]))), (3:4:5:6:[]), ([3,4,5,6]))
            "\n(3:(4:(5:6:[]))\n3:4:5:6:[]\n[3,4,5,6]"
            "recursive data structure"
-
+  specShow ((foldr treeInsert EmptyTree [3,99, (-1), 10, 11, 6, 8, 77, 100, (-5)])
+           ,(8 `treeElem` numsTree1)
+           ,(1100 `treeElem` numsTree1)
+           ,(1 `treeElem` numsTree1)
+           ,((-1) `treeElem` numsTree))
+           "\nnumsTree1 = foldr treeInsert EmptyTree [3,99, (-1), 10, 11, 6, 8, 77, 100, (-5)]\
+           \n8 `treeElem` numsTree1\n1100 `treeElem` numsTree1\n\
+           \1 `treeElem` nnumsTree1)\n(-1) `treeElem` numsTree"
+           "binary tree search - data Tree"
+  specShow ((yesno $ length []), (yesno ("haha" :: [Char])) ,(yesno ("" :: [Char]))
+           ,(yesno $ Just 0), (yesno True), (yesno EmptyTree), (yesno []), (yesno [0,0,0]),
+           (yesno (Green :: TrafficLight)))
+           "\nyesno $ length []\nyesno (\"haha\" :: [Char])\nyesno (\"\" :: [Char])\
+           \\nyesno $ Just 0\nyesno True\nyesno EmptyTree\nyesno []\nyesno [0,0,0]\
+           \\nyesno (Green :: TrafficLight)"
+           "Class \"YesNo\" Typeclass Example,  \"yesno :: (YesNo a) => a -> Bool\""
+  specShow ((yesnoIf [] "YEAH!" "NO!"), (yesnoIf [2,3,4] "YEAH!" "NO!") ,(yesnoIf True "YEAH!" "NO!"),
+           (yesnoIf (Just 500) "YEAH!" "NO!"), (yesnoIf Nothing "YEAH!" "NO!"))
+           "\nyesnoIf [] \"YEAH!\" \"NO!\"\nyesnoIf [2,3,4] \"YEAH!\" \"NO!\"\n\
+           \yesnoIf True \"YEAH!\"\"NO!\"\nyesnoIf (Just 500) \"YEAH!\" \"NO!\"\n\
+           \yesnoIf Nothing \"YEAH!\" \"NO!\""
+           "function yesnoIf, Typeclass Example, it mimics if statement"
 
 
   -- !!! "putStrLn . show", or "print x = putStrLn (show x)" is exectly a definition of print !!!   
@@ -1044,7 +1064,7 @@ curryAddTupl = undefined
 --curryAddTupl = curry addTupl
 
 
--- Algebraic Datatypes ----------
+-- =============================== Algebraic Datatypes =======================
 -- see Cards.hs too
 -- data Car
 data Car = Car  { company :: String
@@ -1067,8 +1087,8 @@ c5   = Car2 "lexus"  "RX350"  2014      -- this is OK
 --bDif2 = c3 == c4    -- fails, no Eq, because of unknown type !!!
 bDif2 = c3 == c5    -- True
 
--- data Color                               
-data Color  = Blue | Green | Read deriving (Show, Read, Eq, Enum) 
+-- data Color'                               
+data Color'  = Blue' | Green' | Read' deriving (Show, Read, Eq, Enum) 
 --data Color2 = funcRGB Int Int Int 
 
 -- func RGB
@@ -1177,6 +1197,7 @@ average a b  = (a + b) / 2.0
 --sin, cos, tan, exp, sqrt,… :: Floating a => a -> a
 
 {-
+-- =============================== Typeclasses ==========================
 Typeclass Show
 functions: show :: Show a => a -> String: convert the given value into a string.
 member types: almost all predefined types, excluding function types.
@@ -2032,24 +2053,62 @@ rsFdl7 = foldl (/) 64 [4,2,4]                    -- 2.0
 
 
 -- quicksort -------------------
-quicksort :: (Ord a) => [a] -> [a]  
-quicksort [] = []  
-quicksort (x:xs) =   
-    let smallerSorted = quicksort [a | a <- xs, a <= x]  
-        biggerSorted = quicksort [a | a <- xs, a > x]  
-    in  smallerSorted ++ [x] ++ biggerSorted
+{-
+--  Hoare's quick sort in C
+void quicksort (int a[], int 1, int r)
+{
+int i = 1;
+int j = r;
+int x = a[(l + r) / 2];
+do
+{
+while (a[i] < x) i++;
+while (x < a[j]) j--;
+if (i <= j)
+{
+int temp = a[i];
+a[i++] = a[j] ;
+a[j--] = temp;
+}
+}
+while (i <= j);
+if (1 < j) quicksort (a, 1, j);
+if (i < r) quicksort (a, i, r);
+}
+-}
 
--- quicksort [10,2,5,3,1,6,7,4,2,3,4,8,9] -- [1,2,2,3,3,4,4,5,6,7,8,9,10]
--- quicksort "the quick brown fox jumps over the lazy dog" -- "        abcdeeefghhijklmnoooopqrrsttuuvwxyz"
--- quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9] -- [-99.0,1.0,2.0,2.0,3.0,3.0,4.0,4.0,5.0,6.0,8.0,9.0,10.0]
--- quicksort [(10,2,5),(3,1,6),(-99,4,2), (3,4.0,8)] -- [(-99,4.0,2),(3,1.0,6),(3,4.0,8),(10,2.0,5)]
+-- Hoare's quick sort in Haskell (by Dushkin)
+quicksort :: (Ord a) => [a] -> [a]  
+quicksort [] = []
+quicksort (x:xs) = quicksort [у | у <- xs, у < x] ++
+                   [x] ++
+                   quicksort [у | у <- xs, у >= x]
+
+------- this one more readable ------------
+quicksort' :: (Ord a) => [a] -> [a]  
+quicksort' [] = []  
+quicksort' (x:xs) =   
+    let smallerSorted = quicksort' [a | a <- xs, a <= x]  
+        biggerSorted = quicksort' [a | a <- xs, a > x]  
+    in  smallerSorted ++ [x] ++ biggerSorted
+--------------
+
+
+rsQS1 = quicksort [10,2,5,3,1,6,7,4,2,3,4,8,9] 
+                              -- [1,2,2,3,3,4,4,5,6,7,8,9,10]
+rsQS2 = quicksort "the quick brown fox jumps over the lazy dog" 
+                              -- "        abcdeeefghhijklmnoooopqrrsttuuvwxyz"
+rsQS3 = quicksort [10,2,5,3,1,6,-99,4,2,3,4.0,8,9] 
+                              -- [-99.0,1.0,2.0,2.0,3.0,3.0,4.0,4.0,5.0,6.0,8.0,9.0,10.0]
+rsQS4 = quicksort [(10,2,5),(3,1,6),(-99,4,2),(3,4.0,8),(-99,5,-100)] 
+                              -- [(-99,4.0,2),(-99,5,-100),(3,1.0,6),(3,4.0,8),(10,2.0,5)]
 
 -- curried functions ----------
 resCur1 = max 4 5 
 resCur2 = (max 4) 5
 
 -- max :: (Ord a) => a -> a -> a
-
+---
 -- max :: (Ord a) => a -> (a -> a)
 -- max takes an a and returns (that's the ->) a function that takes an a and returns an a
 
@@ -3679,3 +3738,163 @@ rsMyDt79 = 8 `treeElem` numsTree      -- True
 rsMyDt80 = 100 `treeElem` numsTree    -- False  
 rsMyDt81 = 1 `treeElem` numsTree      -- True  
 rsMyDt82 = 10 `treeElem` numsTree     -- False  
+
+numsTree1 :: Tree Integer
+numsTree1 = foldr treeInsert EmptyTree [3,99, (-1), 10, 11, 6, 8, 77, 100, (-5)]
+
+--- ============================== typeclasses again ===========================
+-- typeclasses have nothing to do with "class" from imperative language, like C, 
+-- Java, Python !!!
+--
+-- this is how class Eq is defined in prelude:
+----------------------------------
+--class Eq a where  
+--    (==) :: a -> a -> Bool  
+--    (/=) :: a -> a -> Bool  
+--    x == y = not (x /= y)  
+--    x /= y = not (x == y)
+----------------------------------
+
+---- TrafficLight example creating our own typeclass and us it----
+data TrafficLight = Red | Yellow | Green
+
+---     here we are making an instance of Eq
+instance Eq TrafficLight where  
+    Red    == Red    = True  
+    Green  == Green  = True  
+    Yellow == Yellow = True  
+    _      == _      = False
+
+--- 
+instance Show TrafficLight where  
+    show Red    = "Red light"  
+    show Yellow = "Yellow light"  
+    show Green  = "Green light"  
+{-
+-- :t does not work, because of no contructor yet (Data constructor not in scope: TrafficLight)
+λ> :i TrafficLight
+data TrafficLight = Red | Yellow | Green
+        -- Defined at /Users/admin1/Haskell/PROJECTS/L4/src/Lib4.hs:3748:1
+instance [safe] Eq TrafficLight
+  -- Defined at /Users/admin1/Haskell/PROJECTS/L4/src/Lib4.hs:3751:10
+instance [safe] Show TrafficLight
+  -- Defined at /Users/admin1/Haskell/PROJECTS/L4/src/Lib4.hs:3758:10
+-}
+
+--      Once again, we used pattern matching to achieve our goals. Let's see how it works 
+--      in action:
+rsMyOTC1 = Red == Red                       -- True  
+rsMyOTC2 = Red == Yellow                    -- False  
+rsMyOTC3 = Red `elem` [Red, Yellow, Green]  -- True  
+rsMyOTC4 = [Red, Yellow, Green]             -- [Red light,Yellow light,Green light]  
+
+---     But how are the Maybe or list types made as instances of typeclasses? 
+--      What makes Maybe different from, say, TrafficLight is that Maybe in itself isn't 
+--      a concrete type, it's a type constructor that takes one type parameter 
+--      (like Char or something) to produce a concrete type (like Maybe Char).
+---------------------------------
+-- this is how we could write:
+--instance Eq (Maybe m) where  
+--    Just x  == Just y  = x == y  
+--    Nothing == Nothing = True  
+--    _       == _       = False 
+---------------------------------
+-- There's one problem with this though. Can you spot it? We use == on the contents 
+--      of the Maybe but we have no assurance that what the Maybe contains can be used with Eq! That's why we have to modify our instance declaration like this:
+---------------------------------
+--instance (Eq m) => Eq (Maybe m) where  
+--    Just x  == Just y  = x == y  
+--    Nothing == Nothing = True  
+--    _       == _       = False  
+---------------------------------        
+--    Take into account that the type you're trying to make an instance of will replace 
+--    the parameter in the class declaration. The a from class Eq a where will be replaced 
+--    with a real type when you make an instance, so try mentally putting your type into 
+--    the function type declarations as well. 
+--    "(==) :: Maybe -> Maybe -> Bool" doesn't make much sense but 
+--    "(==) :: (Eq m) => Maybe m -> Maybe m -> Bool" does. 
+--    But this is just something to think about, because == will always have a type of 
+--    (==) :: (Eq a) => a -> a -> Bool, no matter what instances we make.
+
+--- YesNo Typeclass Example ---
+class YesNo a where  
+    yesno :: a -> Bool
+---------------
+instance YesNo Int where  
+    yesno 0 = False  
+    yesno _ = True 
+--
+instance YesNo [a] where  
+    yesno [] = False  
+    yesno _  = True  
+--
+instance YesNo Bool where  
+    yesno = id
+-- What's id? It's just a standard library function that takes a parameter and returns 
+--    the same thing, which is what we would be writing here anyway.    
+--    id True  = True
+--    id "abc" = "abc"
+--    id Nothing = Nothing
+--
+instance YesNo (Maybe a) where  
+    yesno (Just _) = True  
+    yesno Nothing = False
+--
+instance YesNo (Tree a) where  
+    yesno EmptyTree = False  
+    yesno _ = True
+-- 
+instance YesNo TrafficLight where  
+    yesno Red = False  
+    yesno _   = True 
+
+---
+rsMOTC6 = yesno $ length []         -- False  
+rsMOTC7 = yesno ("haha" :: [Char])  -- True  
+rsMOTC8 = yesno ("" :: [Char])      -- False  
+rsMOTC9 = yesno $ Just 0            -- True  
+rsMOTC10 = yesno True               -- True  
+rsMOTC11 = yesno EmptyTree          -- False  
+rsMOTC12 = yesno []                 -- False  
+rsMOTC13 = yesno [0,0,0]            -- True  
+rsMOTC14 = yesno Green              -- True  
+-- λ> :t yesno  
+-- λ> yesno :: (YesNo a) => a -> Bool
+
+--- function yesnoIf --- it mimics if statement
+yesnoIf :: (YesNo y) => y -> a -> a -> a  
+yesnoIf yesnoVal yesResult noResult = if yesno yesnoVal then yesResult else noResult
+---
+rsMOTC15 = yesnoIf [] "YEAH!" "NO!"         -- "NO!"  
+rsMOTC16 = yesnoIf [2,3,4] "YEAH!" "NO!"    -- "YEAH!"  
+rsMOTC17 = yesnoIf True "YEAH!" "NO!"       -- "YEAH!"  
+rsMOTC18 = yesnoIf (Just 500) "YEAH!" "NO!" -- "YEAH!"  
+rsMOTC19 = yesnoIf Nothing "YEAH!" "NO!"    -- "NO!"  
+
+-- ============================ The Functor typeclass ==========================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
