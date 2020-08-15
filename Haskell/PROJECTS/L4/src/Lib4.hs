@@ -27,8 +27,10 @@ import Data.Char (toUpper)
 import Control.Monad 
 --import Data.Map 
 import System.IO
+import System.Directory
+import System.Environment
 
-
+-----------------------------
 someFuncLib4 :: IO ()
 someFuncLib4 = do
   print "------- Working with Lists ------"
@@ -4367,6 +4369,117 @@ func23main = do
         hSetBuffering handle $ BlockBuffering (Just 2048)  
         contents <- hGetContents handle  
         putStr contents)  
+--      Reading files in bigger chunks can help if we want to minimize disk access or when our 
+--      file is actually a slow network resource.
+
+--- hFlush --- We can also use hFlush, which is a function that takes a handle and returns an 
+--      I/O action that will flush the buffer of the file associated with the handle. 
+--      When we're doing line-buffering, the buffer is flushed after every line. When we're 
+--      doing block-buffering, it's after we've read a chunk. It's also flushed after closing 
+--      a handle. That means that when we've reached a newline character, the reading 
+--      (or writing) mechanism reports all the data so far. But we can use hFlush to force 
+--      that reporting of data that has been read so far. After flushing, the data is 
+--      available to other programs that are running at the same time.
+
+----------------------------
+--      We already made a program to add a new item to our to-do list in todo.txt, now let's 
+--      make a program to remove an item. I'll just paste the code and then we'll go over the 
+--      program together so you see that it's really easy. We'll be using a few new functions 
+--      from System.Directory and one new function from System.IO
+
+--- openTempFile --- removeFile --- renameFile ---
+--      We are using here functions  openTempFile, removeFile, renameFile
+--import System.IO
+--import System.Directory
+--import Data.List
+func24main = do
+    handle <- openFile "todo.txt" ReadMode
+    (tempName, tempHandle) <- openTempFile "." "temp"
+    contents <- hGetContents handle
+    let todoTasks = lines contents    
+        numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks
+    putStrLn "These are your TO-DO items:"
+    putStr $ unlines numberedTasks
+    putStrLn "Which one do you want to delete?"
+    numberString <- getLine
+    let number = read numberString
+        newTodoItems = delete (todoTasks !! number) todoTasks
+    hPutStr tempHandle $ unlines newTodoItems
+    hClose handle
+    hClose tempHandle
+    removeFile "todo.txt"
+    renameFile tempName "todo.txt"
+---     Next up, we use a function that we haven't met before which is from System.IO — 
+--      openTempFile. Its name is pretty self-explanatory. It takes a path to a temporary directory 
+--      and a template name for a file and opens a temporary file. We used "." for the temporary 
+--      directory, because . denotes the current directory on just about any OS. We used "temp" 
+--      as the template name for the temporary file, which means that the temporary file will be 
+--      named temp plus some random characters. It returns an I/O action that makes the temporary 
+--      file and the result in that I/O action is a pair of values: the name of the temporary file 
+--      and a handle. We could just open a normal file called todo2.txt or something like that 
+--      but it's better practice to use openTempFile so you know you're probably not overwriting 
+--      anything.
+------------------------
+--      The reason we didn't use getCurrentDirectory to get the current directory and then pass it 
+--      to openTempFile but instead just passed "." to openTempFile is because . refers to the 
+--      current directory on unix-like system and Windows
+------------------------
+-- !!!  Be careful, removeFile and renameFile (which are both in System.Directory by the way) take 
+--      file paths as their parameters, not handles
+
+-- =============================== Command line arguments ====================================
+--      The System.Environment module has two cool I/O actions. One is getArgs, which has a type of 
+--      getArgs :: IO [String] and is an I/O action that will get the arguments that the program 
+--      was run with and have as its contained result a list with the arguments. 
+--      getProgName has a type of getProgName :: IO String and is an I/O action that contains 
+--      the program name
+----------------
+--import System.Environment
+--import Data.List
+func25main = do
+   args <- getArgs
+   progName <- getProgName
+   putStrLn "The arguments are:"
+   mapM putStrLn args
+   putStrLn "The program name is:"
+   putStrLn progName
+---------------------
+--      this is the output of "func25main" in ghci interpreter
+-- λ> func25main
+-- The arguments are:
+-- The program name is:
+-- <interactive>
+---------------------
+--build exe using ghc
+--   	stack ghc -- Main.hs -o testprogram2
+--  	stack ghc first_prog.hs
+---------------------
+--      when we compile this program as a stand_alone, let's name it "arg-test", we will have 
+--      this output
+-- λ> ./arg-test first second w00t "multi word arg"  
+-- The arguments are:  
+-- first  
+-- second  
+-- w00t  
+-- multi word arg  
+-- The program name is:  
+-- arg-test
+-------------------
+-- this is another output
+{-
+./arg-test one two w00t "multi word arg" [1,2,3]
+The arguments are:
+one
+two
+w00t
+multi word arg
+[1,2,3]
+The program name is:
+arg-test
+-}
+
+
+
 
 
 
