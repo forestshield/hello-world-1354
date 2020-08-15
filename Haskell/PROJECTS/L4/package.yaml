@@ -35,6 +35,8 @@ dependencies:
 - mtl
 - lens
 - lens-aeson
+#- data-easy
+- random
 
 default-extensions:
 #- NoImplicitPrelude
