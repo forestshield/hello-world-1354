@@ -292,3 +292,54 @@ or you can write this as a point-free variant:
 ---
 valNum1 :: Num a => a -> a -> a
 valNum1 = (+) . (2 *)
+
+
+=====================================================
+Stack OverFlow questions by Al Yusupov (Forestshield)
+https://stackoverflow.com/
+
+====================================
+#6. August 15, 20       
+====================================
+
+I could not add System.Random module to use it my source haskell file.
+
+import System.Random
+This is the error produced by stack ghc:
+
+/Users/admin1/Haskell/PROJECTS/L4/src/Lib4.hs:32:1: error:
+Could not load module ‘System.Random’
+It is a member of the hidden package ‘random-1.1’.
+You can run ‘:set -package random’ to expose it.
+(Note: this unloads all the modules in the current scope.)
+Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+32 | import System.Random
+   | ^^^^^^^^^^^^^^^^^^^^
+Failed, five modules loaded.
+Thank you very much in advance. 
+P.S. I am using Stack and GHC versions: Version 2.3.1, Git revision x86_64 hpack-0.33.0, ghc-8.8.3 on Mac OSX
+
+-----------------------------------------------------------------
+Answer. by Willem Van Onsem 
+Did you add the random package to the build-depends in the *.cabal file? – Willem Van Onsem 19 mins ago 
+OK. It is working now. I did run "stack install random", I also added "- random" to my package.yaml, because I am in stack environment. Now I can "import System.Random" and compile my code. Thank you very much Willem Van Onsem – Forestshield 3 mins ago   Edit   
+add a comment
+1 Answer
+
+As the error says:
+It is a member of the hidden package ‘random-1.1’.
+This likely means that you did not list it in the build-depends, and thus it is not exposed to your modules.
+
+You can alter the .cabal file, and add it, for example:
+
+-- project.cabal file
+-- …
+
+executable …
+  -- …
+  build-depends:
+      base >= 4.7 && < 5
+    , random >= 1.1
+    -- ,  …
+    
