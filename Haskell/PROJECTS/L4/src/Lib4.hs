@@ -3,7 +3,6 @@ module Lib4
     ) where
 
 --import Prelude hiding (max, signum)
-
 import Data.List
 --import Data.List (nub, sort)   -- if we want only these functions
 --import Data.List hiding (nub)  -- if we want everything, except of nub
@@ -11,20 +10,15 @@ import Data.List
 --import qualified Data.Map as M -- if we want call funcs like "M.nub"  
 
 import Data.Function
-
 import Data.Char
 import qualified GHC.Unicode as U 
 import qualified Data.Map as Map 
 import qualified Data.Set as Set
-
 import qualified Geometry.Sphere as Sphere  
 import qualified Geometry.Cuboid as Cuboid  
 import qualified Geometry.Cube   as Cube
-
 import qualified Geometry as Geom
-
 import Shapes
-
 import Data.String
 import Data.Int
 --import GHC.Int
@@ -32,6 +26,8 @@ import Data.Int
 import Data.Char (toUpper)
 import Control.Monad 
 --import Data.Map 
+import System.IO
+
 
 someFuncLib4 :: IO ()
 someFuncLib4 = do
@@ -925,16 +921,34 @@ someFuncLib4 = do
   forM_ [Red', Green', Blue'] print 
 
   putStrLn "\n==================== Files and streams ============================\n"
-  putStrLn "\n--- getContents --- getChar --- interact --- "
+  putStrLn "--- getContents --- getChar --- interact --- "
+  putStrLn "--- openFile --- hContents --- hClose --- FilePath --- IOMode --- IO Handle ---"
+  specShow ("func18main")
+           "\nhandle <- openFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode\
+           \ncontents <- hGetContents handle\nputStr contents\n\
+           \hClose handle"
+           "\n--- openFile --- IOMode::ReadMode --- hGetContents --- hClose ---"  
+  func18main
+--  specShow ("func19main")
+--           "\nwithFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode (\\handle -> do\
+--           \ncontents <- hGetContents handle\nputStr contents)"
+--           "\n--- withFile --- IOMode::ReadMode --- hGetContents ---"  
+--  func19main
+  specSh2 (func19main)
+          "\nwithFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode (\\handle -> do\
+          \ncontents <- hGetContents handle\nputStr contents)"
+          "\n--- withFile --- IOMode::ReadMode --- hGetContents ---"  
+  specSh2 func20main "" "readFile"
+  specSh2 func21main "\"/Users/admin1/Haskell/PROJECTS/L4/src/GirlfriendCaps.txt\"" "writeFile"
+  specSh2 (func20'main rsFandS2) "Result of reading" "readFile with caps"
+  specSh2 (func22main rsFandS3) "Iron the dishes" "appendFile, adding to the file todo.txt"
+  specSh2 func23main "-------------------- Shapes.hs text ----------------" "withFile, \
+            \reading the whole fine in chuncks by 2048"
 
-
-
-  --sequence (map putStrLn [(show (yesno $ length [])), (show (yesno ("haha" :: [Char]))), (show (yesno $ Just 0))])
-{-
-  present2 (map putStrLn [(show (yesno $ length [])), (show (yesno ("haha" :: [Char]))), (show (yesno $ Just 0))])
-present2 [a] = do
-  sequence (map print a[1], a[2], a[3])
--}    
+  specShow ()
+           "\n\
+           \"
+           ""
 
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
@@ -944,6 +958,7 @@ present2 [a] = do
   putStrLn $ show $ (Right True :: Either () Bool)   -- working -- Right True
   putStrLn $ show $ (Right 3.423 :: Either () Double) -- working -- Right 3.423
   (putStrLn . show) (Right 3.423 :: Either () Double) -- working -- Right 3.423
+
 -- some cool stuff
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
@@ -967,10 +982,15 @@ present2 [a] = do
            "\n\
            \"
            ""
+  specSh2 ()
+           "\n\
+           \"
+           ""
 -}
 
 -- specShow   putStrLn "\n-----------------------------
 specShow :: Show a => a -> String -> String -> IO ()
+--specShow :: a -> String -> String -> IO () -- does not work
 specShow a b c = do
   specHeader c    
   putStr $ show (a)
@@ -984,9 +1004,15 @@ specHeader2 a = do
 --specHeader
 specHeader :: String -> IO ()
 specHeader  a | a /= "" = specHeader2 a | otherwise = return () -- from Control.Monad
+----------------------------------
+-- specS2 ---
+specSh2 :: IO a -> String -> String -> IO ()
+specSh2 a b c = do
+  specHeader c 
+  a 
+  putStrLn b 
+
   --Nothing -- print ""
-
-
 -- working with Lists
 par1 = "Papuchon"
 awesome = [par1, "curry", ":)"]
@@ -4122,7 +4148,7 @@ func11main = do
 --      yeah, I'll read the input from the terminal later as we go along, when you really need it!".
 --import Control.Monad  
 --import Data.Char 
--- see file Haiku.hs in "stand_allone/" sub dir
+-- see file Haiku.hs in "stand_alone/" sub dir
 func12main = forever $ do  
     putStr "Give me some input: "  
     l <- getLine  
@@ -4138,7 +4164,7 @@ func12main = forever $ do
 --      it into some output. That's why we can use getContents to make our program even shorter 
 --      and better:
 -- import Data.Char    
--- see file Haiku2.hs in "stand_allone/" sub dir
+-- see file Haiku2.hs in "stand_alone/" sub dir
 func13main = do  
     contents <- getContents  
     putStr (map toUpper contents)
@@ -4150,7 +4176,7 @@ func13main = do
 
 -- Let's make program that takes some input and prints out only those lines that are shorter 
 --      than 10 characters.
--- see file ShortLinesOnly.hs in "stand_allone/" sub dir
+-- see file ShortLinesOnly.hs in "stand_alone/" sub dir
 func14main = do  
     contents <- getContents  
     putStr (shortLinesOnly' contents)  
@@ -4184,12 +4210,163 @@ respondPalindromes' contents = unlines (map (\xs -> if isPalindrome xs then "pal
 respondPalindromes = unlines . map (\xs -> if isPalindrome xs then "palindrome" else "not a palindrome") . lines  
     where   isPalindrome xs = xs == reverse xs
 
----- 
+---- see this one in a stand_alone program Palindromes.hs 
 func17main = interact respondPalindromes
 
+--- openFile ---  ----------------------------------------------------
+--openFile :: FilePath -> IOMode -> IO Handle
+--      If you read that out loud, it states: openFile takes a file path and an IOMode and 
+--      returns an I/O action that will open a file and have the file's associated 
+--      handle encapsulated as its result.
+--      FilePath is just a type synonym for String, simply defined as:
+--      type FilePath = String 
+--      IOMode is a type that's defined like this:
+--      data IOMode = ReadMode | WriteMode | AppendMode | ReadWriteMode 
 
+rsFandS1 = "/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt"
+--import System.IO  
+func18main = do      
+    --file is in "/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt"   and also 
+    --file is in "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/Girlfriend.txt" 
+    
+    --handle <- openFile "Girlfriend.txt" ReadMode                                  -- works
+    --handle <- openFile "girlfriend.txt" ReadMode                                  -- works
+    --handle <- openFile "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/Girlfriend.txt" ReadMode
+                                                                                    -- works
+    --handle <- openFile "../stand_alone/Girlfriend.txt" ReadMode                   -- works
+    
+    --openFile :: FilePath -> IOMode -> IO Handle
+    handle <- openFile rsFandS1 ReadMode      -- works
+    contents <- hGetContents handle  
+    putStr contents  
+    hClose handle
 
+--- hGetContents --- vs. --- getContents ---
+--      a function called hGetContents. It takes a Handle, so it knows which file to get the 
+--      contents from and returns an IO String — an I/O action that holds as its result the 
+--      contents of the file. This function is pretty much like getContents. The only 
+--      difference is that getContents will automatically read from the standard input 
+--      (that is from the terminal), whereas hGetContents takes a file handle which tells it 
+--      which file to read from. In all other respects, they work the same. And just like 
+--      getContents, hGetContents won't attempt to read the file at once and store it in 
+--      memory, but it will read it as needed. That's really cool because we can treat 
+--      contents as the whole contents of the file, but it's not really loaded in memory. 
+--      So if this were a really huge file, doing hGetContents wouldn't choke up our memory, 
+--      but it would read only what it needed to from the file, when it needed to.
 
+--- withFile --- Another way of doing what we just did is to use the withFile function, which has a type signature of 
+--      withFile :: FilePath -> IOMode -> (Handle -> IO a) -> IO a
+--      It takes a path to a file, an IOMode and then it takes a function that takes a handle 
+--      and returns some I/O action. What it returns is an I/O action that will open that 
+--      file, do something we want with the file and then close it. The result encapsulated in 
+--      the final I/O action that's returned is the same as the result of the I/O action that 
+--      the function we give it returns. This might sound a bit complicated, but it's really 
+--      simple, especially with lambdas, here's our previous example rewritten to use withFile:
+--import System.IO    
+
+func19main = do                                 -- lambda here again
+    withFile rsFandS1 ReadMode (\handle -> do
+        contents <- hGetContents handle
+        putStr contents)
+
+--- Here's how we can make our own withFile function:
+withFile' :: FilePath -> IOMode -> (Handle -> IO a) -> IO a  
+withFile' path mode f = do  
+    handle <- openFile path mode   
+    result <- f handle  
+    hClose handle  
+    return result  
+--      We know the result will be an I/O action so we can just start off with a do. First we 
+--      open the file and get a handle from it. Then, we apply handle to our function to get back 
+--      the I/O action that does all the work. We bind that action to result, close the handle and 
+--      then do return result. By returning the result encapsulated in the I/O action that we got 
+--      from f, we make it so that our I/O action encapsulates the same result as the one we got 
+--      from f handle. So if f handle returns an action that will read a number of lines from the 
+--      standard input and write them to a file and have as its result encapsulated the number of 
+--      lines it read, if we used that with withFile', the resulting I/O action would also have as 
+--      its result the number of lines read.    
+
+--- Just like we have hGetContents that works like getContents but for a specific file, there's also
+--- hGetLine ---  hPutStr --- hPutStrLn --- hGetChar ---
+---     They work just like their counterparts without the h, only they take a handle as 
+---     a parameter and operate on that specific file instead of operating on standard input or 
+---     standard output. Example: putStrLn is a function that takes a string and returns an I/O 
+---     action that will print out that string to the terminal and a newline after it. hPutStrLn 
+---     takes a handle and a string and returns an I/O action that will write that string to the 
+---     file associated with the handle and then put a newline after it. In the same vein, 
+---     hGetLine takes a handle and returns an I/O action that reads a line from its file.
+
+---     Loading files and then treating their contents as strings is so common that we have 
+--      these three nice little functions to make our work even easier:    
+
+--- readFile --- readFile takes a path to a file and returns an I/O action that will read 
+--      that file (lazily, of course) and bind its contents to something as a string. It's 
+--      usually more handy than doing openFile and binding it to a handle and then doing 
+--      hGetContents
+--  readFile :: FilePath -> IO String
+--import System.IO
+func20main = do  
+    contents <- readFile rsFandS1  
+    putStr contents
+---    
+func20'main fileP = do  
+    contents <- readFile fileP
+    putStr contents
+
+--- writeFile --- It takes a path to a file and a string to write to that file and returns an 
+--      I/O action that will do the writing. If such a file already exists, it will be stomped
+--      down to zero length before being written on. Here's how to turn girlfriend.txt into a 
+--      CAPSLOCKED version and write it to girlfriendcaps.txt:
+--  writeFile :: FilePath -> String -> IO ()
+rsFandS2 = "/Users/admin1/Haskell/PROJECTS/L4/src/GirlfriendCaps.txt"
+--import System.IO     
+--import Data.Char      
+func21main = do     
+    contents <- readFile rsFandS1     
+    writeFile rsFandS2 (map toUpper contents)
+
+rsFandSDir = "/Users/admin1/Haskell/PROJECTS/L4/src/"
+rsFandS3   = rsFandSDir ++ "todo.txt" 
+--- appendFile --- 
+--import System.IO  
+func22main fileP = do
+    --todoItem <- getLine
+    let todoItem = "Iron the dishes"
+    appendFile fileP (todoItem ++ "\n")
+
+---------------------------------------------------------------------
+---     We talked about how doing contents <- hGetContents handle doesn't cause the whole 
+--      file to be read at once and stored in-memory. It's I/O lazy, so doing this:
+--main = do   
+--    withFile "something.txt" ReadMode (\handle -> do  
+--        contents <- hGetContents handle  
+--        putStr contents)  
+--      is actually like connecting a pipe from the file to the output. Just like you can 
+--      think of lists as streams, you can also think of files as streams. This will read one 
+--      line at a time and print it out to the terminal as it goes along. So you may be asking, 
+--      how wide is this pipe then? How often will the disk be accessed? Well, for text files,
+--      the default buffering is line-buffering usually. That means that the smallest part of
+--      the file to be read at once is one line. That's why in this case it actually reads a 
+--      line, prints it to the output, reads the next line, prints it, etc. For binary files, 
+--      the default buffering is usually block-buffering. That means that it will read the 
+--      file chunk by chunk. The chunk size is some size that your operating system thinks is cool.
+
+--      You can control how exactly buffering is done by using the hSetBuffering function. 
+--      It takes a handle and a BufferMode and returns an I/O action that sets the buffering. 
+--      BufferMode is a simple enumeration data type and the possible values it can hold 
+--      are: NoBuffering, LineBuffering or BlockBuffering (Maybe Int). The Maybe Int is for 
+--      how big the chunk should be, in bytes. If it's Nothing, then the operating system 
+--      determines the chunk size. NoBuffering means that it will be read one character at a time. 
+--      NoBuffering usually sucks as a buffering mode because it has to access the disk so much.
+
+--      Here's our previous piece of code, only it doesn't read it line by line but reads the 
+--      whole file in chunks of 2048 bytes.
+rsFandS4 = "/Users/admin1/Haskell/PROJECTS/L4/src/Shapes.hs"
+func23main = do   
+    withFile rsFandS4 ReadMode (\handle -> do  
+        hSetBuffering handle $ BlockBuffering (Just 2048)  
+        contents <- hGetContents handle  
+        putStr contents)  
 
 
 
