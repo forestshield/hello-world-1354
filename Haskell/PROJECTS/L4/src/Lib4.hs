@@ -861,8 +861,7 @@ someFuncLib4 = do
            \[Thursday .. Sunday]\n[minBound .. maxBound] :: [Day]\n\
            \N.B. succ Sunday *** Exception: succ{Day}: tried to take `succ' of last tag in enumeration\n\
            \N.B. pred Monday *** Exception: pred{Day}: tried to take `pred' of first tag in enumeration"
-           "Data Day --- deriving (Eq, Ord, Show, Read, Bounded, Enum)"
-  
+           "Data Day --- deriving (Eq, Ord, Show, Read, Bounded, Enum)"  
   specShow ((Right 20 :: Either () Int) 
             ,(Right 'a' :: Either () Char)
             ,(Right 3.423 :: Either () Double)
@@ -912,9 +911,30 @@ someFuncLib4 = do
            \yesnoIf True \"YEAH!\"\"NO!\"\nyesnoIf (Just 500) \"YEAH!\" \"NO!\"\n\
            \yesnoIf Nothing \"YEAH!\" \"NO!\""
            "function yesnoIf, Typeclass Example, it mimics if statement"
+  
+  putStrLn "\n======================== IO () ===================================\n"
+  putStrLn "--- putStrLn --- getLine --- putStr --- putChar --- print --- getChar---\n\
+           \--- when --- sequence --- mapM --- forever --- forM ---\n"
+  putStrLn "\n-------------- sequence (map print [1,2,3,4,5]) -----------"
+  sequence (map print [1,2,3,4,5])
+  putStrLn "\n-------------- mapM print [\"one\", \"two\", \"three\"] -----------"
+  mapM print ["one", "two", "three"]
+  putStrLn "\n-------------- mapM_ putChar ['a', 'b', 'c', '\\n'] -----------"
+  mapM_ putChar ['a', 'b', 'c', '\n']
+  putStrLn "\n-------------- forM print ['a', 'b', 'c', '\\n'] -----------"
+  forM_ [Red', Green', Blue'] print 
+
+  putStrLn "\n==================== Files and streams ============================\n"
+  putStrLn "\n--- getContents --- getChar --- interact --- "
 
 
-  -- !!! "putStrLn . show", or "print x = putStrLn (show x)" is exectly a definition of print !!!   
+
+  --sequence (map putStrLn [(show (yesno $ length [])), (show (yesno ("haha" :: [Char]))), (show (yesno $ Just 0))])
+{-
+  present2 (map putStrLn [(show (yesno $ length [])), (show (yesno ("haha" :: [Char]))), (show (yesno $ Just 0))])
+present2 [a] = do
+  sequence (map print a[1], a[2], a[3])
+-}    
 
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
@@ -1088,7 +1108,7 @@ c5   = Car2 "lexus"  "RX350"  2014      -- this is OK
 bDif2 = c3 == c5    -- True
 
 -- data Color'                               
-data Color'  = Blue' | Green' | Read' deriving (Show, Read, Eq, Enum) 
+data Color'  = Blue' | Green' | Red' deriving (Show, Read, Eq, Enum) 
 --data Color2 = funcRGB Int Int Int 
 
 -- func RGB
@@ -1719,6 +1739,15 @@ calcBmis xs = [bmi w h | (w, h) <- xs]
 calcBmis' :: (RealFloat a) => [(a, a)] -> [a]  
 calcBmis' xs = [bmi | (w, h) <- xs, let bmi = w / h ^ 2, bmi >= 25.0]
 
+-- =========================== let-in binding ==================================
+--    Very similar to where bindings are let bindings. Where bindings are a syntactic construct 
+--    that let you bind to variables at the end of a function and the whole function can see 
+--    them, including all the guards. Let bindings let you bind to variables anywhere and are 
+--    expressions themselves, but are very local, so they don't span across guards. 
+--    Just like any construct in Haskell that is used to bind values to names, let bindings 
+--    can be used for pattern matching. Let's see them in action! This is how we could define 
+--    a function that gives us a cylinder's surface area based on its height and radius:      
+----
 -- cylinder with "let" binding (with "in") --
 cylinder :: (RealFloat a) => a -> a -> a
 cylinder r h = 
@@ -3874,13 +3903,289 @@ rsMOTC19 = yesnoIf Nothing "YEAH!" "NO!"    -- "NO!"
 -- ============================ The Functor typeclass ==========================
 
 
+-- ============================ Input and Output  ==========================
+--- a very small program Main.hs
+-- main = putStrLn "hello, world"    
+-- $ ghc --make helloworld  
+-- [1 of 1] Compiling Main             ( helloworld.hs, helloworld.o )  
+-- Linking helloworld ...  
+-- $ ./helloworld  
+-- hello, world  
+---------------------
+-- > :t putStrLn  
+-- putStrLn :: String -> IO ()  
+-- > :t putStrLn "hello, world"  
+-- putStrLn "hello, world" :: IO ()
+
+--      Printing a string to the terminal doesn't really have any kind of meaningful return value, 
+--      so a dummy value of () is used.
+
+--   --------------------------------------------------------------------------
+--  !!!   The empty tuple is a value of () and it also has a type of ().    !!!
+--   --------------------------------------------------------------------------
+
+---------- main :: IO something, where something is some concrete type
+--  main = do  
+--      putStrLn "Hello, what's your name?"  
+--      name <- getLine  
+--      putStrLn ("Hey " ++ name ++ ", you rock!") 
+----------
+-- > :t getLine  
+-- getLine :: IO String 
+
+---
+func1main = do  
+    foo <- putStrLn "Hello, what's your name?"  
+    name <- getLine  
+    putStrLn ("Hey " ++ name ++ ", you rock!")
+
+-------------
+--      Beginners sometimes think that doing
+--
+--      name = getLine  
+--
+--      will read from the input and then bind the value of that to name. Well, it won't, 
+--      all this does is give the getLine I/O action a different name called, well, name. 
+--      Remember, to get the value out of an I/O action, you have to perform it inside 
+--      another I/O action by binding it to a name with <-.
+-----
+func2main = do  
+    putStrLn "What's your first name?"  
+    firstName <- getLine  
+    putStrLn "What's your last name?"  
+    lastName <- getLine  
+    let bigFirstName = map toUpper firstName  
+        bigLastName = map toUpper lastName  
+    putStrLn $ "hey " ++ bigFirstName ++ " " ++ bigLastName ++ ", how are you?"
+
+----- this one will stop if an input is a empty line 
+func3main = do   
+    line <- getLine  
+    if null line  
+        then return ()  
+        else do  
+            putStrLn $ reverseWords line  
+            func3main  
+reverseWords :: String -> String  
+reverseWords = unwords . map reverse . words
+
+-----
+--      Using return doesn't cause the I/O do block to end in execution or anything like that. 
+--      For instance, this program will quite happily carry out all the way to the last line:
+func4main = do  
+    return ()                   -- does not do anything!, because no binding to any name!
+    return "HAHAHA"             -- does not do anything!, because no binding to any name!
+    line <- getLine  
+    return "BLAH BLAH BLAH"     -- does not do anything!, because no binding to any name!
+    return 4                    -- does not do anything!, because no binding to any name!
+    putStrLn line  
+--      All these returns do is that they make I/O actions that don't really do anything 
+--      except have an encapsulated result and that result is thrown away because it isn't 
+--      bound to a name. We can use return in combination with <- to bind stuff to names.
+
+-----
+func5main = do  
+    a <- return "hell"  
+    b <- return "yeah!"  
+    putStr "test:\n"
+    putStrLn $ a ++ " " ++ b
+-----
+--      So you see, return is sort of the opposite to <-. While return takes a value and 
+--      wraps it up in a box, <- takes a box (and performs it) and takes the value out of it, 
+--      binding it to a name. But doing this is kind of redundant, especially since you can 
+--      use let bindings in do blocks to bind to names, like so:
+func5'main = do  
+    let a = "hell"  
+        b = "yeah"  
+    putStr "test:\n"
+    putStrLn $ a ++ " " ++ b
 
 
+-- ============== some IO functions =================================================== 
+-- putStrLn, putStr, putChar, print, getChar, when, sequence, mapM, forever, forM 
 
+--      putStr is actually defined recursively with the help of putChar. The edge condition of 
+--      putStr is the empty string, so if we're printing an empty string, just return an I/O 
+--      action that does nothing by using return (). If it's not empty, then print the first 
+--      character of the string by doing putChar and then print of them using putStr
 
+----- this is how putStr was acctually defined
+putStr' :: String -> IO ()  
+putStr' [] = return ()              -- recursion in IO
+putStr' (x:xs) = do  
+    putChar x  
+    putStr xs
 
+--- print 
+--      print takes a value of any type that's an instance of Show (meaning that we know how 
+--      to represent it as a string), calls show with that value to stringify it and then 
+--      outputs that string to the terminal. Basically, it's just (putStrLn . show). It first 
+--      runs show on a value and then feeds that to putStrLn, which returns an I/O action that 
+--      will print out our value.
 
+--- getChar
+--      getChar is an I/O action that reads a character from the input. Thus, its type 
+--      signature is getChar :: IO Char, because the result contained within the I/O action 
+--      is a Char. Note that due to buffering, reading of the characters won't actually happen 
+--      until the user mashes the return key.
+func6main = do     
+    c <- getChar  
+    if c /= ' '  
+        then do  
+            putChar c  
+            func6main  
+        else return ()    
 
+--- when 
+--      The when function is found in Control.Monad (to get access to it, do import 
+--      Control.Monad). It's interesting because in a do block it looks like a control flow 
+--      statement, but it's actually a normal function. It takes a boolean value and an 
+--      I/O action if that boolean value is True, it returns the same I/O action that we 
+--      supplied to it. However, if it's False, it returns the return (), action, so an I/O 
+--      action that doesn't do anything. Here's how we could rewrite the previous piece of code 
+--      with which we demonstrated getChar by using when:
+--import Control.Monad   
+func7main = do  
+    c <- getChar  
+    when (c /= ' ') $ do  
+        putChar c  
+        func7main  
+
+--- sequence takes a list of I/O actions and returns an I/O actions that will perform those 
+--      actions one after the other. The result contained in that I/O action will be a list of 
+--      the results of all the I/O actions that were performed. Its type signature is 
+----    sequence :: [IO a] -> IO [a]. Doing this:
+func8main = do  
+    a <- getLine  
+    b <- getLine  
+    c <- getLine  
+    print [a,b,c]  
+------
+func9main = do  
+    rs <- sequence [getLine, getLine, getLine]  
+    print rs
+---     A common pattern with sequence is when we map functions like print or putStrLn over lists. 
+--      Doing map print [1,2,3,4] won't create an I/O action. It will create a list of 
+--      I/O actions, because that's like writing [print 1, print 2, print 3, print 4]. If we 
+--      want to transform that list of I/O actions into an I/O action, we have to sequence it.
+rsIO1 = sequence (map print [1,2,3,4,5])
+
+-----   Because mapping a function that returns an I/O action over a list and then sequencing 
+--      it is so common, the utility functions mapM and mapM_ were introduced. mapM takes a 
+--      function and a list, maps the function over the list and then sequences it. 
+--      mapM_ does the same, only it throws away the result later. We usually use mapM_ when 
+--      we don't care what result our sequenced I/O actions have
+rsIO2 = mapM print [1,2,3]          -- 1  
+                                    -- 2  
+                                    -- 3  
+rsIO3 = mapM_ print [1,2,3]         -- 1  
+                                    -- 2                                   
+                                    -- 3  
+rsIO4 = mapM_ putChar ['a', 'b', 'c', '\n']        -- abc                            
+
+---- forever takes an I/O action and returns an I/O action that just repeats the I/O action 
+--      it got forever. It's located in Control.Monad. This little program will indefinitely 
+--      ask the user for some input and spit it back to him, CAPSLOCKED:
+--import Control.Monad  
+--import Data.Char  
+func10main = forever $ do  
+    putStr "Give me some input: "  
+    l <- getLine  
+    putStrLn $ map toUpper l  
+
+---- forM (located in Control.Monad) is like mapM, only that it has its parameters switched 
+--      around. The first parameter is the list and the second one is the function to map over 
+--      that list, which is then sequenced. Why is that useful? Well, with some creative use of 
+--      lambdas and do notation, we can do stuff like this:
+--import Control.Monad  
+func11main = do   
+    colors <- forM [1,2,3,4] (\a -> do  
+        putStrLn $ "Which color do you associate with the number " ++ show a ++ "?"  
+        color <- getLine  
+        return color)  
+    putStrLn "The colors that you associate with 1, 2, 3 and 4 are: "  
+    mapM putStrLn colors  
+--      You can think of forM as meaning: make an I/O action for every element in this list. 
+--      What each I/O action will do can depend on the element that was used to make the action.
+--      Finally, perform those actions and bind their results to something. We don't have to 
+--      bind it, we can also just throw it away.
+
+-- ============================ Files and streams ==================================
+--- getContents --- getChar is an I/O action that reads a single character from the terminal. 
+--      getLine is an I/O action that reads a line from the terminal. These two are pretty 
+--      straightforward and most programming languages have some functions or statements that 
+--      are parallel to them. But now, let's meet getContents. getContents is an I/O action 
+--      that reads everything from the standard input until it encounters an end-of-file 
+--      character. Its type is getContents :: IO String. What's cool about getContents is that 
+--      it does lazy I/O. When we do foo <- getContents, it doesn't read all of the input 
+--      at once, store it in memory and then bind it to foo. No, it's lazy! It'll say: "Yeah 
+--      yeah, I'll read the input from the terminal later as we go along, when you really need it!".
+--import Control.Monad  
+--import Data.Char 
+-- see file Haiku.hs in "stand_allone/" sub dir
+func12main = forever $ do  
+    putStr "Give me some input: "  
+    l <- getLine  
+    putStrLn $ map toUpper l
+--- Haiku.txt
+-- I'm a lil' teapot
+-- What's with that airplane food, huh?
+-- It's so small, tasteless    
+
+-- I'm a lil' teapot\nWhat's with that airplane food, huh?\nIt's so small, tasteless
+
+--- So what we're essentially doing with that use of forever is taking the input and transforming
+--      it into some output. That's why we can use getContents to make our program even shorter 
+--      and better:
+-- import Data.Char    
+-- see file Haiku2.hs in "stand_allone/" sub dir
+func13main = do  
+    contents <- getContents  
+    putStr (map toUpper contents)
+----
+-- $ cat haiku.txt | ./capslocker  
+-- I'M A LIL' TEAPOT  
+-- WHAT'S WITH THAT AIRPLANE FOOD, HUH?  
+-- IT'S SO SMALL, TASTELESS
+
+-- Let's make program that takes some input and prints out only those lines that are shorter 
+--      than 10 characters.
+-- see file ShortLinesOnly.hs in "stand_allone/" sub dir
+func14main = do  
+    contents <- getContents  
+    putStr (shortLinesOnly' contents)  
+---  
+shortLinesOnly' :: String -> String  
+shortLinesOnly' input =   
+    let allLines = lines input  
+        shortLines = filter (\line -> length line < 10) allLines  
+        result = unlines shortLines  
+    in  result
+
+--- interact --- interact takes a function of type String -> String as a parameter and returns
+--      an I/O action that will take some input, run that function on it and then print out the
+--      function's result
+func15main = interact shortLinesOnly  
+shortLinesOnly :: String -> String  
+shortLinesOnly input =   
+    let allLines = lines input  
+        shortLines = filter (\line -> length line < 10) allLines  
+        result = unlines shortLines  
+    in  result    
+
+--- even shorter version, using "interact"
+func16main = interact $ unlines . filter ((<10) . length) . lines 
+
+--- is Panlindrome function 
+respondPalindromes' contents = unlines (map (\xs -> if isPalindrome xs then "palindrome" else "not a palindrome") (lines contents))  
+    where   isPalindrome xs = xs == reverse xs
+
+--- pont-free version is Panlindrome function 
+respondPalindromes = unlines . map (\xs -> if isPalindrome xs then "palindrome" else "not a palindrome") . lines  
+    where   isPalindrome xs = xs == reverse xs
+
+---- 
+func17main = interact respondPalindromes
 
 
 
