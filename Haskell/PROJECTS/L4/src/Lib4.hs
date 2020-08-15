@@ -29,6 +29,7 @@ import Control.Monad
 import System.IO
 import System.Directory
 import System.Environment
+import System.Random
 
 -----------------------------
 someFuncLib4 :: IO ()
@@ -909,6 +910,8 @@ someFuncLib4 = do
            \yesnoIf True \"YEAH!\"\"NO!\"\nyesnoIf (Just 500) \"YEAH!\" \"NO!\"\n\
            \yesnoIf Nothing \"YEAH!\" \"NO!\""
            "function yesnoIf, Typeclass Example, it mimics if statement"
+
+  putStrLn "\n======================== The Functor typeclass =======================\n"               
   
   putStrLn "\n======================== IO () ===================================\n"
   putStrLn "--- putStrLn --- getLine --- putStr --- putChar --- print --- getChar---\n\
@@ -946,6 +949,12 @@ someFuncLib4 = do
   specSh2 (func22main rsFandS3) "Iron the dishes" "appendFile, adding to the file todo.txt"
   specSh2 func23main "-------------------- Shapes.hs text ----------------" "withFile, \
             \reading the whole fine in chuncks by 2048"
+  putStrLn "\n--- (import System.Directory) --- openTempFile --- removeFile --- renameFile ---"
+  putStrLn "\n--- (import System.Environment) --- getArgs --- getProgName ---"
+  putStrLn "\n--- (todo.hs), getArgs, lookup, appendFile, readFile, zipWith, line, unlines,"
+  putStrLn "--- (todo.hs), openFile, openTempFile, hGetContents, read, hClose, removeFile, renameFile\n"
+
+  putStrLn "\n======================= Randomness ============================\n"
 
   specShow ()
            "\n\
@@ -4477,9 +4486,82 @@ multi word arg
 The program name is:
 arg-test
 -}
+------------------------------------------------------------------
+-- todo program, see todo.hs in <stand_alone> dir
+{-
+import System.Environment
+import System.Directory
+import System.IO
+import Data.List  
 
+dispatch :: [(String, [String] -> IO ())]
+dispatch =  [ ("add", add)
+            , ("view", view)
+            , ("remove", remove)
+            ]
 
+main = do
+    (command:args) <- getArgs
+    let (Just action) = lookup command dispatch
+    action args
 
+add :: [String] -> IO ()
+add [fileName, todoItem] = appendFile fileName (todoItem ++ "\n")
+
+view :: [String] -> IO ()
+view [fileName] = do
+    contents <- readFile fileName
+    let todoTasks = lines contents
+        numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks
+    putStr $ unlines numberedTasks
+
+remove :: [String] -> IO ()
+remove [fileName, numberString] = do
+    handle <- openFile fileName ReadMode
+    (tempName, tempHandle) <- openTempFile "." "temp"
+    contents <- hGetContents handle
+    let number = read numberString 
+        todoTasks = lines contents  
+        newTodoItems = delete (todoTasks !! number) todoTasks
+    hPutStr tempHandle $ unlines newTodoItems
+    hClose handle
+    hClose tempHandle
+    removeFile fileName
+    renameFile tempName fileName
+-}
+
+-- ======================= Randomness =========================================
+--      Enter the "System.Random" module. It has all the functions that satisfy our need
+--      for randomness. Let's just dive into one of the functions it exports then, namely 
+--- random ---=
+--      random. Here's its type: 
+--      random :: (RandomGen g, Random a) => g -> (a, g). 
+--- RandomGen --- Random typeclass ---
+--      Whoa! Some new typeclasses in this type declaration up in here! The RandomGen 
+--      typeclass is for types that can act as sources of randomness. The Random typeclass
+--      is for things that can take on random values. A boolean value can take on a random
+--      value, namely True or False. A number can also take up a plethora of different 
+--      random values. Can a function take on a random value? I don't think so, probably
+--      not! If we try to translate the type declaration of random to English, we get 
+--      something like: it takes a random generator (that's our source of randomness) and 
+--      returns a random value and a new random generator. Why does it also return a new 
+--      generator as well as a random value? Well, we'll see in a moment.
+--- StdGen ---
+--      To use our random function, we have to get our hands on one of those random 
+--      generators. The System.Random module exports a cool type, namely StdGen that is an 
+--      instance of the RandomGen typeclass. We can either make a StdGen manually or we can 
+--      tell the system to give us one based on a multitude of sort of random stuff.
+--- mkStdGen ---
+--      To manually make a random generator, use the mkStdGen function. It has a type of 
+--  mkStdGen :: Int -> StdGen. It takes an integer and based on that, gives 
+--      us a random generator. Okay then, let's try using random and mkStdGen in 
+--      tandem to get a (hardly random) number.
+
+--------------------------
+-- import System.Random  
+func26main = do  
+    gen <- getStdGen  
+    putStr $ take 20 (randomRs ('a','z') gen)
 
 
 
