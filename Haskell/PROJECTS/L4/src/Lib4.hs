@@ -955,12 +955,50 @@ someFuncLib4 = do
   putStrLn "--- (todo.hs), openFile, openTempFile, hGetContents, read, hClose, removeFile, renameFile\n"
 
   putStrLn "\n======================= Randomness ============================\n"
+  specShow ((random (mkStdGen 100) :: (Int, StdGen))
+           ,(random (mkStdGen 949494) :: (Int, StdGen))
+           ,(random (mkStdGen 949488) :: (Int8, StdGen))
+           ,(random (mkStdGen 949488) :: (Char, StdGen))
+           ,(random (mkStdGen 949488) :: (Double, StdGen))
+           ,(random (mkStdGen 949488) :: (Bool, StdGen)))
+           "\nrandom (mkStdGen 100) :: (Int, StdGen)\nandom (mkStdGen 949494) :: (Int, StdGen)\n\
+           \random (mkStdGen 949488) :: (Int8, StdGen)\nrandom (mkStdGen 949488) :: (Char, StdGen)\n\
+           \random (mkStdGen 949488) :: (Double, StdGen)\nrandom (mkStdGen 949488) :: (Bool, StdGen)"
+           "random"
+  specShow ((threeCoins (mkStdGen 0))
+           ,(threeCoins (mkStdGen 1))
+           ,(threeCoins (mkStdGen (-22)))
+           ,(threeCoins (mkStdGen 944))
+           ,(threeCoins (mkStdGen 22))
+           ,(threeCoins (mkStdGen 944)))
+           "\nthreeCoins (mkStdGen 0)\nthreeCoins (mkStdGen 1)\nthreeCoins (mkStdGen (-22))\
+           \\nthreeCoins (mkStdGen 944)\nthreeCoins (mkStdGen 22)\nthreeCoins (mkStdGen 944)"
+           "threeCoins using random"
+  specShow ((take 5 $ randoms (mkStdGen 11) :: [Int])
+            ,(take 5 $ randoms (mkStdGen 11) :: [Bool])
+            ,( take 5 $ randoms' (mkStdGen 11) :: [Float]))
+           "\ntake 5 $ randoms (mkStdGen 11) :: [Int]\ntake 5 $ randoms (mkStdGen 11) :: [Bool]\
+           \\n take 5 $ randoms' (mkStdGen 11) :: [Float]"
+           "randoms and custom randoms' - the same implementaion"
+  specShow ((finiteRandoms 4 (mkStdGen 359353) :: ([Int], StdGen))
+           ,(finiteRandoms 4 (mkStdGen 10) :: ([Int], StdGen))
+           ,(finiteRandoms' 4 (mkStdGen 359353))
+           ,(finiteRandoms' 4 (mkStdGen 10)))
+           "\nfiniteRandoms 4 (mkStdGen 359353) :: ([Int], StdGen)\n\
+           \\nfiniteRandoms 4 (mkStdGen 10) :: ([Int], StdGen)\
+           \\nfiniteRandoms' 4 (mkStdGen 359353)\nfiniteRandoms' 4 (mkStdGen 10)"
+           "finiteRandoms and modified finiteRandoms'"
+  specShow ((randomR (1::Int16, 6::Int16) (mkStdGen 359353))
+           ,(randomR (1::Int16, 6::Int16) (mkStdGen 35935335))
+           ,(take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char]))
+           "\nrandomR (1::Int16, 6::Int16) (mkStdGen 359353)\n\
+           \randomR (1::Int16, 6::Int16) (mkStdGen 35935335)\n\
+           \take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char]"
+           "randomR and randomRs"           
 
-  specShow ()
-           "\n\
-           \"
-           ""
 
+
+           
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
   --putStrLn $ show $ (Right 3.423 :: Either a Double)   -- does not compile
@@ -4533,7 +4571,7 @@ remove [fileName, numberString] = do
 -- ======================= Randomness =========================================
 --      Enter the "System.Random" module. It has all the functions that satisfy our need
 --      for randomness. Let's just dive into one of the functions it exports then, namely 
---- random ---=
+--- random ---
 --      random. Here's its type: 
 --      random :: (RandomGen g, Random a) => g -> (a, g). 
 --- RandomGen --- Random typeclass ---
@@ -4558,6 +4596,89 @@ remove [fileName, numberString] = do
 --      tandem to get a (hardly random) number.
 
 --------------------------
+rsRnd1 = random (mkStdGen 100) :: (Int, StdGen)         
+                                            -- (-3633736515773289454,693699796 2103410263)
+rsRnd2 = random (mkStdGen 949494) :: (Int, StdGen)      -- (539963926,466647808 1655838864)  
+rsRnd3 = random (mkStdGen 949488) :: (Float, StdGen)    -- (0.8938442,1597344447 1655838864)  
+rsRnd4 = random (mkStdGen 949488) :: (Bool, StdGen)     -- (False,1485632275 40692)  
+rsRnd5 = random (mkStdGen 949488) :: (Integer, StdGen)  -- (1691547873,1597344447 1655838864)
+rsRnd6 = random (mkStdGen 949488) :: (Double, StdGen)   -- (0.921957268683227,587416689 2103410263)  
+rsRnd7 = random (mkStdGen 949488) :: (Char, StdGen)     -- ('\480286',1485632275 40692)
+rsRnd8 = random (mkStdGen 949488) :: (Int8, StdGen)     -- (-98,1485632275 40692)
+
+--- threeCoins ---
+threeCoins :: StdGen -> (Bool, Bool, Bool)  
+threeCoins gen =   
+    let (firstCoin,  newGen)   = random gen  
+        (secondCoin, newGen')  = random newGen  
+        (thirdCoin,  newGen'') = random newGen'  
+    in  (firstCoin, secondCoin, thirdCoin)
+
+rsRnd9  = threeCoins (mkStdGen 0)             -- (True,True,True)
+rsRnd10 = threeCoins (mkStdGen 1)             -- (True,False,True)
+rsRnd11 = threeCoins (mkStdGen 21)            -- (True,True,True)
+rsRnd12 = threeCoins (mkStdGen 22)            -- (True,False,True)  
+rsRnd13 = threeCoins (mkStdGen 943)           -- (True,False,True)  
+rsRnd14 = threeCoins (mkStdGen 944)           -- (True,True,True)
+rsRnd15 = threeCoins (mkStdGen (-22))         -- (True,False,True)
+
+--- randoms --- there's a function called randoms that takes a 
+--      generator and returns an infinite sequence of values based on that generator.
+rsRnd16 = take 5 $ randoms (mkStdGen 11) :: [Int] 
+    -- [5260538044923710387,4361398698747678847,-8221315287270277529,7278185606566790575,1652507602255180489]  
+rsRnd17 = take 5 $ randoms (mkStdGen 11) :: [Bool]  
+    -- [True,True,True,True,False]  
+rsRnd18 = take 5 $ randoms (mkStdGen 11) :: [Float]
+    -- [0.26201087,0.1271351,0.31857032,0.1921351,0.31495118]
+
+--- randoms' ---
+randoms' :: (RandomGen g, Random a) => g -> [a]  
+randoms' gen = let (value, newGen) = random gen in value:randoms' newGen
+
+---------------- this one is not good !!! --------------------------
+--- finiteRandoms --- We could make a function that generates a finite stream of 
+--      numbers and a new generator like this
+--finiteRandoms :: (RandomGen g, Random a, Num n) => n -> g -> ([a], g)  -- does not compile,
+--      if it used instead of the one uncommented now
+finiteRandoms :: (Eq a1, Random a2, RandomGen b, Num a1) => a1 -> b -> ([a2], b)
+finiteRandoms 0 gen = ([], gen)  -- does not compile, if we use first type definition (commented)
+finiteRandoms n gen =   
+    let (value, newGen) = random gen  
+        (restOfList, finalGen) = finiteRandoms (n-1) newGen  
+    in  (value:restOfList, finalGen)
+
+-- modified in StackOverFlow
+-- https://stackoverflow.com/questions/20930972/function-declaration-for-random-number-generator-in-haskell
+finiteRandoms' :: Int -> StdGen -> ([Int], StdGen)  
+finiteRandoms' 0 gen = ([], gen)  
+finiteRandoms' n gen =   
+    let (value, newGen) = random gen  
+        (restOfList, finalGen) = finiteRandoms (n-1) newGen  
+    in  (value:restOfList, finalGen)    
+
+rsRnd19 = finiteRandoms 4 (mkStdGen 359353) :: ([Int], StdGen)
+    -- ([-1825951240769410156,2457918671109663585,-1305741337097690530,8345272281176594228],842222601 1924298326)    
+rsRnd20 = finiteRandoms 4 (mkStdGen 10) :: ([Int], StdGen)
+    -- ([-2774747785423059091,-5364865979222864935,5005192715100199576,-2238708107678760508],587898465 1924298326)
+
+rsRnd19' = finiteRandoms' 4 (mkStdGen 359353)
+    -- ([-1825951240769410156,2457918671109663585,-1305741337097690530,8345272281176594228],842222601 1924298326)
+rsRnd20' = finiteRandoms' 4 (mkStdGen 10)
+    -- ([-2774747785423059091,-5364865979222864935,5005192715100199576,-2238708107678760508],587898465 1924298326)
+
+
+--- randomR ---
+--randomR :: (RandomGen g, Random a) :: (a, a) -> g -> (a, g)
+--      it's kind of like random, only it takes as its first parameter a pair of values that 
+--      set the lower and upper bounds and the final value produced will be within those bounds.
+rsRnd21 = randomR (1::Int16, 6::Int16) (mkStdGen 359353)       -- (6,1494289578 40692)  
+rsRnd22 = randomR (1::Int16, 6::Int16) (mkStdGen 35935335)     -- (3,1250031057 40692)
+
+--- randomRs --- There's also randomRs, which produces a stream of random values within our 
+--      defined ranges. Check this out:
+rsRnd23 = take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char]  -- "xnuhlfwywq"  
+
+
 -- import System.Random  
 func26main = do  
     gen <- getStdGen  
