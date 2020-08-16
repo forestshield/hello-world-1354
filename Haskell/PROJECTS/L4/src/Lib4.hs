@@ -995,10 +995,11 @@ someFuncLib4 = do
            \randomR (1::Int16, 6::Int16) (mkStdGen 35935335)\n\
            \take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char]"
            "randomR and randomRs"           
+  specSh2 (func28main) "\nfunc28main, it also using its own IO output" "non repetivive results of 2 sets, every time new, using 2 generators"
+  specSh2 (func28main) "\nfunc28main, it also using its own IO output" "non repetivive results of 2 sets, every time new, using 2 generators"  
+  putStrLn "\n--- getStdGen --- setStdGen --- next --- newStdGen ---"
+  specSh2 (func30main) "..." "func30main"
 
-
-
-           
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
   --putStrLn $ show $ (Right 3.423 :: Either a Double)   -- does not compile
@@ -4678,14 +4679,107 @@ rsRnd22 = randomR (1::Int16, 6::Int16) (mkStdGen 35935335)     -- (3,1250031057 
 --      defined ranges. Check this out:
 rsRnd23 = take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char]  -- "xnuhlfwywq"  
 
+--- getStdGen --- 
+--  getStdGen :: IO StdGen
+--      The problem is, if we do that in our real programs, they will always 
+--      return the same random numbers, which is no good for us. That's why System.Random 
+--      offers the getStdGen I/O action, which has a type of IO StdGen. When your program 
+--      starts, it asks the system for a good random number generator and stores that in a 
+--      so called global generator. getStdGen fetches you that global random generator when 
+--      you bind it to something.
+
+--- getStdGen --- setStdGen --- next --- newStdGen ---
+--- getStdGen and setStdGen get and set the global random number generator, respectively
+rsRnd23' = getStdGen                -- 112174869 1872071452, always
+
+------------------------
+--      The next operation allows one to extract at least 30 bits (one Int's worth) 
+--      from the generator, returning a new generator as well. The integer returned may be 
+--      positive or negative.
+func30main = do
+    x <- getStdGen
+    print (next x)
+    print (next x)
+    print (fst (next x))
+    setStdGen (snd (next x))
+    print (next x)
+    x <- getStdGen
+    print (next x)
+    newStdGen
+    print (next x)
+    x <- getStdGen
+    print (next x)
+
+-- (433334474,763021058 329686584)
+-- (433334474,763021058 329686584)
+-- 433334474
+-- (433334474,763021058 329686584)
+-- (473117066,750799641 277682575)
+-- (473117066,750799641 277682575)
+-- (1349143456,750839655 1549179761)
+
 
 -- import System.Random  
 func26main = do  
     gen <- getStdGen  
     putStr $ take 20 (randomRs ('a','z') gen)
+---     just performing getStdGen twice will ask the system for the same global generator twice.
+rsRnd24 = func26main                    -- jpxvngwjsirqyjhfjzzx  
+rsRnd25 = func26main                    -- jpxvngwjsirqyjhfjzzx
 
+--      One way to get two different strings of length 20 is to set up an infinite stream and 
+--      then take the first 20 characters and print them out in one line and then take the 
+--      second set of 20 characters and print them out in the second line. For this, we can 
+--      use the splitAt function from Data.List, which splits a list at some index and returns
+--      a tuple that has the first part as the first component and the second part as the 
+--      second component.
+--import System.Random  
+--import Data.List  
+func27main = do  
+    gen <- getStdGen  
+    let randomChars = randomRs ('a','z') gen  
+        (first20, rest) = splitAt 20 randomChars  
+        (second20, _) = splitAt 20 rest  
+    putStrLn first20  
+    putStr second20
 
+-- here you have 2 different sets, but next run will give the same 2 sets
+rsRnd28 = func27main                    -- jpxvngwjsirqyjhfjzzx  ugqijrdqngdbrqamiwla 
+rsRnd29 = func27main                    -- jpxvngwjsirqyjhfjzzx  ugqijrdqngdbrqamiwla
 
+---     Another way is to use the newStdGen action, which splits our current random generator 
+--      into two generators. It updates the global random generator with one of them and 
+--      encapsulates the other as its result.
+-- import System.Random
+func28main = do     
+    gen <- getStdGen     
+    putStrLn $ take 20 (randomRs ('a','z') gen)     
+    gen' <- newStdGen  
+    putStr $ take 20 (randomRs ('a','z') gen') 
+----
+rsRnd30 = func28main                    -- jpxvngwjsirqyjhfjzzx  mljxfsmjtpctktagqqon 
+rsRnd31 = func28main                    -- xjhsrfttjjsbcbbttavj  agdujfollgkeyhbhqnbv
+rsRnd32 = func28main                    -- ihutelmgehwmbavpypmy  uzlopcqdnkvyqspqbkgh
+rsRnd33 = func28main                    -- xqqdnxthknasizgxiowv  jjcavvoetegywblmqkvc 
+
+--- Here's a little program that will make the user guess which number it's thinking of.
+--import System.Random  
+--import Control.Monad(when)  
+func29main = do  
+    gen <- getStdGen  
+    askForNumber gen  
+---  
+askForNumber :: StdGen -> IO ()  
+askForNumber gen = do  
+    let (randNumber, newGen) = randomR (1,10) gen :: (Int, StdGen)  
+    putStr "Which number in the range from 1 to 10 am I thinking of? "  
+    numberString <- getLine  
+    when (not $ null numberString) $ do  
+        let number = read numberString  
+        if randNumber == number   
+            then putStrLn "You are correct!"  
+            else putStrLn $ "Sorry, it was " ++ show randNumber  
+        askForNumber newGen 
 
 
 
