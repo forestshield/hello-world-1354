@@ -8,6 +8,9 @@ gcc on mac location
 project executable (for project L4)
 ~Haskell/PROJECTS/L4/.stack-work/install/x86_64-osx/82bf768a522c04d0dbd67debf60484f294ea19e3104507f2bd835c36989c88f6/8.8.3/bin/L4-exe
 
+main project directory 
+/Users/admin1/Haskell/PROJECTS/L4/src/
+
 ---------------------------
 GHC options
 stack build --ghc-options="-Wall -Werror"
