@@ -31,6 +31,10 @@ import System.Directory
 import System.Environment
 import System.Random
 
+import qualified Data.ByteString.Lazy as B  
+import qualified Data.ByteString as S 
+
+
 -----------------------------
 someFuncLib4 :: IO ()
 someFuncLib4 = do
@@ -4762,7 +4766,8 @@ rsRnd31 = func28main                    -- xjhsrfttjjsbcbbttavj  agdujfollgkeyhb
 rsRnd32 = func28main                    -- ihutelmgehwmbavpypmy  uzlopcqdnkvyqspqbkgh
 rsRnd33 = func28main                    -- xqqdnxthknasizgxiowv  jjcavvoetegywblmqkvc 
 
---- Here's a little program that will make the user guess which number it's thinking of.
+--- randomR --- getLine -- read --- show --- when --- null --- 
+---     Here's a little program that will make the user guess which number it's thinking of.
 --import System.Random  
 --import Control.Monad(when)  
 func29main = do  
@@ -4775,12 +4780,43 @@ askForNumber gen = do
     putStr "Which number in the range from 1 to 10 am I thinking of? "  
     numberString <- getLine  
     when (not $ null numberString) $ do  
-        let number = read numberString  
+        let number = read numberString
+--      let number = reads numberString
         if randNumber == number   
             then putStrLn "You are correct!"  
             else putStrLn $ "Sorry, it was " ++ show randNumber  
         askForNumber newGen 
+----    If the user gives us some input here that read can't read (like "haha"), our program 
+--      will crash with an ugly error message. If you don't want your program to crash on 
+--      erronous input, use reads, which returns an empty list when it fails to read a string.
+--      When it succeeds, it returns a singleton list with a tuple that has our desired value 
+--      as one component and a string with what it didn't consume as the other.
 
+--- another way to make the same program ---
+--import Control.Monad(when)
+func31main = do
+    gen <- getStdGen
+    let (randNumber, _) = randomR (1,10) gen :: (Int, StdGen)
+    putStr "Which number in the range from 1 to 10 am I thinking of? "
+    numberString <- getLine
+    when (not $ null numberString) $ do
+        let number = read numberString 
+        if randNumber == number
+            then putStrLn "You are correct!"
+            else putStrLn $ "Sorry, it was " ++ show randNumber
+        newStdGen
+        func31main
+
+-- ================================== Bytestrings ===============================
+--import qualified Data.ByteString.Lazy as B
+--import qualified Data.ByteString as S
+
+--- pack ---
+--  pack :: [Word8] -> ByteString
+--  Word8 is like Int, but it has a range 0 - 255. It represents 8-bits number
+
+rsBS1  = B.pack [99,97,110]                 -- Chunk "can" Empty  
+rsBS2  = B.pack [98..120]                   -- Chunk "bcdefghijklmnopqrstuvwx" Empty
 
 
 
