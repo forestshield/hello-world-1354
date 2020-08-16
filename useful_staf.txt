@@ -78,6 +78,18 @@ to check all hs files
 for a single file
   /Users/admin1/.local/bin/hlint Lib.hs >> rep5.txt
 
+---------------------------------------------------
+stack install bytestring
+stack install random
+
+in package.yaml add the string 
+dependencies:
+- base >= 4.7 && < 5
+- random >= 1.1
+...
+- bytestring
+
+
 
 ——————————————————
 vs code terminal colors settings change
