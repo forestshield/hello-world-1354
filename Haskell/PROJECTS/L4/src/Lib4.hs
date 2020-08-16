@@ -1013,8 +1013,11 @@ someFuncLib4 = do
             ",  \n(B.pack [99,97,110]\nB.pack [98..120]\n\
             \B.fromChunks [S.pack [40,41,42],\nB.pack [0..692]\
             \ S.pack [43,44,45], S.pack [46,47,48]]"
-            "pack --- fromChunks"
+            "pack --- fromChunks"  
+  putStrLn "\n-------- copyFile, using bytestring functions B.readFile and B.writeFile -------"
+  func32main "/Users/admin1/Haskell/PROJECTS/L4/src/todo.txt" "/Users/admin1/Haskell/PROJECTS/L4/src/todo2.txt"
 
+  putStrLn "\n================================== Exceptions ===============================\n"
 
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
@@ -4845,4 +4848,62 @@ rsBS3  = B.pack [0..255]   -- has a warning about range [0.255], if range is big
 rsBS4  = B.fromChunks [S.pack [40,41,42], S.pack [43,44,45], S.pack [46,47,48]]  
             -- "()*+,-"./0"
 
+--- cons --- cons' --- The bytestring version of : is called cons It takes a byte and a 
+--      bytestring and puts the byte at the beginning. It's lazy though, so it will make a new chunk 
+--      even if the first chunk in the bytestring isn't full. That's why it's 
+--      better to use the strict version of cons, cons' if you're going to be inserting a lot 
+--      of bytes at the beginning of a bytestring.
+--- empty --- makes an empty bytestring
+rsBS5  = B.cons  85 $ B.pack [80,81,82,84]      -- "UPQRT"   -- Chunk "U" (Chunk "PQRT" Empty)
+rsBS6  = B.cons' 85 $ B.pack [80,81,82,84]      -- "UPQRT"   -- Chunk "UPQRT" Empty
+rsBS7  = foldr B.cons B.empty [50..60]          -- "23456789:;<"
+-- Chunk "2" (Chunk "3" (Chunk "4" (Chunk "5" (Chunk "6" (Chunk "7" (Chunk "8" (Chunk "9" 
+--(Chunk ":" (Chunk ";" (Chunk "<"  Empty))))))))))
+rsBS8  = foldr B.cons' B.empty [50..60]         -- "23456789:;<"    -- Chunk "23456789:;<" Empty
 
+-- see the difference between cons and cons' -- With the foldr, we started with an empty 
+--      bytestring and then went over the list of numbers from the right, adding each number 
+--      to the beginning of the bytestring. When we used cons, we ended up with one chunk for 
+--      every byte, which kind of defeats the purpose
+
+--- Otherwise, the bytestring modules have a load of functions that are analogous to those in 
+--      Data.List, including, but not limited to 
+--- head --- tail --- init --- null --- length --- map --- reverse --- foldl --- foldr ---
+--- concat --- takeWhile --- filter --- etc
+
+--- It also has functions that have the same name and behave the same as some functions found 
+--      in System.IO, only Strings are replaced with ByteStrings. For instance, the readFile 
+--      function in System.IO has the type of 
+-- readFile :: FilePath -> IO String and in bytestring the type is:
+-- readFile :: FilePath -> IO ByteString
+
+-- N.B. System.Directory already has a function called copyFile, but we're going to implement 
+--      our own file copying function and program anyway.
+------------
+-- this version for stand_alone programm
+--import System.Environment  
+--import qualified Data.ByteString.Lazy as B    
+--main = do  
+--    (fileName1:fileName2:_) <- getArgs  
+--    copyFile' fileName1 fileName2  
+------------
+func32main fileName1 fileName2 = do  
+    --(fileName1:fileName2:_) <- getArgs  
+    copyFile' fileName1 fileName2  
+---  
+copyFile' :: FilePath -> FilePath -> IO ()  
+copyFile' source dest = do  
+    contents <- B.readFile source  
+    B.writeFile dest contents
+
+-- N.B. Notice that a program that doesn't use bytestrings could look just like this, the only
+-- difference is that we used B.readFile and B.writeFile instead of readFile and writeFile. 
+-- Many times, you can convert a program that uses normal strings to a program that uses 
+-- bytestrings by just doing the necessary imports and then putting the qualified module names
+-- in front of some functions. Sometimes, you have to convert functions that you wrote to work
+-- on strings so that they work on bytestrings, but that's not hard.
+
+-- ================================== Exceptions ==================================
+
+
+    
