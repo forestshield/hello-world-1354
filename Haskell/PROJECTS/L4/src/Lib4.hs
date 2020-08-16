@@ -1004,6 +1004,18 @@ someFuncLib4 = do
   putStrLn "\n--- getStdGen --- setStdGen --- next --- newStdGen ---"
   specSh2 (func30main) "..." "func30main"
 
+  putStrLn "\n================================== Bytestrings ===============================\n"
+  --putStrLn $ show rsBS4
+  specShow ((B.pack [99,97,110]) 
+           ,(B.pack [98..120])
+           ,(B.pack [0..255]) 
+           ,(B.fromChunks [S.pack [40,41,42], S.pack [43,44,45], S.pack [46,47,48]]))
+            ",  \n(B.pack [99,97,110]\nB.pack [98..120]\n\
+            \B.fromChunks [S.pack [40,41,42],\nB.pack [0..692]\
+            \ S.pack [43,44,45], S.pack [46,47,48]]"
+            "pack --- fromChunks"
+
+
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
   --putStrLn $ show $ (Right 3.423 :: Either a Double)   -- does not compile
@@ -4811,18 +4823,26 @@ func31main = do
 --import qualified Data.ByteString.Lazy as B
 --import qualified Data.ByteString as S
 
---- pack ---
+--- pack --- it takes a list of bytes of type Word8 and returns a ByteString
 --  pack :: [Word8] -> ByteString
 --  Word8 is like Int, but it has a range 0 - 255. It represents 8-bits number
 
-rsBS1  = B.pack [99,97,110]                 -- Chunk "can" Empty  
-rsBS2  = B.pack [98..120]                   -- Chunk "bcdefghijklmnopqrstuvwx" Empty
+rsBS1  = B.pack [99,97,110]                 -- "can"
+rsBS2  = B.pack [98..120]                   -- "bcdefghijklmnopqrstuvwx"
 
+rsBS3  = B.pack [0..255]   -- has a warning about range [0.255], if range is bigger than 255
+--  "\NUL\SOH\STX\ETX\EOT\ENQ\ACK\a\b\t\n\v\f\r\SO\SI\DLE\DC1\DC2\DC3\DC4\NAK\SYN\ETB\CAN\EM
+--  \SUB\ESC\FS\GS\RS\US !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`a
+--  bcdefghijklmnopqrstuvwxyz{|}~\DEL\128\129\130\131\132\133\134\135\136\137\138\139\140\141
+--  \142\143\144\145\146\147\148\149\150\151\152\153\154\155\156\157\158\159\160\161\162\163\
+--  164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180"
 
+--- unpack --- fromChuncs - toChuncs ---
+--      is the inverse function of pack. It takes a bytestring and turns it into a list of bytes.
+--      fromChunks takes a list of strict bytestrings and converts it to a lazy bytestring. 
+--      toChunks takes a lazy bytestring and converts it to a list of strict ones.
 
-
-
-
-
+rsBS4  = B.fromChunks [S.pack [40,41,42], S.pack [43,44,45], S.pack [46,47,48]]  
+            -- "()*+,-"./0"
 
 
