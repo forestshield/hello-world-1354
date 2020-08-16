@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0e64c8febd0ae96105c9b2b51cc4f27c5c444840ebb07a3e67d1fa3938c8705e
+-- hash: 90b5647a8825633a03ad09168ad06b31465362c54ab5a7efe3066e4c3731a9a9
 
 name:           L4
 version:        0.1.0.0
@@ -57,7 +57,7 @@ library
     , lens-aeson
     , mtl
     , pretty-simple
-    , random
+    , random >=1.1
     , text
     , unordered-containers
   default-language: Haskell2010
@@ -82,7 +82,7 @@ executable L4-exe
     , lens-aeson
     , mtl
     , pretty-simple
-    , random
+    , random >=1.1
     , text
     , unordered-containers
   default-language: Haskell2010
@@ -108,7 +108,7 @@ test-suite L4-test
     , lens-aeson
     , mtl
     , pretty-simple
-    , random
+    , random >=1.1
     , text
     , unordered-containers
   default-language: Haskell2010
