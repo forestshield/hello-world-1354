@@ -343,3 +343,70 @@ executable …
     , random >= 1.1
     -- ,  …
     
+
+====================================
+#7. August 17, 20       
+====================================
+how to see the list all the packages needed for cabal or (package.yaml, if using stack) 
+with proper names?
+
+I need to work with Exceptions. I've added to stack a new package, related to error handling 
+like this stack install extensible-exceptions. But this is not enough to use try-catch stuff. 
+Looks like I need to add also a package "Control.Exception.Base", however I cannot figure out, 
+where is the list of packages with NAMES, SUITABLE for cabal or package.yaml ? 
+I've found this list of packages at 
+"https://downloads.haskell.org/~ghc/7.8.4/docs/html/users_guide/packages.html"
+
+$ ghc-pkg list
+/usr/lib/ghc-6.12.1/package.conf.d:
+Cabal-1.7.4
+array-0.2.0.1
+base-3.0.3.0
+base-4.2.0.0
+bin-package-db-0.0.0.0
+binary-0.5.0.1
+bytestring-0.9.1.4
+containers-0.2.0.1
+directory-1.0.0.2
+(dph-base-0.4.0)
+(dph-par-0.4.0)
+(dph-prim-interface-0.4.0)
+(dph-prim-par-0.4.0)
+(dph-prim-seq-0.4.0)
+(dph-seq-0.4.0)
+extensible-exceptions-0.1.1.0
+ffi-1.0
+filepath-1.1.0.1
+(ghc-6.12.1)
+ghc-prim-0.1.0.0
+haskeline-0.6.2
+haskell98-1.0.1.0
+hpc-0.5.0.2
+integer-gmp-0.1.0.0
+mtl-1.1.0.2
+old-locale-1.0.0.1
+old-time-1.0.0.1
+pretty-1.0.1.0
+process-1.0.1.1
+random-1.0.0.1
+rts-1.0
+syb-0.1.0.0
+template-haskell-2.4.0.0
+terminfo-0.3.1
+time-1.1.4
+unix-2.3.1.0
+utf8-string-0.3.4
+
+But, this list is not a newest one, and I do not see where stuff, releated to
+
+Control.Exception.Base
+Looks like I am missing something, because I cannot use
+
+toTry `catch`
+I cannot now add
+
+import Control.Exception.Base
+because I did not added coressponding package to package.yaml file. HOW TO FIGURE OUT, once and forever, where is the list of package names, suitable for cabal or package.yaml? I am using Stack and GHC versions: Version 2.3.1, Git revision x86_64 hpack-0.33.0, ghc-8.8.3
+
+----------------------------------------------------------------
+Answer. QUESTION deleted by author
