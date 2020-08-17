@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 44d700e030ddf3d9ffb3f5c30465eb29ca841fcb81b534398f0691d5f096ceb5
+-- hash: cead0a75368a58d4f9e965009218d17301d5afd997bc4eefc335273e3f751c3f
 
 name:           L4
 version:        0.1.0.0
@@ -53,6 +53,7 @@ library
     , containers
     , deepseq
     , directory
+    , extensible-exceptions >=0.1.1.0
     , filepath
     , lens
     , lens-aeson
@@ -79,6 +80,7 @@ executable L4-exe
     , containers
     , deepseq
     , directory
+    , extensible-exceptions >=0.1.1.0
     , filepath
     , lens
     , lens-aeson
@@ -106,6 +108,7 @@ test-suite L4-test
     , containers
     , deepseq
     , directory
+    , extensible-exceptions >=0.1.1.0
     , filepath
     , lens
     , lens-aeson
