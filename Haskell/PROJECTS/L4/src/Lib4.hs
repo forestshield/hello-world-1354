@@ -30,6 +30,11 @@ import System.IO
 import System.Directory
 import System.Environment
 import System.Random
+import System.IO.Error
+import Control.Exception
+import Control.Exception.Base
+
+--import Data.Array
 
 import qualified Data.ByteString.Lazy as B  
 import qualified Data.ByteString as S 
@@ -1018,7 +1023,13 @@ someFuncLib4 = do
   func32main "/Users/admin1/Haskell/PROJECTS/L4/src/todo.txt" "/Users/admin1/Haskell/PROJECTS/L4/src/todo2.txt"
 
   putStrLn "\n================================== Exceptions ===============================\n"
-
+  putStrLn "\n------------- doesFileExist---------"
+  func34main $ "/Users/admin1/Haskell/PROJECTS/L4/src/" ++ rsExc1
+  func34main "todoNotHere.txt"
+  putStrLn "..."
+  
+  --putStrLn ("The file: \"" ++ rsExc2 ++ "\" doesn't exist!")
+  
   -- Either print problems !!!
   --putStrLn $ show $ (Right 3.423 :: Either Double)   -- does not compile
   --putStrLn $ show $ (Right 3.423 :: Either a Double)   -- does not compile
@@ -4905,5 +4916,122 @@ copyFile' source dest = do
 
 -- ================================== Exceptions ==================================
 
+-- 4 `div` 0  
+-- *** Exception: divide by zero  
+-- head []  
+-- *** Exception: Prelude.head: empty list
 
-    
+-----------------------------------------
+-- !!! The solution? Don't mix exceptions and pure code. Take advantage of Haskell's powerful 
+-- type system and use types like Either and Maybe to represent results that may have failed
+-----------------------------------------
+
+---- the program counting lines in a file ---
+-------------   stand_alone version
+--import System.Environment  
+--import System.IO    
+--main = do 
+--  (fileName:_) <- getArgs  
+-------------
+func33main fileName = do 
+--  (fileName:_) <- getArgs  
+    contents <- readFile fileName  
+    putStrLn $ "The file has " ++ show (length (lines contents)) ++ " lines!"
+
+--- doesFileExist --- function from System.Directory
+--import System.Environment  
+--import System.IO  
+--import System.Directory    
+--main = do (fileName:_) <- getArgs
+rsExc1 = "todo.txt"
+func34main fileName = do
+    fileExists <- doesFileExist fileName
+    if fileExists
+        then do contents <- readFile fileName
+                putStrLn $ ("The file: \"" ++ fileName ++ "\" has ") ++ show (length (lines contents)) ++ " lines!"
+        else do putStrLn ("The file: \"" ++ fileName ++ "\" doesn't exist!")
+
+
+--- catch --- System.IO.Error --- Control.Exception.Base --------------------------
+--  it's type is   "catch :: IO a -> (IOError -> IO a) -> IO a"
+
+--import System.Environment
+--import System.IO
+--import System.IO.Error
+--import Control.Exception
+--import Control.Exception.Base
+
+--------------------
+--main = toTry1 `catch` handler1
+func35main = toTry1 `catch` handler1
+---
+toTry1 :: IO ()
+toTry1 = do        
+    print "hi"
+    print (show (3 `div` 0))
+    --print (show (3 `div` 1))
+    print "hi"
+---
+handler1 :: ArithException -> IO ()
+handler1 DivideByZero = putStrLn "Divide by Zero!"
+handler1 _ = putStrLn "Some other error..."
+
+------------------------
+--main = toTry2 `catch` handler2
+
+fN1 = "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+fN2 = "~/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+
+func36main = toTry2 `catch` handler2
+---
+toTry2 :: IO ()
+--toTry = do (fileName:_) <- getArgs
+toTry2 = do 
+         contents <- readFile fN1
+         putStrLn $ "The file has " ++ show (length (lines contents)) ++ " lines!"
+---
+handler2 :: IOError -> IO ()
+handler2 e = putStrLn "Whoops, had some trouble!"
+
+
+
+{-
+handler :: IOError -> IO ()
+handler e
+    | isDoesNotExistError e = putStrLn "The file doesn't exist!"
+    | isFullError e = freeSomeSpace
+    | isIllegalOperation e = notifyCops
+    | otherwise = ioError e
+
+
+freeSomeSpace = do
+    return ()
+
+notifyCops = do
+    return ()
+-}
+
+{-
+func37main = do
+    result <- try (evaluate (5 `div` 0)) :: IO (Either SomeException Int)
+    case result of
+        Left ex  -> putStrLn $ "Caught exception: " ++ show ex
+        Right val -> putStrLn $ "The answer was: " ++ show val
+-}
+
+{-
+--import Control.Exception.Base
+--import Data.Array
+func36main = toTry `catch` handler
+
+toTry = do
+    print "hi"
+    print (show (3 `div` 0))
+    print "hi"
+
+handler :: ArithException -> IO ()
+handler DivideByZero = putStrLn "Divide by Zero!"
+handler _ = putStrLn "Some other error..."
+-}
+
+
