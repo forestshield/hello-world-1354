@@ -1023,9 +1023,13 @@ someFuncLib4 = do
   func32main "/Users/admin1/Haskell/PROJECTS/L4/src/todo.txt" "/Users/admin1/Haskell/PROJECTS/L4/src/todo2.txt"
 
   putStrLn "\n================================== Exceptions ===============================\n"
-  putStrLn "\n------------- doesFileExist---------"
+  putStrLn "\n--- import System.IO.Error --- import Control.Exception --- import Control.Exception.Base ---" 
+  putStrLn "--- \"stack install extensible-exceptions\" --- \"- extensible-exceptions >= 0.1.1.0\""
+  putStrLn "\n--- doesFileExist ---"
   func34main $ "/Users/admin1/Haskell/PROJECTS/L4/src/" ++ rsExc1
   func34main "todoNotHere.txt"
+  putStrLn "\n--- ArithException --- DivideByZero "
+  func35main 
   putStrLn "..."
   
   --putStrLn ("The file: \"" ++ rsExc2 ++ "\" doesn't exist!")
@@ -4967,15 +4971,19 @@ func34main fileName = do
 func35main = toTry1 `catch` handler1
 ---
 toTry1 :: IO ()
-toTry1 = do        
-    print "What is a second number?"
-    numStr1 <- getLine        
-    print (show (3 `div` (read numStr1) :: Int))
+toTry1 = do
+    print "hi"
+    --print "What is a second number?"
+    --numStr1 <- getLine
+    --print (show (3 `div` (read numStr1) :: Int))
+    print (show (3 `div` 0))
+    --print (show (3 `div` 1))
     print "hi"
 ---
 handler1 :: ArithException -> IO ()
 handler1 DivideByZero = putStrLn "Divide by Zero!"
 handler1 _ = putStrLn "Some other error..."
+
 ---
 {-
 handler3 :: Void -> IO ()
