@@ -4962,19 +4962,27 @@ func34main fileName = do
 --import Control.Exception.Base
 
 --------------------
+
 --main = toTry1 `catch` handler1
 func35main = toTry1 `catch` handler1
 ---
 toTry1 :: IO ()
 toTry1 = do        
-    print "hi"
-    print (show (3 `div` 0))
-    --print (show (3 `div` 1))
+    print "What is a second number?"
+    numStr1 <- getLine        
+    print (show (3 `div` (read numStr1) :: Int))
     print "hi"
 ---
 handler1 :: ArithException -> IO ()
 handler1 DivideByZero = putStrLn "Divide by Zero!"
 handler1 _ = putStrLn "Some other error..."
+---
+{-
+handler3 :: Void -> IO ()
+handler3 DivideByZero = putStrLn "Divide by Zero!"
+handler3 _ = putStrLn "Some other error..."
+-}
+
 
 ------------------------
 --main = toTry2 `catch` handler2
@@ -4987,29 +4995,28 @@ func36main = toTry2 `catch` handler2
 toTry2 :: IO ()
 --toTry = do (fileName:_) <- getArgs
 toTry2 = do 
-         contents <- readFile fN1
-         putStrLn $ "The file has " ++ show (length (lines contents)) ++ " lines!"
+        putStrLn "What is file path?"
+        fN3 <- getLine
+        contents <- readFile fN3
+        putStrLn $ "The file has " ++ show (length (lines contents)) ++ " lines!"
+---
+--handler2 :: IOError -> IO ()
+--handler2 e = putStrLn "Whoops, had some trouble!"
 ---
 handler2 :: IOError -> IO ()
-handler2 e = putStrLn "Whoops, had some trouble!"
-
-
-
-{-
-handler :: IOError -> IO ()
-handler e
+handler2 e
     | isDoesNotExistError e = putStrLn "The file doesn't exist!"
     | isFullError e = freeSomeSpace
     | isIllegalOperation e = notifyCops
     | otherwise = ioError e
-
-
+---
 freeSomeSpace = do
+    putStrLn $ "Free some space, please!"
     return ()
 
 notifyCops = do
+    putStrLn $ "Nofify cops, please!"
     return ()
--}
 
 {-
 func37main = do
@@ -5018,6 +5025,8 @@ func37main = do
         Left ex  -> putStrLn $ "Caught exception: " ++ show ex
         Right val -> putStrLn $ "The answer was: " ++ show val
 -}
+
+
 
 {-
 --import Control.Exception.Base
