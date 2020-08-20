@@ -84,13 +84,16 @@ for a single file
 ---------------------------------------------------
 stack install bytestring
 stack install random
+stack install extensible-exceptions
 
+---------------------------------------------------
 in package.yaml add the string 
 dependencies:
 - base >= 4.7 && < 5
 - random >= 1.1
 ...
 - bytestring
+- extensible-exceptions >= 0.1.1.0
 
 
 
