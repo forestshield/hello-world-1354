@@ -5,7 +5,6 @@ import System.IO.Error
 import Control.Exception
 import Control.Exception.Base
 
-
 main = toTry `catch` handler
 
 toTry :: IO ()
