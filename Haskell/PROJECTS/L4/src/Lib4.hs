@@ -46,6 +46,8 @@ import qualified Data.ByteString as S
 
 import Data.Maybe
 import Text.Read (readMaybe)
+import qualified ValidateUser as VU
+
 
 -----------------------------
 someFuncLib4 :: IO ()
@@ -1069,11 +1071,27 @@ someFuncLib4 = do
            "\nreadMaybe \"1.450e10\" :: Maybe Float\nreadMaybe \"2.00\" :: Maybe Float\n\
            \readMaybe \"a200\" :: Maybe Int\nreadMaybe \"200\" :: Maybe Int"
            "more readMaybe"
+--------    
+  putStrLn "\n--- validateAge, using Either for data validation age with strings ---"
+  putStrLn "mapM_ print $ map validateAge [\"safsdf\", \"-100\", \"garbage\", \"400\", \"7\",\
+            \ \"15\", \"20\", \"25\", \"\"]"         
+  mapM_ print $ map validateAge ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25",""] 
+--------  
+  putStrLn "\n--- validateAge2, using Either and also using data AgeError for data validation age with strings ---"
+  putStrLn "mapM_ print $ map validateAge2 [\"safsdf\", \"-100\", \"garbage\", \"400\", \"7\", \
+            \\"15\", \"20\", \"25\", \"\"]"         
+  mapM_ print $ map validateAge2 ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25", ""]
+--------
+  putStrLn "\n--- validateAge3, using Either and also using data AgeError, human readable output with srings ---"
+  putStrLn "mapM_ print $ validateAge3 [\"safsdf\", \"-100\", \"garbage\", \"400\", \"7\", \"15\", \
+            \\"20\", \"25\", \"\"]"         
+  mapM_ print $ validateAge3 ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25", ""]
+--------
 
-  specShow ()
-           "\n\
-           \"
-           ""
+  specShow ((VU.validateUser "John" "20"), (VU.validateUser "" "-100"), (VU.validateUser "John" "2000"))
+           "\nVU.validateUser \"John\" \"20\"\nVU.validateUser \"\" \"-100\"\
+           \\nVU.validateUser \"John\" \"2000\""
+           "using module ValidateUser as VU in file ValidateUser.hs to validate name and age"
 
   --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
   --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
@@ -5132,3 +5150,126 @@ rsAE17 = readMaybe "a200" :: Maybe Int               -- Nothing
 rsAE18 = readMaybe "200" :: Maybe Int                -- Just 200 
 --rsAE19 = readMaybe "200"                             -- Nothing    -- does not compile
 --rsAE20 = readMaybe "ab200"                           -- Nothing    -- does not compile
+
+--- Example of data validation function, using Either ---
+--import Text.Read (readMabye)
+validateAge :: String -> Either String Int  
+validateAge input =
+  case readMaybe input of
+    Nothing  -> Left "Invalid input. Not a number"
+    Just age -> case age of 
+                _ | age < 0    -> Left "Error: Invalid age. It must be greater than zero."
+                _ | age <= 18  -> Left "Error: Below legal age to sign the contract."
+                _ | age > 200  -> Left "Error: Invalid age. Impossible age."
+                _              -> Right age
+rsAE21 = mapM_ print $ map validateAge ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25"]
+
+-----------------------------------------------------
+--      Algebraic data types are more friendly to pattern matching than strings. 
+--      So the code above could be refactored to:
+----- ===============================================
+--import Text.Read (readMabye)
+data AgeError = AgeInvalidInput
+              | AgeBelowLegalAge
+              | AgeImpossible
+              deriving (Eq, Show, Read)
+--
+validateAge2 :: String -> Either AgeError Int  
+validateAge2 input =
+  case readMaybe input of
+    Nothing  -> Left AgeInvalidInput
+    Just age -> case age of 
+                _ | age < 0    -> Left AgeImpossible
+                _ | age <= 18  -> Left AgeBelowLegalAge
+                _ | age > 200  -> Left AgeImpossible
+                _              -> Right age  
+------------
+rsAE22 = map (\input -> (input, validateAge2 input)) ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25"]
+rsAE23 = mapM_ print $ map validateAge2 ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25"]
+------------      
+showAgeError :: AgeError -> String
+showAgeError age =
+   case age of
+     AgeBelowLegalAge ->  "Error: Below legal age to sign the contract."
+     AgeImpossible    ->  "Error: Invalid age. Impossible age."
+     AgeInvalidInput  ->  "Invalid input. Not a number"
+--
+mapLeft :: (e -> b) -> Either e a -> Either b a
+mapLeft fn value =
+  case value of
+    Right a -> Right a
+    Left  e -> Left (fn e)
+------------
+rsAE24 = mapLeft showAgeError $ validateAge2 "20000" 
+rsAE25 = mapM_ print $ map validateAge2 ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25"]
+------------
+func40 :: String -> Either String Int
+func40 par9 = mapLeft showAgeError $ validateAge2 par9 
+---
+rsAE26 = func40 "3000"               -- Left "Error: Invalid age. Impossible age."
+rsAE27 = map func40 ["33", "77", ""] -- [Right 33,Right 77,Left "Invalid input. Not a number"]
+------------
+-- human readable output ---
+validateAge3 :: [String] -> [Either String Int]
+validateAge3 par10 = map func40 par10
+---
+rsAE28 = validateAge3 ["33", "77", ""] -- [Right 33,Right 77,Left "Invalid input. Not a number"]
+-----------------
+rsAE29 = mapM_ print $ validateAge3 ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25"]
+
+----------------------------------------------------------
+--- refactoring the function to validate multiple data ---
+-- see module validateUser.hs
+--import Text.Read (readMabye)
+{-
+data AgeError = AgeInvalidInput
+              | AgeBelowLegalAge
+              | AgeImpossible
+              deriving (Eq, Show, Read)
+--
+type UserData = (String, Int)
+--
+data UserDataError = UserAgeError AgeError
+                   | UserNameError
+                   deriving(Eq, Show, Read)
+--
+mapLeft :: (e -> b) -> Either e a -> Either b a
+mapLeft fn value =
+  case value of
+    Right a -> Right a
+    Left  e -> Left (fn e)
+--
+validateAge :: String -> Either UserDataError Int  
+validateAge input = mapLeft UserAgeError $ validateAgeAux input 
+  where
+    validateAgeAux input = 
+      case readMaybe input of
+        Nothing  -> Left AgeInvalidInput
+        Just age -> case age of 
+                    _ | age < 0    -> Left AgeImpossible
+                    _ | age <= 18  -> Left AgeBelowLegalAge
+                    _ | age > 200  -> Left AgeImpossible
+                    _              -> Right age   
+--
+validateName :: String -> Either UserDataError String   
+validateName name =
+  case name of
+    "" -> Left $ UserNameError
+    _  -> Right name
+--
+validateUser :: String -> String -> Either UserDataError UserData
+validateUser name age = do
+  userName <- validateName name
+  userAge  <- validateAge age
+  return (userName, userAge)
+-}
+
+rsAE30 = VU.validateUser "John" "20"        -- Right ("John",20)
+                                            -- it :: Either UserDataError UserData
+rsAE31 = VU.validateUser "" "-100"          -- Left UserNameError
+                                            -- it :: Either UserDataError UserData
+rsAE32 = VU.validateUser "John" "2000"      -- Left (UserAgeError AgeImpossible)
+                                            -- it :: Either UserDataError UserData
+
+
+
