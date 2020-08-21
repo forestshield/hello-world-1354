@@ -21,11 +21,16 @@ import qualified Geometry as Geom
 import Shapes
 import Data.String
 import Data.Int
+
 --import GHC.Int
+
 --import data-easy
+
 import Data.Char (toUpper)
 import Control.Monad 
+
 --import Data.Map 
+
 import System.IO
 import System.Directory
 import System.Environment
@@ -39,6 +44,8 @@ import Control.Exception.Base
 import qualified Data.ByteString.Lazy as B  
 import qualified Data.ByteString as S 
 
+import Data.Maybe
+import Text.Read (readMaybe)
 
 -----------------------------
 someFuncLib4 :: IO ()
@@ -1030,8 +1037,49 @@ someFuncLib4 = do
   func34main "todoNotHere.txt"
   putStrLn "\n--- ArithException --- DivideByZero "
   func35main 
-  putStrLn "..."
-  
+  --putStrLn "..."1
+  putStrLn "\n============= Avoiding exceptions using Maybe (Option type) or Either ========="
+  specShow ((show $ headSafe [1, 2, 3, 4, 5]),
+            (show $ (headSafe [] :: Maybe Int)))
+           "\nheadSafe [1, 2, 3, 4, 5]\nheadSafe []"
+           "avoiding head \"[]\", using headSafe, based on Maybe, headSafe :: [a] -> Maybe a"
+  specShow ((read "Just 1" :: Maybe Int), (read "Nothing" :: Maybe Int), 
+            (fromMaybe 0 (read "Just 1" :: Maybe Int)), 
+            (fromMaybe 0 (read "Nothing" :: Maybe Int)))
+           "\nread \"Just 1\" :: Maybe Int\nread \"Nothing\" :: Maybe Int\n\
+           \fromMaybe 0 (read \"Just 8\" :: Maybe Int)\nfromMaybe 0 (read \"Nothing\" :: Maybe Int)"
+           "--- converting data, received in Maybe Int, using --- fromMaybe ---"           
+  specShow ((divSafe 100 20), (divSafe 100 0), (divSafe 0 100))
+           "\ndivSafe 100 20\ndivSafe 100 0\ndivSafe 0 100"
+           "avoiding div 0, divSafe, based on Maybe, divSafe :: Integral a => a -> a -> Maybe a"
+  specShow ((readMaybe "Just 200" :: Maybe (Maybe Int)), 
+            (readMaybe "Nothing" :: Maybe (Maybe Int)), 
+            (readMaybe "Notasdasdas" :: Maybe (Maybe Int)), 
+            (readMaybe "[1, 2, 3, 4, 5]" :: Maybe [Int]), 
+            (readMaybe "garbage" :: Maybe [Int]), 
+            (readMaybe "[100.0, 200.0, 300.0]" :: Maybe [Double]),
+            (readMaybe ", 200.0, 300.0]" :: Maybe [Double]))
+           "\nreadMaybe \"Just 200\" :: Maybe (Maybe Int)\nreadMaybe \"Nothing\" :: Maybe (Maybe Int)\n\
+           \readMaybe \"Notasdasdas\" :: Maybe (Maybe Int)\nreadMaybe \"[1, 2, 3, 4, 5]\" :: Maybe [Int]\n\
+           \readMaybe \"garbage\" :: Maybe [Int]\nreadMaybe \"[100.0, 200.0, 300.0]\" :: Maybe [Double]\n\
+           \readMaybe \", 200.0, 300.0]\" :: Maybe [Double]"
+           "using readMaybe \"import Text.Read(readMaybe)\""
+  specShow ((readMaybe "1.450e10" :: Maybe Float), (readMaybe "2.00" :: Maybe Float), 
+            (readMaybe "a200" :: Maybe Int), (readMaybe "200" :: Maybe Int))
+           "\nreadMaybe \"1.450e10\" :: Maybe Float\nreadMaybe \"2.00\" :: Maybe Float\n\
+           \readMaybe \"a200\" :: Maybe Int\nreadMaybe \"200\" :: Maybe Int"
+           "more readMaybe"
+
+  specShow ()
+           "\n\
+           \"
+           ""
+
+  --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
+  --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
+  --putStrLn $ show $ headSafe [1, 2, 3, 4, 5] 
+  --putStrLn $ show $ (headSafe [] :: Maybe Int)
+  --print (headSafe [] :: Maybe Int)
   --putStrLn ("The file: \"" ++ rsExc2 ++ "\" doesn't exist!")
   
   -- Either print problems !!!
@@ -4965,11 +5013,10 @@ func34main fileName = do
 --import Control.Exception
 --import Control.Exception.Base
 
---------------------
-
+-- *** Exception: divide by zero
 --main = toTry1 `catch` handler1
-func35main = toTry1 `catch` handler1
----
+func35main = toTry1 `catch` handler1    -- this one does catch the divide by zero execption
+--func35main = toTry1                   -- this one is throwing exception
 toTry1 :: IO ()
 toTry1 = do
     print "hi"
@@ -4984,20 +5031,12 @@ handler1 :: ArithException -> IO ()
 handler1 DivideByZero = putStrLn "Divide by Zero!"
 handler1 _ = putStrLn "Some other error..."
 
----
-{-
-handler3 :: Void -> IO ()
-handler3 DivideByZero = putStrLn "Divide by Zero!"
-handler3 _ = putStrLn "Some other error..."
--}
 
-
-------------------------
---main = toTry2 `catch` handler2
-
+-------------
 fN1 = "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/todo.txt"
 fN2 = "~/Haskell/PROJECTS/L4/stand_alone/todo.txt"
-
+------------------------
+--main = toTry2 `catch` handler2
 func36main = toTry2 `catch` handler2
 ---
 toTry2 :: IO ()
@@ -5021,7 +5060,7 @@ handler2 e
 freeSomeSpace = do
     putStrLn $ "Free some space, please!"
     return ()
-
+---
 notifyCops = do
     putStrLn $ "Nofify cops, please!"
     return ()
@@ -5034,21 +5073,62 @@ func37main = do
         Right val -> putStrLn $ "The answer was: " ++ show val
 -}
 
+-- *** Exception: Prelude.head: empty list
+func38main = do
+    let a = [1,2,3]
+        b = head a
+        c = head []        
+    print (c :: Int)
 
+-- *** Exception: Prelude.read: no parse
+func39main = do
+    let a = read "100"   :: Int 
+        b = read "-100"  :: Int
+        c = read "noise" :: Int
+    print (c :: Int)
 
-{-
---import Control.Exception.Base
---import Data.Array
-func36main = toTry `catch` handler
+-- ============= Avoiding exceptions using Maybe (Option type) or Either =========
+-- https://caiorss.github.io/Functional-Programming/haskell/haskell_handling_exceptions.html    
+-- headSafe ---
+headSafe        ::  [a] -> Maybe a
+headSafe []     =   Nothing 
+headSafe (x:_)  =   Just x    
 
-toTry = do
-    print "hi"
-    print (show (3 `div` 0))
-    print "hi"
+--- converting data, received in Maybe ---
+rsAE1 = read "Just 1" :: Maybe Int                  -- Maybe Int
+rsAE2 = read "Nothing" :: Maybe Int                 -- Maybe Int
+rsAE3 = fromMaybe 0 (read "Just 1" :: Maybe Int)    -- 1 :: Int
+rsAE4 = fromMaybe 0 (read "Nothing" :: Maybe Int)   -- 0 :: Int
 
-handler :: ArithException -> IO ()
-handler DivideByZero = putStrLn "Divide by Zero!"
-handler _ = putStrLn "Some other error..."
--}
+-- divSafe ---
+divSafe :: Integral a => a -> a -> Maybe a
+divSafe x 0 = Nothing
+divSafe x y = Just (div x y)
 
+rsAE5 = divSafe 100 20                  -- Just 5   -- it :: Integral a => Maybe a
+rsAE6 = divSafe 100 0                   -- Nothing  -- it :: Integral a => Maybe a
+rsAE7 = divSafe 0 100                   -- Just 0   -- divSafe 0 100 :: Integral a => Maybe a
 
+-- use readMaybe instead of read ---
+-- import Text.Read (readMaybe)
+rsAE8  = readMaybe "Just 200" :: Maybe (Maybe Int)      -- Just (Just 200)  
+                                            -- it :: Maybe (Maybe Int)
+rsAE9  = readMaybe "Nothing" :: Maybe (Maybe Int)       -- Just nothing     
+                                            -- it :: Maybe (Maybe Int)
+rsAE10 = readMaybe "Notasdasdas" :: Maybe (Maybe Int)   -- Nothing       
+                                            -- it :: Maybe (Maybe Int)
+rsAE11 = readMaybe "[1, 2, 3, 4, 5]" :: Maybe [Int]     -- Just [1,2,3,4,5] 
+                                            -- it :: Maybe [Int]
+rsAE12 = readMaybe "garbage" :: Maybe [Int]             -- Nothing          
+                                            -- it :: Maybe [Int]
+rsAE13 = readMaybe "[100.0, 200.0, 300.0]" :: Maybe [Double] -- Just [100.0,200.0,300.0]
+                                            -- it :: Maybe [Double]
+rsAE14 = readMaybe ", 200.0, 300.0]" :: Maybe [Double]  -- Nothing  
+                                            -- it :: Maybe [Double]
+--- more readMaybe ---
+rsAE15 = readMaybe "1.450e10" :: Maybe Float         -- Just 1.45e10
+rsAE16 = readMaybe "2.00" :: Maybe Float             -- Just 2.0
+rsAE17 = readMaybe "a200" :: Maybe Int               -- Nothing
+rsAE18 = readMaybe "200" :: Maybe Int                -- Just 200 
+--rsAE19 = readMaybe "200"                             -- Nothing    -- does not compile
+--rsAE20 = readMaybe "ab200"                           -- Nothing    -- does not compile
