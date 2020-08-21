@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cead0a75368a58d4f9e965009218d17301d5afd997bc4eefc335273e3f751c3f
+-- hash: 27bd596489f16b85c650c6c74ece4bc9ea5265556f5b1ea8569bc366cb458a6f
 
 name:           L4
 version:        0.1.0.0
@@ -41,6 +41,7 @@ library
       Print3flipped
       Shapes
       TopLevelFunction
+      ValidateUser
   other-modules:
       Paths_L4
   hs-source-dirs:
