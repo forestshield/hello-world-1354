@@ -37,7 +37,7 @@ import System.Environment
 import System.Random
 import System.IO.Error
 import Control.Exception
-import Control.Exception.Base
+--import Control.Exception.Base
 
 --import Data.Array
 
@@ -5376,4 +5376,56 @@ rsAE32 = VU.validateUser "John" "2000"      -- Left (UserAgeError AgeImpossible)
                                             -- it :: Either UserDataError UserData
 
 
+--------------------------------------
+--- Exceptions again ---
+--------------------------------------
+func41Main = catch (readFile "/etc/" >>= putStrLn)
+       (\e ->  case e of
+               _  | isAlreadyExistsError e -> putStrLn "Error: File alredy exists"
+               _  | isEOFError e           -> putStrLn "Error: End of file"
+               _  | isUserError e          -> putStrLn "Error: User raised an exception"
+               _  | isPermissionError e    -> putStrLn "Error: We don't have permission to read this file"
+               _                           -> putStrLn "Uncaught exception" >> ioError e
+        )
+
+--  The function ioError is used to throw a non-caught Exception inside an Exception handler.
+--  because this exception handler catches all IO exceptions;
+
+--------------------------------------
+ioExceptionTester :: IO () -> IO ()   
+ioExceptionTester thunk = catch thunk handler 
+  where
+    handler :: IOError -> IO ()
+    handler e = do  
+      putStrLn $ "Exception message = " ++ show e 
+      case e of
+        _ | isAlreadyExistsError e -> putStrLn "Error: Already Exists"
+        _ | isDoesNotExistError e  -> putStrLn "Error: Doesn't exists"               
+        _ | isEOFError e           -> putStrLn "Error: End of file"
+        _ | isIllegalOperation e   -> putStrLn "Error: Illegal operation"
+        _ | isPermissionError e    -> putStrLn "Error: Permission error"
+        _ | isUserError e          -> putStrLn "Error: User error"              
+        _                          -> do putStrLn "Error: I can't handler this type of error."
+                                         ioError e -- Raise uncaught exception 
+
+rsEH1 = ioExceptionTester (readFile "/etc/issue" >>= putStrLn)
+    --Exception message = /etc/issue: openFile: does not exist (No such file or directory)
+    --Error: Doesn't exists
+
+rsEH2 = ioExceptionTester (readFile "/etc/issuesddfs" >>= putStrLn)
+    -- Exception message = /etc/issuesddfs: openFile: does not exist (No such file or directory)
+    -- Error: Doesn't exists
+
+rsEH3 = ioExceptionTester (readFile "/etc/" >>= putStrLn)
+    -- Exception message = /etc/: openFile: inappropriate type (is a directory)
+    -- Error: I can't handler this type of error.
+    -- *** Exception: /etc/: openFile: inappropriate type (is a directory)
+
+rsEH4 = ioExceptionTester (readFile "/etc/AFP.conf" >>= putStrLn)
+    -- Exception message = /etc/shadow: openFile: permission denied (Permission denied)
+    -- Error: Permission error
+
+rsEH5 = ioExceptionTester (readFile "/etc/ftpd.conf.default" >>= putStrLn)
+    -- # match umask from Mac OS X Server ftpd
+    -- umask all 022
 
