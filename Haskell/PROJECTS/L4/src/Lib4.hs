@@ -1087,11 +1087,13 @@ someFuncLib4 = do
             \\"20\", \"25\", \"\"]"         
   mapM_ print $ validateAge3 ["safsdf", "-100", "garbage", "400", "7", "15", "20", "25", ""]
 --------
-
   specShow ((VU.validateUser "John" "20"), (VU.validateUser "" "-100"), (VU.validateUser "John" "2000"))
            "\nVU.validateUser \"John\" \"20\"\nVU.validateUser \"\" \"-100\"\
            \\nVU.validateUser \"John\" \"2000\""
            "using module ValidateUser as VU in file ValidateUser.hs to validate name and age"
+
+
+
 
   --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
   --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
@@ -4984,8 +4986,110 @@ copyFile' source dest = do
 -- in front of some functions. Sometimes, you have to convert functions that you wrote to work
 -- on strings so that they work on bytestrings, but that's not hard.
 
--- ================================== Exceptions ==================================
+-- ================================== Exceptions ===========================================
+-- Control.Exception	 	 	 
+-------------------- 	 	 	 
+-- throw	    :: Exception e => e -> a	                    Throw an exception.
+-- throwIO	    :: Exception e => e -> IO a	                    A variant of throw that can only be used within the IO monad.
+-- catch	    :: Exception e => IO a -> (e -> IO a) -> IO a	Catch exceptions.
+-- try	        :: Exception e => IO a -> IO (Either e a)	    Similar to catch, but returns an Either.
+-- handle	    :: Exception e => (e -> IO a) -> IO a -> IO a	A version of catch with the arguments swapped around.
+-- finally	 	 	 
+-- evaluate	 	 	 
+------------------- 	 	 	 
+-- System.IO.Error
+------------------- 	 
+-- ioError	    ::	IOError -> IO a	                    Raise an IOError in the IO monad.
+-- catchIOError	::	IO a -> (IOError -> IO a) -> IO a	Like the fuction catch, however catchs only IO exceptions.
+-- tryIOError	::	IO a -> IO (Either IOError a)	    Like the function try, however only aplicable to IO exceptions.
+-- userError	::	String -> IOError	                Construct an IOError value with a string describing the error.
+-- 
+-- isAlreadyExistsError	::	IOError -> Bool	 
+-- isDoesNotExistError	::	IOError -> Bool	 
+-- isAlreadyInUseError	::	IOError -> Bool	 
+-- isFullError	        ::	IOError -> Bool	 
+-- isEOFError	        ::	IOError -> Bool	 
+-- isIllegalOperation	::	IOError -> Bool	 
+-- isPermissionError	::	IOError -> Bool	 
+-- isUserError	        ::	IOError -> Bool
+------------------------------------------------------------------------------------------------- 
+-- Exception type	 Predicate	            Exception message	        Cause:
+--  (abstract)	 	                        or exception string	 
+--------------------------------------------------------------------------------------------------
+-- AlreadyExists	 isAlreadyExistsError	already exists	            File or directory already exists. 	 	 	 
+-- NoSuchThing	     isDoesNotExistError	does not exist	            File, directory or enviroment variable
+--	 	 	                                                            doesn't exists.
+-- ResourceBusy	     ?	                    resource busy
+-- ResourceExhausted ?	                    resource exhausted	        Insufficient resources are available
+--                                                           	 	 	to perform the operation.
+-- EOF	             isEOFError	            end of file	                Reached end of file while trying to read
+--                                                                      some line or character.
+-- IllegalOperation	 isIllegalOperation	    illegal operation	        The implementation does not support system calls.
+-- PermissionDenied	 isPermissionError	    permission denied	        The process has insufficient privileges to
+-- 	 	 	                                                            perform the operation.
+-- UserError	     isUserError	        user error	                Exception thrown by user.
+-- HardwareFault	 ?	                    hardware fault	 
+-- InappropriateType ?	                    inappropriate type	 
+-- Interrupted	     ?	                    interrupted	 
+-- InvalidArgument	 ?	                    invalid argument	 
+-- OtherError	     ?	                    failed	 
+-- ProtocolError	 ?	                    protocol error	 
+-- ResourceVanished	 ?	                    resource vanished	 
+-- SystemError	     ?	                    system error
+-- TimeExpired	     ?	                    timeout	 
+-- UnsatisfiedConstraints   ?	            unsatisfied constraints – ultra-precise!
+-- UnsupportedOperation	    ?	            unsupported operation
+-----------------------------------------------------
+-- Arithmetic Exceptions: (Module: Control.Exception)
+-----------------------------------------------------
+-- Type Constructor	                        Exception Message
+-----------------------------------------------------
+-- Overflow	                                arithmetic overflow
+-- Underflow	                            arithmetic underflow
+-- LossOfPrecision	                        loss of precision
+-- DivideByZero	                            divide by zero
+-- Denormal	                                denormal
+-- RatioZeroDenominator	                    Ratio has zero denominator
+------------------------------------------------------
+-- Exception Hierarchy:
+------------------------------------------------------
+-- Exception
+-----------------------------
+-- SomeException - Root of all exceptions
+--      IOError / IOException
+--      AsyncException
+--          StackOverflow
+--          HeapOverflow
+--          ThreadKilled
+--          ThreadKilled
+--      ArithException
+--          Overflow
+--          Underflow
+--          LossOfPrecision
+--          DivideByZeror
+--          Denormal
+--          RatioZeroDenominator
+--      ArrayException
+--      AssertionFailed
+-----------------------------
+-- see also:
+-- Exceptions Best Practices - School of Haskell | School of Haskell
+--      https://www.schoolofhaskell.com/user/commercial/content/exceptions-best-practices
+-- Catching all exceptions - School of Haskell | School of Haskell
+--      https://www.schoolofhaskell.com/user/snoyberg/general-haskell/exceptions/catching-all-exceptions
+-- Haskell/Libraries/IO - Wikibooks, open books for an open world
+--      https://en.wikibooks.org/wiki/Haskell/Libraries/IO
+-- 8 ways to report errors in Haskell revisited : Inside 736-131
+--      http://blog.ezyang.com/2011/08/8-ways-to-report-errors-in-haskell-revisited/
+-- 8 ways to report errors in Haskell | Random Hacks
+--      http://www.randomhacks.net/2007/03/10/haskell-8-ways-to-report-errors/
+-- Exception - HaskellWiki
+--      https://wiki.haskell.org/Exception
+-- Coding like a drunk - Catching Exceptions in Haskell
+--      http://drunkcoding.tumblr.com/post/692076953/catching-exceptions-in-haskell
 
+
+---------------------------------------------------------
 -- 4 `div` 0  
 -- *** Exception: divide by zero  
 -- head []  
