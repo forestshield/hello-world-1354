@@ -40,14 +40,19 @@ import System.IO.Error
 import Control.Exception
 --import Control.Exception.Base
 
+--import Control.Exception.Safe (Exception, MonadThrow, SomeException, throwM)
+
 --import Data.Array
 
 import qualified Data.ByteString.Lazy as B  
 import qualified Data.ByteString as S 
 
 import Data.Maybe
+import Data.Typeable          (TypeRep, Typeable, typeRep)
+
 import Text.Read (readMaybe)
 import qualified ValidateUser as VU
+
 
 
 -----------------------------
@@ -1113,6 +1118,9 @@ someFuncLib4 = do
   specSh2 (testCatches (throw Overflow )) "testCatches (throw Overflow )\n" ""
   specSh2 (testCatches (readFile "/etc/issue" >>= putStrLn)) "\
            \testCatches (readFile \"/etc/issue\" >>= putStrLn)\n" ""
+  putStrLn "--- using several handlers --- reading file twice in different handlers cathing exceptions"  
+  func44main
+
 
   --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
   --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
@@ -5411,6 +5419,7 @@ func41main = catch (readFile "/etc/" >>= putStrLn)
 --  because this exception handler catches all IO exceptions;
 
 {--============= It doesn't catch non IO exceptions ============== -}
+{-
 ioExceptionTester :: IO () -> IO ()   
 ioExceptionTester thunk = catch thunk handler 
   where
@@ -5426,6 +5435,29 @@ ioExceptionTester thunk = catch thunk handler
         _ | isUserError e          -> putStrLn "Error: User error"              
         _                          -> do putStrLn "Error: I can't handler this type of error."
                                          ioError e -- Raise uncaught exception 
+-}
+-- modified version (by me)
+ioExceptionTester :: IO () -> IO ()   
+ioExceptionTester thunk = catch thunk handler 
+  where
+    handler :: IOError -> IO ()
+    handler e = do  
+      putStrLn $ "Exception message = " ++ show e 
+      case e of
+        _ | isAlreadyExistsError e -> putStrLn "Error: Already Exists"
+        _ | isDoesNotExistError e  -> putStrLn "Error: Doesn't exists"
+        _ | isEOFError e           -> putStrLn "Error: End of file"
+        _ | isIllegalOperation e   -> putStrLn "Error: Illegal operation"
+        _ | isPermissionError e    -> putStrLn "Error: Permission error"
+        _ | isUserError e          -> putStrLn "Error: User error"
+        _ | isAlreadyInUseError e  -> putStrLn "Error: Already in Use -ay- added"
+        _ | isFullError e          -> putStrLn "Error: Disk is Full -ay- added"
+        _                          -> do putStrLn "Error: I can't handler this type of error."
+                                         ioError e -- Raise uncaught exception 
+
+--rsEH0 = ioExceptionTester (writeFile "/etc/issue" >>= putStrLn)
+    --Exception message = /etc/issue: openFile: does not exist (No such file or directory)
+    --Error: Doesn't exists
 
 rsEH1 = ioExceptionTester (readFile "/etc/issue" >>= putStrLn)
     --Exception message = /etc/issue: openFile: does not exist (No such file or directory)
@@ -5618,29 +5650,33 @@ mkpair3 aa bb = (ida aa, bb)
 --sizeOf :: Ptr a -> Int
 --sizeOf ptr = sizeOfPtr ptr undefined
 
-{-
 ----------------------------------------------------------------------------
+{-
 -- https://www.fpcomplete.com/blog/2016/11/exceptions-best-practices-haskell/
 -- using MonadThrow, Either 
 ------------------------
 -- #!/usr/bin/env stack
----- stack --resolver lts-7.8 runghc --package safe-exceptions
+-- stack --resolver lts-7.8 runghc --package safe-exceptions
 --{-# OPTIONS_GHC -Wall -Werror #-}
 --import Control.Exception.Safe (Exception, MonadThrow, SomeException, throwM)
 --import Data.Typeable          (TypeRep, Typeable, typeRep)
 --import Text.Read              (readMaybe)
----
 
-data ReadException = ReadException String TypeRep
-  deriving (Typeable)
+-- N.B. Could not install package "safe-exceptions" by using stack --resolver lts-7.8 runghc --package safe-exceptions,
+-- But, I could install it using "stack install safe-exceptions"
+-- ... Registering library for safe-exceptions-0.1.7.0.
+-- However, I could not compile the code with this
+-- "import Control.Exception.Safe (Exception, MonadThrow, SomeException, throwM)"
+
+data ReadException = ReadException String TypeRep deriving (Typeable)
 ---
 instance Show ReadException where
-  show (ReadException s typ) = concat
-    [ "Unable to parse as "
-    , show typ
-    , ": "
-    , show s
-    ]
+    show (ReadException s typ) = concat
+        [ "Unable to parse as "
+        , show typ
+        , ": "
+        , show s
+        ]
 ---
 instance Exception ReadException
 ---
@@ -5663,3 +5699,109 @@ func42main = do
   res2 <- readM "not an int"
   print (res2 :: Int) -- will never get called 
 -}
+
+
+-- =======================================================================================
+-- https://downloads.haskell.org/~ghc/6.10.1/docs/html/libraries/base/System-IO-Error.html#3
+-- Classifying I/O errors
+-- isAlreadyExistsError :: IOError -> Bool
+--      An error indicating that an IO operation failed because one of its arguments already exists.
+--  isDoesNotExistError :: IOError -> Bool
+--      An error indicating that an IO operation failed because one of its arguments does not exist.
+--  isAlreadyInUseError :: IOError -> Bool
+--      An error indicating that an IO operation failed because one of its arguments is a single-use
+--      resource, which is already being used (for example, opening the same file twice 
+--      for writing might give this error).
+--  isFullError :: IOError -> Bool
+--      An error indicating that an IO operation failed because the device is full.
+--  isEOFError :: IOError -> Bool
+--      An error indicating that an IO operation failed because the end of file has been reached.
+--  isIllegalOperation :: IOError -> Bool
+--      An error indicating that an IO operation failed because the operation was not possible. 
+--      Any computation which returns an IO result may fail with isIllegalOperation. 
+--      In some cases, an implementation will not be able to distinguish between the possible 
+--      error causes. In this case it should fail with isIllegalOperation.
+--  isPermissionError :: IOError -> Bool
+--      An error indicating that an IO operation failed because the user does not have 
+--      sufficient operating system privilege to perform that operation.
+--  isUserError :: IOError -> Bool
+--      A programmer-defined error value constructed using userError.
+-----------------------------------------
+--  Attributes of I/O errors
+-- ioeGetErrorType :: IOError -> IOErrorType
+-- ioeGetLocation :: IOError -> String
+-- ioeGetErrorString :: IOError -> String
+-- ioeGetHandle :: IOError -> Maybe Handle
+-- ioeGetFileName :: IOError -> Maybe FilePath
+-- ioeSetErrorType :: IOError -> IOErrorType -> IOError
+-- ioeSetErrorString :: IOError -> String -> IOError
+-- ioeSetLocation :: IOError -> String -> IOError
+-- ioeSetHandle :: IOError -> Handle -> IOError
+-- ioeSetFileName :: IOError -> FilePath -> IOError
+
+------------------------------------
+--- ioeGetFileName ---
+--      let's write a program to print out the file path that's responsible for the exception occurring.
+--import System.Environment     
+--import System.IO     
+--import System.IO.Error     
+--- 
+
+--fN1 = "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+--fN2 = "~/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+func43main = toTry43 `catch` handler43 
+---                 
+
+toTry43 :: IO ()     
+toTry43 = do 
+    --(fileName:_) <- getArgs
+    --contents <- readFile fileName
+    --contents <- readFile fN2  -- Whoops! File does not exist at: ~/Haskell/PROJECTS/L4/stand_alone/todo.txt
+    contents <- readFile fN1    -- The file has 4 lines!
+    putStrLn $ "The file has " ++ show (length (lines contents)) ++ " lines!"
+---    
+handler43 :: IOError -> IO ()
+handler43 e
+    | isDoesNotExistError e =      
+        case ioeGetFileName e of Just path -> putStrLn $ "Whoops! File does not exist at: " ++ path
+                                 Nothing -> putStrLn "Whoops! File does not exist at unknown location!"
+    | otherwise = ioError e     
+
+-- !!! ======================= using several handlers ========================= !!!
+func44main = do 
+    toTry44   `catch` handler44
+    thenTry45 `catch` handler45
+    launchRockets 
+---    
+toTry44 :: IO ()     
+toTry44 = do 
+    --(fileName:_) <- getArgs
+    --contents <- readFile fileName
+    --contents <- readFile fN2  -- Whoops! File does not exist at: ~/Haskell/PROJECTS/L4/stand_alone/todo.txt
+    contents <- readFile fN1    -- The file has 4 lines!
+    putStrLn $ "44: The file has " ++ show (length (lines contents)) ++ " lines!"
+---    
+thenTry45 :: IO ()     
+thenTry45 = do 
+    --(fileName:_) <- getArgs
+    --contents <- readFile fileName
+    contents <- readFile fN2  -- Whoops! File does not exist at: ~/Haskell/PROJECTS/L4/stand_alone/todo.txt
+    --contents <- readFile fN1    -- The file has 4 lines!
+    putStrLn $ "45: The file has " ++ show (length (lines contents)) ++ " lines!"
+---
+--launchRockets = return ()
+launchRockets = putStrLn "Tried to read twice 2 files, exceptions handled in 2 different handlers #44 and #45"
+---
+handler44 :: IOError -> IO ()
+handler44 e
+    | isDoesNotExistError e =      
+        case ioeGetFileName e of Just path -> putStrLn $ "Whoops 44! File does not exist at: " ++ path
+                                 Nothing -> putStrLn "Whoops 44! File does not exist at unknown location!"
+    | otherwise = ioError e     
+---
+handler45 :: IOError -> IO ()
+handler45 e
+    | isDoesNotExistError e =      
+        case ioeGetFileName e of Just path -> putStrLn $ "Whoops 45! File does not exist at: " ++ path
+                                 Nothing -> putStrLn "Whoops 45! File does not exist at unknown location!"
+    | otherwise = ioError e     
