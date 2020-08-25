@@ -1102,6 +1102,9 @@ someFuncLib4 = do
   --ioExceptionTester2 (error "Some error")
   putStrLn "\n--- some non-caught non-io Exceptions ---"
   putStrLn "--- (read \"10asd0\" :: Int) --- DivideByZero --- ioExceptionTester (error \"Some error\") --- "
+  putStrLn "--- ioExceptionTester $ throw Underflow --- "
+  putStrLn "\n--- Async Exception - User interrupt ---"
+  putStrLn "--- ioExceptionTester (putStrLn \"Enter something\" >> getLine >>= putStrLn)"  
 --------
   --testCatches (let x = undefined in print)
 
@@ -5533,8 +5536,9 @@ rsEH17 = ioExceptionTester (readFile "/dev/sdaaa1" >>= putStrLn)
 -- Exception message = /dev/sdaaa1: openFile: does not exist (No such file or directory)
 -- Error: Doesn't exists
 
---non caught exceptions-- 
---rsEH18 = ioExceptionTester (readFile "/dev/tty0" >>= putStrLn)
+rsEH18 = ioExceptionTester (readFile "/dev/tty0" >>= putStrLn)
+-- Exception message = /dev/tty0: openFile: does not exist (No such file or directory)
+-- Error: Doesn't exists
 
 {-
 -- ============== Catching Exceptions using the function catches =============
@@ -5559,7 +5563,7 @@ testCatches thunk = catches thunk handlers
                                                               throw e
                    ]
 ---
-rsEH18 = testCatches (throw DivideByZero)           -- Error I got an Arithmetic exception.
+rsEH23 = testCatches (throw DivideByZero)           -- Error I got an Arithmetic exception.
 rsEH19 = testCatches (throw Overflow )              -- Error I got an Arithmetic exception.
 --rsEH20 = testCatches (let x = undefined in print x) -- I got an ErrorCall exception
 rsEH21 = testCatches (error "Some Error")           -- I got an ErrorCall exception
