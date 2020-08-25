@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Lib4
     ( someFuncLib4
     ) where
@@ -1106,11 +1107,12 @@ someFuncLib4 = do
   putStrLn "\n--- Async Exception - User interrupt ---"
   putStrLn "--- ioExceptionTester (putStrLn \"Enter something\" >> getLine >>= putStrLn)"  
 --------
-  --testCatches (let x = undefined in print)
-
-
-
-
+  specSh2 (testCatches (throw DivideByZero)) "testCatches (throw DivideByZero)\n" 
+           "Catching Exceptions using the function catches,\n\
+           \it needs {-# LANGUAGE ScopedTypeVariables #-}"
+  specSh2 (testCatches (throw Overflow )) "testCatches (throw Overflow )\n" ""
+  specSh2 (testCatches (readFile "/etc/issue" >>= putStrLn)) "\
+           \testCatches (readFile \"/etc/issue\" >>= putStrLn)\n" ""
 
   --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
   --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
@@ -5540,9 +5542,10 @@ rsEH18 = ioExceptionTester (readFile "/dev/tty0" >>= putStrLn)
 -- Exception message = /dev/tty0: openFile: does not exist (No such file or directory)
 -- Error: Doesn't exists
 
-{-
+
 -- ============== Catching Exceptions using the function catches =============
--- :set -XScopedTypeVariables
+-- it needs this {-# LANGUAGE ScopedTypeVariables #-}
+-- :set -XScopedTypeVariables       
 -- :i Handler
 -- data Handler a = forall e. Exception e => Handler (e -> IO a)  -- Defined in ‘Control.Exception’
 -- instance Functor Handler -- Defined in ‘Control.Exception’
@@ -5565,17 +5568,55 @@ testCatches thunk = catches thunk handlers
 ---
 rsEH23 = testCatches (throw DivideByZero)           -- Error I got an Arithmetic exception.
 rsEH19 = testCatches (throw Overflow )              -- Error I got an Arithmetic exception.
---rsEH20 = testCatches (let x = undefined in print x) -- I got an ErrorCall exception
+--rsEH20 = testCatches (let x = undefined in print x) -- I got an ErrorCall exception -- does not compile
 rsEH21 = testCatches (error "Some Error")           -- I got an ErrorCall exception
 rsEH22 = testCatches (readFile "/etc/issue" >>= putStrLn)   
             -- IO Exception - I don't know how to handle this exception 
--}
 
-
-
-
-
-
+---- intermission -------- {-# LANGUAGE ScopedTypeVariables #-} -----------
+--      https://wiki.haskell.org/Scoped_type_variables
+--      Scoped Type Variables are an extension to Haskell's type system that allow 
+--      free type variables to be re-used in the scope of a function.
+--      Scoped type variables make it possible to specify the particular type of a function 
+--      in situations where it is not otherwise possible, which can in turn help 
+--      avoid problems with the Monomorphism restriction.
+mkpair1 :: forall a b. a -> b -> (a,b)
+mkpair1 aa bb = (ida aa, bb)
+    where
+      ida :: a -> a -- This refers to a in the function's type signature
+      ida = id
+---
+--mkpair2 :: forall a b. a -> b -> (a,b)
+--mkpair2 aa bb = (ida aa, bb)
+--    where
+--      ida :: b -> b -- Illegal, because refers to b in type signature
+--      ida = id
+---
+mkpair3 :: a -> b -> (a,b)
+mkpair3 aa bb = (ida aa, bb)
+    where
+      ida :: b -> b -- Legal, because b is now a free variable
+      ida = id
+----------------
+--- Avoiding Scoped Type Variables
+--      Although Scoped Type Variables are often a simple solution, they are not available 
+--      in all compilers. Often there is a solution that is Haskell 98. First, there is
+--asTypeOf :: a -> a -> a
+--asTypeOf a b = a
+--      It is used like x `asTypeOf` y and has the same value like x, but type inference asserts 
+--      that x and y have the same type.
+--      Sometimes it helps to divide a big function into smaller ones and give each of 
+--      the small functions a signature. This also helps reading the program.
+--      If this does not help, too, then use a helper function. E.g. if you want to determine
+--      the size of an object a pointer points to, then you might define a function like
+--sizeOfPtr :: Ptr a -> Int
+--sizeOfPtr = sizeOf . (undefined :: Ptr a -> a)
+-- or --
+--sizeOfPtr :: Ptr a -> a -> Int
+--sizeOfPtr _ a = sizeOf a
+--
+--sizeOf :: Ptr a -> Int
+--sizeOf ptr = sizeOfPtr ptr undefined
 
 {-
 ----------------------------------------------------------------------------
