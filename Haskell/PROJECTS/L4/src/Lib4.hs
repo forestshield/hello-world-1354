@@ -1091,6 +1091,20 @@ someFuncLib4 = do
            "\nVU.validateUser \"John\" \"20\"\nVU.validateUser \"\" \"-100\"\
            \\nVU.validateUser \"John\" \"2000\""
            "using module ValidateUser as VU in file ValidateUser.hs to validate name and age"
+--------  
+  putStrLn "\n--- ioExceptionTester $ throw (userError \"I am raising an Error\") ---"
+  ioExceptionTester $ throw (userError "I am raising an Error from ioExceptionTester")
+--------
+  --non caught exceptions-- 
+  --putStrLn "\n--- ioExceptionTester (error \"Some error from ioExceptionTester\") ---"
+  --ioExceptionTester (error "Some error")
+  --putStrLn "\n--- ioExceptionTester2 (error \"Some error ioExceptionTester2\") ---"
+  --ioExceptionTester2 (error "Some error")
+  putStrLn "\n--- some non-caught non-io Exceptions ---"
+  putStrLn "--- (read \"10asd0\" :: Int) --- DivideByZero --- ioExceptionTester (error \"Some error\") --- "
+--------
+  --testCatches (let x = undefined in print)
+
 
 
 
@@ -5379,7 +5393,7 @@ rsAE32 = VU.validateUser "John" "2000"      -- Left (UserAgeError AgeImpossible)
 --------------------------------------
 --- Exceptions again ---
 --------------------------------------
-func41Main = catch (readFile "/etc/" >>= putStrLn)
+func41main = catch (readFile "/etc/" >>= putStrLn)
        (\e ->  case e of
                _  | isAlreadyExistsError e -> putStrLn "Error: File alredy exists"
                _  | isEOFError e           -> putStrLn "Error: End of file"
@@ -5391,7 +5405,7 @@ func41Main = catch (readFile "/etc/" >>= putStrLn)
 --  The function ioError is used to throw a non-caught Exception inside an Exception handler.
 --  because this exception handler catches all IO exceptions;
 
---------------------------------------
+{--============= It doesn't catch non IO exceptions ============== -}
 ioExceptionTester :: IO () -> IO ()   
 ioExceptionTester thunk = catch thunk handler 
   where
@@ -5429,3 +5443,178 @@ rsEH5 = ioExceptionTester (readFile "/etc/ftpd.conf.default" >>= putStrLn)
     -- # match umask from Mac OS X Server ftpd
     -- umask all 022
 
+rsEH6 = createDirectory "/test" 
+-- *** Exception: /test: createDirectory: permission denied (Permission denied)
+
+rsEH7 = ioExceptionTester $ createDirectory "/test" 
+-- Exception message = /test: createDirectory: permission denied (Permission denied)
+-- Error: Permission error
+
+rsEH8 = ioExceptionTester $ createDirectory "/tmp/test"
+-- Exception message = /tmp/test: createDirectory: already exists (File exists)
+-- Error: Already Exists
+
+rsEH9 = ioExceptionTester $ throw (userError "I am raising an Error")
+-- Exception message = user error (I am raising an Error)
+-- Error: User error
+
+{--============= It doesn't catch non IO exceptions ============== -}
+rsEH10 = ioExceptionTester (print $ div 10 0)
+-- *** Exception: divide by zero
+
+rsEH11 = ioExceptionTester (print (read "100" :: Int))          
+-- 100    no Exception here
+
+rsEH12 = ioExceptionTester (print (read "10asd0" :: Int))       
+-- *** Exception: Prelude.read: no parse
+
+rsEH13 = ioExceptionTester $ throw Underflow
+-- *** Exception: arithmetic underflow
+   
+rsEH14 = ioExceptionTester $ throw DivideByZero 
+-- *** Exception: divide by zero
+
+--- Async Exception - User interrupt 
+rsEH15 = ioExceptionTester (putStrLn "Enter something" >> getLine >>= putStrLn)
+-- Enter something
+-- ^CInterrupted.
+
+{-
+λ> let x = undefined
+λ> ioExceptionTester (print $ x)
+*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries/base/GHC/Err.hs:80:14 in base:GHC.Err
+  undefined, called at <interactive>:37:9 in interactive:Ghci2
+-}
+
+--non caught exceptions-- 
+rsEH15' = ioExceptionTester (error "Some error from ioExceptionTester")
+-- *** Exception: Some error
+-- CallStack (from HasCallStack):
+--  error, called at /Users/admin1/Haskell/PROJECTS/L4/src/Lib4.hs:5483:30 in main:Lib4
+
+--non caught exceptions-- 
+rsEH15'' = ioExceptionTester2 (error "Some error from ioExceptionTester2")
+-- *** Exception: Some error
+-- CallStack (from HasCallStack):
+--  error, called at /Users/admin1/Haskell/PROJECTS/L4/src/Lib4.hs:5488:32 in main:Lib4
+
+
+-- ============== Catching Exceptions with catchIOError ====================
+--  The function catchIOError :: IO a -> (IOError -> IO a) -> IO a from module 
+--  System.IO.Error is similar to the function catch, however it only handles 
+--  IOError(alias to IOExceptions).
+
+--import Control.Exception
+--import System.IO.Error 
+---------
+ioExceptionTester2 :: IO () -> IO ()
+ioExceptionTester2 thunk = catchIOError thunk handler 
+  where
+    handler e = do  
+      putStrLn $ "Exception message = " ++ show e 
+      case e of
+        _ | isAlreadyExistsError e -> putStrLn "Error: Already Exists"
+        _ | isDoesNotExistError e  -> putStrLn "Error: Doesn't exists"               
+        _ | isEOFError e           -> putStrLn "Error: End of file"
+        _ | isIllegalOperation e   -> putStrLn "Error: Illegal operation"
+        _ | isPermissionError e    -> putStrLn "Error: Permission error"
+        _ | isUserError e          -> putStrLn "Error: User error"              
+        _                          -> do putStrLn "Error: I can't handler this type of error."
+                                         ioError e -- Raise uncaught exception 
+
+
+rsEH16 = ioExceptionTester $ createDirectory "/dev/sdaaa1"
+-- Exception message = /dev/sdaaa1: createDirectory: permission denied (Permission denied)
+-- Error: Permission error
+
+rsEH17 = ioExceptionTester (readFile "/dev/sdaaa1" >>= putStrLn)
+-- Exception message = /dev/sdaaa1: openFile: does not exist (No such file or directory)
+-- Error: Doesn't exists
+
+--non caught exceptions-- 
+--rsEH18 = ioExceptionTester (readFile "/dev/tty0" >>= putStrLn)
+
+{-
+-- ============== Catching Exceptions using the function catches =============
+-- :set -XScopedTypeVariables
+-- :i Handler
+-- data Handler a = forall e. Exception e => Handler (e -> IO a)  -- Defined in ‘Control.Exception’
+-- instance Functor Handler -- Defined in ‘Control.Exception’
+--- 
+arithmeticHandler = putStrLn "Error I got an Arithmetic exception."
+---
+ioExceptionHandler e
+  | isAlreadyExistsError e = putStrLn "IO Exception - Already exists error"
+  | isUserError e          = putStrLn "IO Exception - User Error"
+  | otherwise              = do putStrLn "IO Exception - I don't know how to handle this exception"
+---                                throw e 
+testCatches :: IO () -> IO ()
+testCatches thunk = catches thunk handlers
+  where handlers = [  Handler $ \ (e :: ArithException) -> arithmeticHandler
+                    , Handler $ \ (e :: IOError)        -> ioExceptionHandler e                                         
+                    , Handler $ \ (e :: ErrorCall)      -> putStrLn "I got an ErrorCall exception"
+                    , Handler $ \ (e :: SomeException)  -> do putStrLn "I don't know how to handle this exception"
+                                                              throw e
+                   ]
+---
+rsEH18 = testCatches (throw DivideByZero)           -- Error I got an Arithmetic exception.
+rsEH19 = testCatches (throw Overflow )              -- Error I got an Arithmetic exception.
+--rsEH20 = testCatches (let x = undefined in print x) -- I got an ErrorCall exception
+rsEH21 = testCatches (error "Some Error")           -- I got an ErrorCall exception
+rsEH22 = testCatches (readFile "/etc/issue" >>= putStrLn)   
+            -- IO Exception - I don't know how to handle this exception 
+-}
+
+
+
+
+
+
+
+{-
+----------------------------------------------------------------------------
+-- https://www.fpcomplete.com/blog/2016/11/exceptions-best-practices-haskell/
+-- using MonadThrow, Either 
+------------------------
+-- #!/usr/bin/env stack
+---- stack --resolver lts-7.8 runghc --package safe-exceptions
+--{-# OPTIONS_GHC -Wall -Werror #-}
+--import Control.Exception.Safe (Exception, MonadThrow, SomeException, throwM)
+--import Data.Typeable          (TypeRep, Typeable, typeRep)
+--import Text.Read              (readMaybe)
+---
+
+data ReadException = ReadException String TypeRep
+  deriving (Typeable)
+---
+instance Show ReadException where
+  show (ReadException s typ) = concat
+    [ "Unable to parse as "
+    , show typ
+    , ": "
+    , show s
+    ]
+---
+instance Exception ReadException
+---
+readM :: (MonadThrow m, Read a, Typeable a) => String -> m a
+readM s = res
+  where
+    res =
+      case readMaybe s of
+        Just x -> return x
+        Nothing -> throwM $ ReadException s (typeRep res)
+---
+func42main :: IO ()
+func42main = do
+  print (readM "hello" :: Either SomeException Int)
+  print (readM "5" :: Either SomeException Int)
+  print (readM "5" :: Either SomeException Bool)
+  -- Also works in plain IO
+  res1 <- readM "6"
+  print (res1 :: Int)
+  res2 <- readM "not an int"
+  print (res2 :: Int) -- will never get called 
+-}
