@@ -44,6 +44,7 @@ dependencies:
 default-extensions:
 #- NoImplicitPrelude
 - OverloadedStrings
+#- XScopedTypeVariables
 #- QuasiQuotes
 #- TemplateHaskell
 
