@@ -1,6 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Lib4
     ( someFuncLib4
+    , specShow
+    , specSh2
     ) where
 
 --import Prelude hiding (max, signum)
@@ -58,6 +60,7 @@ import qualified ValidateUser as VU
 -----------------------------
 someFuncLib4 :: IO ()
 someFuncLib4 = do
+  putStrLn "\n----------- Lib4 -------------------------\n"
   print "------- Working with Lists ------"
   putStrLn "putStrLn Lambda: λ someFuncLib4"      -- putStrLn Lambda: λ
   print awesome                                   -- ["Papuchon","curry",":)"]
