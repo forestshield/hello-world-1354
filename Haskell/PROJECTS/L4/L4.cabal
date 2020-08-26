@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 27bd596489f16b85c650c6c74ece4bc9ea5265556f5b1ea8569bc366cb458a6f
+-- hash: 9b624b73f238d80dfb8b1d0ec0d947a11ac29662c88bcb0f8ee0c25a1832434f
 
 name:           L4
 version:        0.1.0.0
@@ -38,6 +38,7 @@ library
       Lib2
       Lib3
       Lib4
+      Lib5
       Print3flipped
       Shapes
       TopLevelFunction
@@ -61,6 +62,7 @@ library
     , mtl
     , pretty-simple
     , random >=1.1
+    , safe-exceptions
     , text
     , unordered-containers
   default-language: Haskell2010
@@ -88,6 +90,7 @@ executable L4-exe
     , mtl
     , pretty-simple
     , random >=1.1
+    , safe-exceptions
     , text
     , unordered-containers
   default-language: Haskell2010
@@ -116,6 +119,7 @@ test-suite L4-test
     , mtl
     , pretty-simple
     , random >=1.1
+    , safe-exceptions
     , text
     , unordered-containers
   default-language: Haskell2010
