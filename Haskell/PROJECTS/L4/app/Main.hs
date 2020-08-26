@@ -7,6 +7,7 @@ import FunctionWithWhere
 import FunctionWithLet
 import TopLevelFunction
 import Lib4
+import Lib5
 --import Print3flipped    -- This will not compile, because of another "main" in Print3flipped.hs
 
 --dtM = Woot :: Mood
@@ -48,3 +49,5 @@ main = do
   printInc2 4
   putStrLn "............................" 
   someFuncLib4
+  someFuncLib5
+  
