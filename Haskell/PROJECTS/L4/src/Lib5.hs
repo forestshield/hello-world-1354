@@ -44,6 +44,9 @@ someFuncLib5 = do
            \solveRPNB \"10 10 10 10 10 sum 4 /\"\nsolveRPNB \"10 2 ^\"\nsolveRPNB \"43.2425 0.5 ^\" \n"
            "better RBN calculator solveRPNB"
 
+  putStrLn "=========================== Heathrow to London =================="
+  
+
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
 {-  
@@ -298,3 +301,81 @@ func45main = do
 -- cat paths.txt | runhaskell heathrow.hs  
 -- The best path to take is: BCACBBC  
 -- The price is: 75
+
+-- !!! ======================= Functors again ========================= !!!
+--    Functors are things that can be mapped over, like lists, Maybes, trees, and such. 
+--    In Haskell, they're described by the typeclass Functor, which has only one typeclass 
+--    method, namely fmap, which has a type of
+--    fmap :: (a -> b) -> f a -> f b. 
+--    It says: give me a function that takes an a and returns a b and a box with 
+--    an a (or several of them) inside it and I'll give you a box with a b 
+--    (or several of them) inside it. It kind of applies the function to the element 
+--    inside the box.
+--------------
+--    A more correct term for what a functor is would be computational context. The context 
+--    might be that the computation can have a value or it might have failed 
+--    (Maybe and Either a) or that there might be more values (lists), stuff like that.
+--------------
+--    If we want to make a type constructor an instance of Functor, it has to have a kind 
+--    of * -> *, which means that it has to take exactly one concrete type as a type parameter. 
+--    For example, Maybe can be made an instance because it takes one type parameter to produce 
+--    a concrete type, like Maybe Int or Maybe String. If a type constructor takes two parameters,
+--    like Either, we have to partially apply the type constructor until it only takes one type 
+--    parameter. So we can't write instance Functor Either where, but we can write instance 
+--    Functor (Either a) where and then if we imagine that fmap is only for Either a, it would 
+--    have a type declaration of fmap :: (b -> c) -> Either a b -> Either a c. As you can see, 
+--    the Either a part is fixed, because Either a takes only one type parameter, whereas just 
+--    Either takes two so fmap :: (b -> c) -> Either b -> Either c wouldn't really make sense.
+---------------
+--    We've learned by now how a lot of types (well, type constructors really) are instances of
+--    Functor, like [], Maybe, Either a and a Tree type that we made on our own. We saw how we 
+--    can map functions over them for great good. In this section, we'll take a look at two more
+--    instances of functor, namely IO and (->) r
+---------------
+--    If some value has a type of, say, IO String, that means that it's an I/O action that, when
+--    performed, will go out into the real world and get some string for us, which it will yield
+--    as a result. We can use <- in do syntax to bind that result to a name. We mentioned that 
+--    I/O actions are like boxes with little feet that go out and fetch some value from the 
+--    outside world for us. We can inspect what they fetched, but after inspecting, we have to 
+--    wrap the value back in IO. By thinking about this box with little feet analogy, we can 
+--    see how IO acts like a functor.
+--    Let's see how IO is an instance of Functor. When we fmap a function over an I/O action, 
+--    we want to get back an I/O action that does the same thing, but has our function applied 
+--    over its result value
+
+--------------- this is how it is defined in GHC.Base ---------
+--instance Functor IO where  
+--    fmap f action = do
+--        result <- action
+--        return (f result)
+
+----
+func46main = do line <- getLine
+                let line' = reverse line
+                putStrLn $ "You said " ++ line' ++ " backwards!"
+                putStrLn $ "Yes, you really said" ++ line' ++ " backwards!"
+
+--- same code, but rewritten with fmap
+func47main = do line <- fmap reverse getLine
+                putStrLn $ "You said " ++ line ++ " backwards!"
+                putStrLn $ "Yes, you really said" ++ line ++ " backwards!"
+--------------------
+--    Just like when we fmap reverse over Just "blah" to get Just "halb", we can fmap reverse 
+--    over getLine. getLine is an I/O action that has a type of IO String and mapping reverse 
+--    over it gives us an I/O action that will go out into the real world and get a line and 
+--    then apply reverse to its result. Like we can apply a function to something that's inside
+--    a Maybe box, we can apply a function to what's inside an IO box, only it has to go out into
+--    the real world to get something. Then when we bind it to a name by using <-, the name will
+--    reflect the result that already has reverse applied to it.
+---
+--    The I/O action fmap (++"!") getLine behaves just like getLine, only that its result 
+--    always has "!" appended to it!
+---
+
+
+
+
+
+
+
+
