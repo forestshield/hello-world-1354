@@ -61,9 +61,9 @@ import System.Info
 someFuncLib4 :: IO ()
 someFuncLib4 = do
   putStrLn "\n----------- Lib4 -------------------------\n"
-
+  
   funcSI1main
-  putStrLn "\n funcSI1main \n"
+  putStrLn "funcSI1main\n"
 {-
   specShow ((putStrLn os)
            ,(putStrLn arch)
@@ -1136,6 +1136,8 @@ someFuncLib4 = do
   putStrLn "--- using several handlers --- reading file twice in different handlers cathing exceptions"  
   func44main
 
+  funcSI1main
+  putStrLn "funcSI1main\n"
 
   --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
   --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
@@ -1220,10 +1222,13 @@ linux"
 "x86_64"
 "ghc"
 Version {versionBranch = [8,8], versionTags = []}
--}    
-
-
-
+-}
+{-
+"darwin"
+"x86_64"
+"ghc"
+Version {versionBranch = [8,8], versionTags = []}
+-}
 
 
   --Nothing -- print ""
@@ -5840,3 +5845,5 @@ handler45 e
         case ioeGetFileName e of Just path -> putStrLn $ "Whoops 45! File does not exist at: " ++ path
                                  Nothing -> putStrLn "Whoops 45! File does not exist at unknown location!"
     | otherwise = ioError e     
+
+
