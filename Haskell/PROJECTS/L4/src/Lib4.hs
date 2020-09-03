@@ -55,12 +55,24 @@ import Data.Typeable          (TypeRep, Typeable, typeRep)
 import Text.Read (readMaybe)
 import qualified ValidateUser as VU
 
-
+import System.Info 
 
 -----------------------------
 someFuncLib4 :: IO ()
 someFuncLib4 = do
   putStrLn "\n----------- Lib4 -------------------------\n"
+
+  funcSI1main
+  putStrLn "\n funcSI1main \n"
+{-
+  specShow ((putStrLn os)
+           ,(putStrLn arch)
+           ,(putStrLn compilerName)
+           ,(putStrLn compilerVersion)
+           )
+           "putStrLn os\nputStrLn arch\nputStrLn compilerName\nputStrLn compilerVersion"
+           "System.Info"
+-}
   print "------- Working with Lists ------"
   putStrLn "putStrLn Lambda: λ someFuncLib4"      -- putStrLn Lambda: λ
   print awesome                                   -- ["Papuchon","curry",":)"]
@@ -1193,6 +1205,26 @@ specSh2 a b c = do
   specHeader c 
   a 
   putStrLn b 
+
+
+-- ==========================================================================
+
+funcSI1main = do
+    print os
+    print arch
+    print compilerName
+    print compilerVersion
+
+{-
+linux"
+"x86_64"
+"ghc"
+Version {versionBranch = [8,8], versionTags = []}
+-}    
+
+
+
+
 
   --Nothing -- print ""
 -- working with Lists
