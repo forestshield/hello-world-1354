@@ -5,6 +5,21 @@ module Lib5
 import Lib4
 import Data.List
 
+import System.Info 
+--import System.Info.Extra
+
+{-
+import System.Environment
+import System.Directory
+import Data.Time
+import Happstack.Server.Env
+import Network.HTTP.Conduit
+import qualified Data.ByteString.Lazy as L
+import Control.Monad.IO.Class (liftIO)
+import Yesod
+-}
+
+
 {-
 import Data.Function
 import Data.Char
@@ -373,9 +388,22 @@ func47main = do line <- fmap reverse getLine
 ---
 
 
+-- ================================ System Info =====================================
+func48main = do
+    print os
+    print arch
+    print compilerName
+    print compilerVersion
 
+{-
+"darwin"
+"x86_64"
+"ghc"
+Version {versionBranch = [8,8], versionTags = []}
+-}
 
-
+--rsSI1 = isWindows
+--rsSI2 = isMac
 
 
 
