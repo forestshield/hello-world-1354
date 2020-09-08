@@ -25,7 +25,8 @@ lambdT = "TIO.putStrLn Lambda: λ"
 
 someFunc5 :: IO ()
 someFunc5 = do
-  putStrLn "..................."
+  putStrLn "================================= Lib2 ==================================="
+
   print aWord1                      -- "\1061\1086\1088\1086\1096\1077\1075\1086 ...
   print aWord2                      -- "\21704\26031\20811\23572\&7.6.1"
   print aWord0                      -- "Cheese"

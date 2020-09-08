@@ -1229,7 +1229,12 @@ Version {versionBranch = [8,8], versionTags = []}
 "ghc"
 Version {versionBranch = [8,8], versionTags = []}
 -}
-
+{-
+"mingw32"
+"x86_64"
+"ghc"
+Version {versionBranch = [8,8], versionTags = []}
+-}
 
   --Nothing -- print ""
 -- working with Lists

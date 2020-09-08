@@ -1,7 +1,10 @@
 module Lib5
     ( someFuncLib5
+--    , pathFileOne
+--    , pathFileTwo
     ) where
 
+import Lib
 import Lib4
 import Data.List
 
@@ -61,7 +64,9 @@ someFuncLib5 = do
 
   putStrLn "=========================== Heathrow to London =================="
   
-
+  putStrLn "=========================== Checking OS =================="
+  funcCheckOS
+  
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
 {-  
@@ -394,6 +399,7 @@ func48main = do
     print arch
     print compilerName
     print compilerVersion
+
 
 {-
 "darwin"
