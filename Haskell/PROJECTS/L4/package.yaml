@@ -33,9 +33,13 @@ dependencies:
 - pretty-simple
 #- game-probability
 - mtl
+- time-lens
+- time
 - lens
 - lens-aeson
 #- data-easy
+
+
 - random >= 1.1
 - bytestring >= 0.10.10.0
 - extensible-exceptions >= 0.1.1.0
