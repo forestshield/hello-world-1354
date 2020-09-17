@@ -11,6 +11,19 @@ import Data.List
 import System.Info 
 --import System.Info.Extra
 
+--import System.Directory (getHomeDirectory)
+import System.Directory 
+import System.FilePath (joinPath, splitPath)
+import System.Environment
+import Data.Time
+import qualified Data.Map as Map
+import qualified Data.Set as Set
+
+
+--import Happstack.Server.Env
+--import System.Environment
+
+
 {-
 import System.Environment
 import System.Directory
@@ -67,6 +80,30 @@ someFuncLib5 = do
   putStrLn "=========================== Checking OS =================="
   funcCheckOS
   
+  putStrLn "---------- IO FilePath & System.Directory ---------"
+  specSh2 (getFullPath "~Haskell/" >>= print) "getFullPath \"~Haskell/\"" "getFullPath"
+  specSh2 (getHomeDirectory >>= print) "" "getHomeDirectory, is an action, NOT A FUNTION"
+  specSh2 (getUserDocumentsDirectory >>= print) "" "getUserDocumentsDirectory"
+
+  putStrLn "=========================== Simple Examples =================="
+  putStrLn "https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples#simple-application"
+  putStrLn "\n--- getCurrentTime >>= print ---"
+  func54main
+  putStrLn "\ngetCurrentDirectory >>= print\ngetHomeDirectory >>= print\ngetUserDocumentsDirectory >>= print"
+  func55main
+  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
+  func56main
+
+  putStrLn "\n ------------- Tuples, tuple = (1, 2), tuple3 = (1, 2, 3) ----------"
+  func57main
+  putStrLn "\n -------------- Data.List  -------------------"
+  func58main
+--  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
+--  func59main
+
+
+
+
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
 {-  
@@ -411,5 +448,361 @@ Version {versionBranch = [8,8], versionTags = []}
 --rsSI1 = isWindows
 --rsSI2 = isMac
 
+-------------------------------------
+--- getHomeDirectory is not a function but an IO action so you have to unpack it 
+--  within another IO action first.
+--import System.Directory (getHomeDirectory)
+--import System.FilePath (joinPath, splitPath)
+---getHomeDirectory :: IO FilePath
+--  this func is replacing "~" with "User/admin1" on this computer (MacOSX 10.11.6)
+getFullPath :: String -> IO FilePath
+getFullPath s = do
+  homeDir <- getHomeDirectory
+  if "~" `isPrefixOf` s
+    then return (joinPath [homeDir, tail s])
+  else return s
+
+--getHomeDir :: IO FilePath
+getHomeDir = do
+  homeDir <- getHomeDirectory
+  return homeDir
 
 
+
+-- ================================ Simple Examples =====================================
+-- https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples
+
+----
+--import System.Info
+func50main = do
+    print os
+    print arch
+    print compilerName
+    print compilerVersion
+
+---
+--import System.Environment
+func51main = do
+    getArgs >>= print
+    getProgName >>= print
+    getEnvironment >>= print    
+
+--- System environment for web application
+{-
+import Happstack.Server.Env
+import System.Environment
+func52main = do
+    environment <- getEnvironment
+    simpleHTTP nullConf $ ok $ show environment
+-}
+
+{-
+--- Streaming HTTP conduit
+import Network.HTTP.Conduit
+import Control.Monad.IO.Class (liftIO)
+func53main = withManager $ \manager -> do
+    request <- parseUrl "http://www.winsoft.sk"
+    liftIO $ print request
+    response <- httpLbs request manager
+    liftIO $ print response      
+-}
+
+--import Data.Time
+func54main = getCurrentTime >>= print             -- 2020-09-17 16:11:09.101648 UTC
+
+-- Directories
+--import System.Directory
+func55main = do
+    getCurrentDirectory >>= print 
+    getHomeDirectory >>= print
+    getUserDocumentsDirectory >>= print
+
+{-
+--- Yesod version
+import Yesod
+main = putStrLn yesodVersion
+-}
+
+{-
+--- Yesod application
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+import Yesod
+data WebApp = WebApp
+
+instance Yesod WebApp
+
+mkYesod "WebApp" [parseRoutes|
+  / HomeR GET
+|]
+
+getHomeR = defaultLayout [whamlet|
+  <div>Hello, world!
+|]
+
+main = warpEnv WebApp
+-}
+
+{-
+--- Snap application
+{-# LANGUAGE OverloadedStrings #-}
+
+import Snap.Http.Server.Env
+import Snap.Core
+
+main = httpServe defaultConfig $ writeBS "Hello, world!"
+Happstack application
+import Happstack.Server.Env
+
+main = simpleHTTP nullConf $ ok "Hello, world!"
+-}
+
+{-
+--- JavaScript minification
+{-# LANGUAGE OverloadedStrings #-}
+
+import Text.Jasmine
+import Data.ByteString.Lazy.Char8
+
+main = print $ unpack $ minify "function test() { alert('Hello, world!'); }"
+-}
+
+--- Lists ---------
+list = [1, 2, 3, 4, 5]
+
+func56main = do
+    print list
+
+    print $ head list
+    print $ tail list
+    print $ last list
+    print $ init list
+
+    print $ list !! 3
+    print $ elem 3 list
+
+    print $ length list
+    print $ null list
+    print $ reverse list
+
+    print $ take 2 list
+    print $ drop 2 list
+
+    print $ minimum list
+    print $ maximum list
+    print $ sum list
+    print $ product list
+
+    print [1..10]
+    print ['A'..'Z']
+    print [2,4..20]
+
+    print $ take 10 $ cycle [1..4]
+    print $ map (+1) list
+
+    print $ filter (>3) list
+    print $ all even list
+    print $ any odd list
+
+    print $ foldr (+) 0 list
+    print $ foldr1 (+) list
+
+    print $ foldl (+) 0 list
+    print $ foldl1 (+) list
+
+    print $ scanr (+) 0 list
+    print $ scanr1 (+) list
+
+    print $ scanl (+) 0 list
+    print $ scanl1 (+) list
+
+    print $ take 10 $ repeat 0
+    print $ replicate 10 0
+    print $ drop 3 list
+
+    print $ ['a', 'b'] ++ ['c']
+    print $ zip [1, 2, 3] ['a', 'b', 'c']
+    print $ unzip [(1, 'a'), (2, 'b'), (3, 'c')]
+    print $ zipWith (+) [1, 2, 3] [4, 5, 6]
+    print $ [(x, y) | x <- [1..5], y <- ['a'..'e']]
+
+    print $ words "Hello world"
+    print $ unwords ["Hello", "world"] 
+
+--- Tuples ---
+tuple = (1, 2)
+tuple3 = (1, 2, 3)
+
+first (a, _, _) = a
+second (_, b, _) = b
+third (_, _, c) = c
+
+func57main = do
+    print tuple
+    print $ fst tuple
+    print $ snd tuple
+
+    print tuple3
+    print $ first tuple3
+    print $ second tuple3
+    print $ third tuple3
+
+--- Data.List ---
+--import Data.List
+
+func58main = do
+    print $ intersperse '.' "Erik"
+    print $ intercalate " " ["abc","efg","x"]
+    print $ transpose ["abc","efg"]
+    print $ subsequences "abc"
+    print $ permutations "abc"
+
+    print $ foldl' (+) 0 [1..1000000]
+    print $ foldl1' (+) [1..1000000]
+
+    print $ concat ["abc","efg"]
+    print $ any (== 'a') ("abcd"  :: String)
+    print $ all (== 'a') ("abcd" :: String) 
+    print $ take 10 $ iterate (+1) 1
+    print $ replicate 10 'x'
+    print $ splitAt 3 "abcdefgh"
+    print $ takeWhile (< 3) [1..]
+    print $ span (< 3) [1..10]
+    print $ break (> 3) [1..10]
+    print $ stripPrefix "ab" "abcdefg"
+    print $ isPrefixOf "ab" "abcdefg"
+    print $ elem 'c' ("abcdefg" :: String)
+    print $ lookup 'c' [('a', 1), ('b', 2), ('c', 3)]
+    print $ find (> 2) [1..]
+    print $ partition (> 2) [1..10]
+    print $ nub [1, 1, 3, 2, 1, 2, 4, 6]
+    print $ sort [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    print $ elemIndex 2 [1, 2, 3, 4, 2]
+    print $ elemIndices 2 [1, 2, 3, 4, 2]
+    print $ findIndex (< 3) [1, 2, 3, 4, 2]
+    print $ findIndices (< 3) [1, 2, 3, 4, 2]
+
+{-
+--- Data.Char ---
+--import Data.Char
+
+func59main = do
+    print $ isAlpha 'c'
+    print $ isDigit '4'
+    print $ toUpper 'a'
+    print $ toLower 'E'
+    print $ digitToInt '2'
+    print $ intToDigit 9
+    print $ intToDigit 12
+    print $ ord('A')
+    print $ chr(61)
+
+--- Data.Map ---
+--import qualified Data.Map as Map
+
+phoneBook = Map.fromList [(1234, "Erik"), (5678, "Patrik")]
+
+func60main = do
+    print phoneBook
+    print $ Map.lookup 1234 phoneBook
+    print $ (Map.empty :: Map.Map Int Int)
+    print $ Map.singleton 3 5
+    print $ Map.insert 1 "abc" Map.empty
+    print $ Map.null phoneBook
+    print $ Map.size phoneBook
+    print $ Map.toList phoneBook
+    print $ Map.keys phoneBook
+    print $ Map.elems phoneBook
+
+--- Data.Set ---
+--import qualified Data.Set as Set
+
+set = Set.fromList "erik salaj"
+
+func61main = do
+    print set
+    print $ Set.null set
+    print $ Set.size set
+    print $ Set.member 'a' set
+
+--- Data.Array ---
+--import Data.Array
+
+myArray = array (1, 3) [(1, "a"), (2, "b"), (3, "c")]
+
+func62main = do
+    print myArray
+    print $ myArray ! 2
+    print $ bounds myArray
+    print $ indices myArray
+    print $ elems myArray
+    print $ assocs myArray
+
+--- Data.Complex ---
+--import Data.Complex
+
+number = 3 :+ 4
+
+func63main = do
+    print number
+    print $ realPart number
+    print $ imagPart number
+    print $ polar number
+    print $ magnitude number
+    print $ phase number
+    print $ conjugate number
+
+--- Data.HashSet ---
+--import Prelude hiding (null, map, filter)
+--import Data.HashSet
+--import Data.Char
+
+hashSet = fromList ['a', 'b', 'c']
+
+func64main = do
+    print $ hashSet
+
+    print $ null hashSet
+    print $ size hashSet
+
+    print $ member 'a' hashSet
+    print $ member 'e' hashSet
+
+    print $ insert 'd' hashSet
+    print $ delete 'b' hashSet
+
+    print $ map (toUpper) hashSet
+    print $ filter (> 'a') hashSet
+
+--- Data.HashMap ---
+--import Prelude hiding (null, lookup, map, filter)
+--import Data.HashMap.Lazy
+--import Data.Char
+
+hashMap = fromList [(1 :: Int, 'a'), (2, 'b'), (3, 'c')]
+
+func65main = do
+    print $ hashMap
+    print $ keys hashMap
+    print $ elems hashMap
+
+    print $ null hashMap
+    print $ size hashMap
+
+    print $ member 1 hashMap
+    print $ member 5 hashMap
+
+    print $ lookup 1 hashMap
+    print $ lookup 5 hashMap
+
+    print $ hashMap ! 1
+    print $ lookupDefault 'N' 5 hashMap
+    print $ insert 4 'd' hashMap
+    print $ delete 2 hashMap
+
+    print $ map (toUpper) hashMap
+    print $ filter (> 'a') hashMap
+-}
