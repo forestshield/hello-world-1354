@@ -968,7 +968,8 @@ someFuncLib4 = do
   putStrLn "--- getContents --- getChar --- interact --- "
   putStrLn "--- openFile --- hContents --- hClose --- FilePath --- IOMode --- IO Handle ---"
   specShow ("func18main")
-           "\nhandle <- openFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode\
+--           "\nhandle <- openFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode\
+             "\nhandle <- openFile \"Girlfriend.txt\" ReadMode\
            \ncontents <- hGetContents handle\nputStr contents\n\
            \hClose handle"
            "\n--- openFile --- IOMode::ReadMode --- hGetContents --- hClose ---"  
@@ -1138,6 +1139,10 @@ someFuncLib4 = do
 
   funcSI1main
   putStrLn "funcSI1main\n"
+
+  --- getHomeDirectory is not a function but an IO action so you have to unpack it 
+  --- within another IO action first.
+  getHomeDirectory          -- returns only "IO FilePath", not IO !!!
 
   --putStrLn $ show $ (readMaybe "1.450e10" :: Maybe Float)
   --putStrLn $ show $ (readMaybe "Just 200" :: Maybe (Maybe Int))
@@ -4447,7 +4452,8 @@ func17main = interact respondPalindromes
 --      IOMode is a type that's defined like this:
 --      data IOMode = ReadMode | WriteMode | AppendMode | ReadWriteMode 
 
-rsFandS1 = "/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt"
+--rsFandS1 = "/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt"
+rsFandS1 = "Girlfriend.txt"
 --import System.IO  
 func18main = do      
     --file is in "/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt"   and also 

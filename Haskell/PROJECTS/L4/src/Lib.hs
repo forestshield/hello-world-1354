@@ -26,6 +26,11 @@ someFunc :: IO ()
 someFunc = do
   putStrLn "================================= Lib ==================================="
   funcCheckOS
+  
+  --- getHomeDirectory is not a function but an IO action so you have to unpack it 
+  --- within another IO action first.
+  getHomeDirectory >>= print     -- getHomeDirectory returns only "IO FilePath", not IO !!!
+
   let x = 2
       y = 2.0
       bVal = x == y           -- λλλ, 2 == 2.0
@@ -67,6 +72,10 @@ someFunc = do
   putStr (show bVal10)                 -- False
   putStrLn " λλλ, Yulia < Julie"       -- λλλ, Yulia > Julie    
 
+  putStrLn "\n====================== System OS Stuff ============================"
+  print $ setOS2Var os 
+
+
 -- ====================== System OS Stuff ============================ --
 ---
 data CurOS   = MacOSX | Linux | Windows | Unknown deriving (Show, Read, Eq, Enum)
@@ -85,6 +94,8 @@ setOS2Var x
 ---
 rsStr01 = "/Haskell/PROJECTS/"
 rsStr02 = "\\Haskell\\PROJECTS\\"
+
+--rsFIO01 :: IO FilePath
 rsFIO01 = getHomeDirectory
 
 --rsStr03 :: String 
