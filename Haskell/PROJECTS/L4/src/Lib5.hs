@@ -841,5 +841,5 @@ func66main = do
 func676main = print $ showVersion
     Version {
         versionBranch = [1, 2, 3, 4],
-        versionTags = ["Tag1", "Tag2", "Tag3"]
+        versionTags = ["Tag1", "Tag2", "Tag3"] -- Deprecated: "See GHC ticket #2496"
     }
