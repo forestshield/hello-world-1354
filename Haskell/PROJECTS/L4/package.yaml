@@ -44,6 +44,7 @@ dependencies:
 - safe-exceptions
 - OpenGL
 - GLUT
+- array 
 #- 3d-graphics-examples
 
 default-extensions:

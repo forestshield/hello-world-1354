@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4327cfe2d469354f77a44bb6bd6e19d0fdec1950afe44f952f049bb401ca2232
+-- hash: eed85ac694e6cc862685791fb9f17778199d25d901ed298475efa014466805ce
 
 name:           L4
 version:        0.1.0.0
@@ -52,6 +52,7 @@ library
       GLUT
     , OpenGL
     , aeson
+    , array
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , containers
@@ -84,6 +85,7 @@ executable L4-exe
     , L4
     , OpenGL
     , aeson
+    , array
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , containers
@@ -117,6 +119,7 @@ test-suite L4-test
     , L4
     , OpenGL
     , aeson
+    , array
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , containers
