@@ -38,12 +38,13 @@ dependencies:
 - lens
 - lens-aeson
 #- data-easy
-
-
 - random >= 1.1
 - bytestring >= 0.10.10.0
 - extensible-exceptions >= 0.1.1.0
 - safe-exceptions
+- OpenGL
+- GLUT
+#- 3d-graphics-examples
 
 default-extensions:
 #- NoImplicitPrelude
@@ -51,6 +52,7 @@ default-extensions:
 #- XScopedTypeVariables
 #- QuasiQuotes
 #- TemplateHaskell
+- FlexibleContexts
 
 library:
   source-dirs: src

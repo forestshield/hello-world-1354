@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: af15e55a57fd11476a26dc71bf02c840efa667567240b3b250156849363818e4
+-- hash: 4327cfe2d469354f77a44bb6bd6e19d0fdec1950afe44f952f049bb401ca2232
 
 name:           L4
 version:        0.1.0.0
@@ -47,9 +47,11 @@ library
       Paths_L4
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings
+  default-extensions: OverloadedStrings FlexibleContexts
   build-depends:
-      aeson
+      GLUT
+    , OpenGL
+    , aeson
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , containers
@@ -75,10 +77,12 @@ executable L4-exe
       Paths_L4
   hs-source-dirs:
       app
-  default-extensions: OverloadedStrings
+  default-extensions: OverloadedStrings FlexibleContexts
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      L4
+      GLUT
+    , L4
+    , OpenGL
     , aeson
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
@@ -106,10 +110,12 @@ test-suite L4-test
       Paths_L4
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings
+  default-extensions: OverloadedStrings FlexibleContexts
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      L4
+      GLUT
+    , L4
+    , OpenGL
     , aeson
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
