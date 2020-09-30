@@ -6,20 +6,15 @@ import Data.Char
 hashSet = fromList ['a', 'b', 'c']
 
 main = do
-    print $ hashSet
-
-    print $ null hashSet
-    print $ size hashSet
-
-    print $ member 'a' hashSet
-    print $ member 'e' hashSet
-
-    print $ insert 'd' hashSet
-    print $ delete 'b' hashSet
-
-    print $ map (toUpper) hashSet
-    print $ filter (> 'a') hashSet
-
+    print $ hashSet                -- fromList "abc" 
+    print $ null hashSet           -- False           
+    print $ size hashSet           -- 3                 
+    print $ member 'a' hashSet     -- True                     
+    print $ member 'e' hashSet     -- False                     
+    print $ insert 'd' hashSet     -- fromList "abcd"          
+    print $ delete 'b' hashSet     -- fromList "ac"         
+    print $ map (toUpper) hashSet  -- fromList "ABC"            
+    print $ filter (> 'a') hashSet -- fromList "bc"  
 
 
 
