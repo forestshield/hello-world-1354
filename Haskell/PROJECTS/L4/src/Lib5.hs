@@ -7,22 +7,26 @@ module Lib5
 import Lib
 import Lib4
 import Data.List
-
+import Data.Char
 import System.Info 
---import System.Info.Extra
 
+--import System.Info.Extra
 --import System.Directory (getHomeDirectory)
+
 import System.Directory 
 import System.FilePath (joinPath, splitPath)
 import System.Environment
 import Data.Time
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import Data.Array
+import Data.Complex
+import Data.Graph
 
 
+--import Data.HashSet
 --import Happstack.Server.Env
 --import System.Environment
-
 
 {-
 import System.Environment
@@ -93,11 +97,24 @@ someFuncLib5 = do
   func55main
   putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
   func56main
-
   putStrLn "\n ------------- Tuples, tuple = (1, 2), tuple3 = (1, 2, 3) ----------"
   func57main
   putStrLn "\n -------------- Data.List  -------------------"
   func58main
+  putStrLn "\n -------------- Data.Char  -------------------"
+  func59main
+  putStrLn "\n -------------- Data.Map  -------------------"
+  func60main
+  putStrLn "\n -------------- Data.Set  -------------------"
+  func61main
+  putStrLn "\n -------------- Data.Array  -------------------"
+  func62main
+  putStrLn "\n -------------- Data.Complex  -------------------"
+  func63main
+  putStrLn "\n -------------- Data.Graph  -------------------"
+  func66main
+
+
 --  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
 --  func59main
 
@@ -635,7 +652,6 @@ func56main = do
 --- Tuples ---
 tuple = (1, 2)
 tuple3 = (1, 2, 3)
-
 first (a, _, _) = a
 second (_, b, _) = b
 third (_, _, c) = c
@@ -644,7 +660,6 @@ func57main = do
     print tuple
     print $ fst tuple
     print $ snd tuple
-
     print tuple3
     print $ first tuple3
     print $ second tuple3
@@ -652,17 +667,14 @@ func57main = do
 
 --- Data.List ---
 --import Data.List
-
 func58main = do
     print $ intersperse '.' "Erik"
     print $ intercalate " " ["abc","efg","x"]
     print $ transpose ["abc","efg"]
     print $ subsequences "abc"
     print $ permutations "abc"
-
     print $ foldl' (+) 0 [1..1000000]
     print $ foldl1' (+) [1..1000000]
-
     print $ concat ["abc","efg"]
     print $ any (== 'a') ("abcd"  :: String)
     print $ all (== 'a') ("abcd" :: String) 
@@ -685,10 +697,8 @@ func58main = do
     print $ findIndex (< 3) [1, 2, 3, 4, 2]
     print $ findIndices (< 3) [1, 2, 3, 4, 2]
 
-{-
 --- Data.Char ---
 --import Data.Char
-
 func59main = do
     print $ isAlpha 'c'
     print $ isDigit '4'
@@ -700,11 +710,10 @@ func59main = do
     print $ ord('A')
     print $ chr(61)
 
+ 
 --- Data.Map ---
 --import qualified Data.Map as Map
-
 phoneBook = Map.fromList [(1234, "Erik"), (5678, "Patrik")]
-
 func60main = do
     print phoneBook
     print $ Map.lookup 1234 phoneBook
@@ -719,9 +728,7 @@ func60main = do
 
 --- Data.Set ---
 --import qualified Data.Set as Set
-
 set = Set.fromList "erik salaj"
-
 func61main = do
     print set
     print $ Set.null set
@@ -730,9 +737,7 @@ func61main = do
 
 --- Data.Array ---
 --import Data.Array
-
 myArray = array (1, 3) [(1, "a"), (2, "b"), (3, "c")]
-
 func62main = do
     print myArray
     print $ myArray ! 2
@@ -743,9 +748,7 @@ func62main = do
 
 --- Data.Complex ---
 --import Data.Complex
-
 number = 3 :+ 4
-
 func63main = do
     print number
     print $ realPart number
@@ -755,13 +758,13 @@ func63main = do
     print $ phase number
     print $ conjugate number
 
+{-
+-- ================= see Data.HashSet and Data.HashMap samples in "stand_alone" folder ===
 --- Data.HashSet ---
 --import Prelude hiding (null, map, filter)
 --import Data.HashSet
 --import Data.Char
-
 hashSet = fromList ['a', 'b', 'c']
-
 func64main = do
     print $ hashSet
 
@@ -781,9 +784,7 @@ func64main = do
 --import Prelude hiding (null, lookup, map, filter)
 --import Data.HashMap.Lazy
 --import Data.Char
-
 hashMap = fromList [(1 :: Int, 'a'), (2, 'b'), (3, 'c')]
-
 func65main = do
     print $ hashMap
     print $ keys hashMap
@@ -806,3 +807,28 @@ func65main = do
     print $ map (toUpper) hashMap
     print $ filter (> 'a') hashMap
 -}
+
+--- Data.Graph ---
+--import Data.Graph
+graph = buildG (1, 6) [(1, 2), (1, 3), (2, 4), (5, 6)]
+func66main = do
+    print graph
+    print $ vertices graph
+    print $ edges graph
+    print $ edges $ transposeG graph
+
+    print $ outdegree graph
+    print $ indegree graph
+
+    print $ topSort graph
+    print $ reachable graph 1
+
+    print $ path graph 1 4
+    print $ path graph 1 5
+
+    print $ components graph
+    print $ scc graph
+    print $ bcc graph
+
+    print $ dff graph
+    print $ dfs graph [2]
