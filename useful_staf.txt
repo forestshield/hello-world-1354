@@ -1,3 +1,24 @@
+———————————————————————————-
+VSCode copy paste rect block
+1. extend spaces beyond CR/LF in each line to have ability create rect block without CR/LF
+2. Alt-Shift-Click top-left conner
+3. Extend to the desired righ-down
+4. Ctrl-C (copy)
+5. go to place to paste desiged block (should be enouth spaces to put the whole block before CR/LF)
+6. Alt-Shift-Click column with the same number of lines and at least 0 columns
+7. Ctrl-V (paste)
+
+———————————————————————————-
+STACK
+LST Version / Resolver	Haskell Version
+lts-8.3	GHC 8.0.2                    
+lts-7.19	GHC 8.0.1                 
+lts-6.30	GHC 7.10.3                    
+lts-3.22	GHC 7.10.2                      
+lts-2.22	GHC 7.8.4                     
+lts-0.7	GHC 7.8.3                     
+
+
 -------------------------------------
 gcc on mac location
 	/Users/admin1/.stack/programs/x86_64-osx/ghc-8.8.3/bin
