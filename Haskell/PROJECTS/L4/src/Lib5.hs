@@ -22,9 +22,10 @@ import qualified Data.Set as Set
 import Data.Array
 import Data.Complex
 import Data.Graph
+import qualified Data.HashSet as HS 
+import qualified Data.HashMap.Lazy as HML
+import Data.Version
 
-
---import Data.HashSet
 --import Happstack.Server.Env
 --import System.Environment
 
@@ -111,12 +112,23 @@ someFuncLib5 = do
   func62main
   putStrLn "\n -------------- Data.Complex  -------------------"
   func63main
+  putStrLn "\n -------------- Data.HashSet  -------------------"
+  func64main
+  putStrLn "\n -------------- Data.HashMap  -------------------"
+  func65main
   putStrLn "\n -------------- Data.Graph  -------------------"
   func66main
 
 
 --  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
 --  func59main
+
+
+
+
+
+
+
 
 
 
@@ -758,55 +770,46 @@ func63main = do
     print $ phase number
     print $ conjugate number
 
-{-
+
 -- ================= see Data.HashSet and Data.HashMap samples in "stand_alone" folder ===
 --- Data.HashSet ---
 --import Prelude hiding (null, map, filter)
 --import Data.HashSet
 --import Data.Char
-hashSet = fromList ['a', 'b', 'c']
+hashSet = HS.fromList ['a', 'b', 'c']
 func64main = do
-    print $ hashSet
-
-    print $ null hashSet
-    print $ size hashSet
-
-    print $ member 'a' hashSet
-    print $ member 'e' hashSet
-
-    print $ insert 'd' hashSet
-    print $ delete 'b' hashSet
-
-    print $ map (toUpper) hashSet
-    print $ filter (> 'a') hashSet
+    print $ hashSet                     -- fromList "abc"      
+    print $ HS.null hashSet             -- False                              
+    print $ HS.size hashSet             -- 3                    
+    print $ HS.member 'a' hashSet       -- True                    
+    print $ HS.member 'e' hashSet       -- False                    
+    print $ HS.insert 'd' hashSet       -- fromList "abcd"          
+    print $ HS.delete 'b' hashSet       -- fromList "ac"              
+    print $ HS.map (toUpper) hashSet    -- fromList "ABC"           
+    print $ HS.filter (> 'a') hashSet   -- fromList "bc"               
 
 --- Data.HashMap ---
 --import Prelude hiding (null, lookup, map, filter)
 --import Data.HashMap.Lazy
 --import Data.Char
-hashMap = fromList [(1 :: Int, 'a'), (2, 'b'), (3, 'c')]
+hashMap = HML.fromList [(1 :: Int, 'a'), (2, 'b'), (3, 'c')]
 func65main = do
-    print $ hashMap
-    print $ keys hashMap
-    print $ elems hashMap
-
-    print $ null hashMap
-    print $ size hashMap
-
-    print $ member 1 hashMap
-    print $ member 5 hashMap
-
-    print $ lookup 1 hashMap
-    print $ lookup 5 hashMap
-
-    print $ hashMap ! 1
-    print $ lookupDefault 'N' 5 hashMap
-    print $ insert 4 'd' hashMap
-    print $ delete 2 hashMap
-
-    print $ map (toUpper) hashMap
-    print $ filter (> 'a') hashMap
--}
+    print $ hashMap                         -- fromList [(1,'a'),(2,'b'),(3,'c')]
+    print $ HML.keys hashMap                -- [1,2,3]                                
+    print $ HML.elems hashMap               -- "abc"                                            
+    print $ HML.null hashMap                -- False                                                
+    print $ HML.size hashMap                -- 3                                                 
+    print $ HML.member 1 hashMap            -- True                                   
+    print $ HML.member 5 hashMap            -- False                                    
+    print $ HML.lookup 1 hashMap            -- Just 'a'                                     
+    print $ HML.lookup 5 hashMap            -- Nothing                                       
+    --print $ hashMap ! 1                   -- 'a'                           
+    print "this line does not compile: 'print $ hashMap ! 1', looks like it is related to quilified issue"
+    print $ HML.lookupDefault 'N' 5 hashMap -- 'N'                                                      
+    print $ HML.insert 4 'd' hashMap        -- fromList [(1,'a'),(2,'b'),(3,'c'),(4,'d')]           
+    print $ HML.delete 2 hashMap            -- fromList [(1,'a'),(3,'c')]                         
+    print $ HML.map (toUpper) hashMap       -- fromList [(1,'A'),(2,'B'),(3,'C')]                    
+    print $ HML.filter (> 'a') hashMap      -- fromList [(2,'b'),(3,'c')]                            
 
 --- Data.Graph ---
 --import Data.Graph
@@ -832,3 +835,11 @@ func66main = do
 
     print $ dff graph
     print $ dfs graph [2]
+
+--- Data.Version ---
+--import Data.Version
+func676main = print $ showVersion
+    Version {
+        versionBranch = [1, 2, 3, 4],
+        versionTags = ["Tag1", "Tag2", "Tag3"]
+    }
