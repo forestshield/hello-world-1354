@@ -1,9 +1,11 @@
--- N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console exception
+-- N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console eception
 -- "*** Exception: <stdout>: hPutChar: invalid argument (invalid character)"
 -- type "chcp 65001" in powershell before using ghci !!!
 -- use ConEmu on Windows, "https://www.fosshub.com/ConEmu.html"
 
 module Main where
+
+import System.IO.CodePage
 
 import Lib
 import Lib2
@@ -13,6 +15,9 @@ import FunctionWithLet
 import TopLevelFunction
 import Lib4
 import Lib5
+
+
+
 --import Print3flipped    -- This will not compile, because of another "main" in Print3flipped.hs
 
 --dtM = Woot :: Mood
@@ -27,6 +32,10 @@ main :: IO ()
 --main = printInc2 16     -- works
 
 main = do
+  withCP65001 $ withCodePageOptions defaultOptions{chatty = True} cp65001 codePageFunc
+
+codePageFunc :: IO ()
+codePageFunc = do 
   someFunc
   someFunc2
   someFunc3
@@ -57,3 +66,4 @@ main = do
   someFuncLib5
   putStrLn "............................"
   --someFunc
+    
