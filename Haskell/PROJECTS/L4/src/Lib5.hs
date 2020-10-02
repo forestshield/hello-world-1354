@@ -118,7 +118,11 @@ someFuncLib5 = do
   func65main
   putStrLn "\n -------------- Data.Graph  -------------------"
   func66main
-
+  putStrLn "\n ----- Unicode Strings (withCP65001, which is UTF-8) ------"
+  putStrLn "λλλ, 2.0 == 2.1"      -- λλλ, 2.0 == 2.1
+  putStrLn "κόσμε"
+  putStrLn "→"
+  putStrLn "☀☁☂☃☄"
 
 --  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
 --  func59main

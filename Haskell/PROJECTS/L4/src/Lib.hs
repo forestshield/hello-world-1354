@@ -1,4 +1,4 @@
--- N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console exception
+-- N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console eception
 -- "*** Exception: <stdout>: hPutChar: invalid argument (invalid character)"
 -- type "chcp 65001" in powershell before using ghci !!!
 -- use ConEmu on Windows, "https://www.fosshub.com/ConEmu.html"
