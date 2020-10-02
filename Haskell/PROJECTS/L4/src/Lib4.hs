@@ -980,14 +980,16 @@ someFuncLib4 = do
 --           "\n--- withFile --- IOMode::ReadMode --- hGetContents ---"  
 --  func19main
   specSh2 (func19main)
-          "\nwithFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode (\\handle -> do\
+--          "\nwithFile \"/Users/admin1/Haskell/PROJECTS/L4/src/Girlfriend.txt\" ReadMode (\\handle -> do\
+          "\nwithFile \"Girlfriend.txt\" ReadMode (\\handle -> do\
           \ncontents <- hGetContents handle\nputStr contents)"
           "\n--- withFile --- IOMode::ReadMode --- hGetContents ---"  
   specSh2 func20main "" "readFile"
-  specSh2 func21main "\"/Users/admin1/Haskell/PROJECTS/L4/src/GirlfriendCaps.txt\"" "writeFile"
+  --specSh2 func21main "\"/Users/admin1/Haskell/PROJECTS/L4/src/GirlfriendCaps.txt\"" "writeFile"
+  specSh2 func21main "\"GirlfriendCaps.txt\"" "writeFile"
   specSh2 (func20'main rsFandS2) "Result of reading" "readFile with caps"
   specSh2 (func22main rsFandS3) "Iron the dishes" "appendFile, adding to the file todo.txt"
-  specSh2 func23main "-------------------- Shapes.hs text ----------------" "withFile, \
+  specSh2 func23main "-------------------- LICENSE text ----------------" "withFile, \
             \reading the whole fine in chuncks by 2048"
   putStrLn "\n--- (import System.Directory) --- openTempFile --- removeFile --- renameFile ---"
   putStrLn "\n--- (import System.Environment) --- getArgs --- getProgName ---"
@@ -1051,13 +1053,15 @@ someFuncLib4 = do
             \ S.pack [43,44,45], S.pack [46,47,48]]"
             "pack --- fromChunks"  
   putStrLn "\n-------- copyFile, using bytestring functions B.readFile and B.writeFile -------"
-  func32main "/Users/admin1/Haskell/PROJECTS/L4/src/todo.txt" "/Users/admin1/Haskell/PROJECTS/L4/src/todo2.txt"
+  --func32main "/Users/admin1/Haskell/PROJECTS/L4/src/todo.txt" "/Users/admin1/Haskell/PROJECTS/L4/src/todo2.txt"
+  func32main "todo.txt" "todo2.txt"
 
   putStrLn "\n================================== Exceptions ===============================\n"
   putStrLn "\n--- import System.IO.Error --- import Control.Exception --- import Control.Exception.Base ---" 
   putStrLn "--- \"stack install extensible-exceptions\" --- \"- extensible-exceptions >= 0.1.1.0\""
   putStrLn "\n--- doesFileExist ---"
-  func34main $ "/Users/admin1/Haskell/PROJECTS/L4/src/" ++ rsExc1
+  --func34main $ "/Users/admin1/Haskell/PROJECTS/L4/src/" ++ rsExc1
+  func34main $ "" ++ rsExc1
   func34main "todoNotHere.txt"
   putStrLn "\n--- ArithException --- DivideByZero "
   func35main 
@@ -4548,14 +4552,16 @@ func20'main fileP = do
 --      down to zero length before being written on. Here's how to turn girlfriend.txt into a 
 --      CAPSLOCKED version and write it to girlfriendcaps.txt:
 --  writeFile :: FilePath -> String -> IO ()
-rsFandS2 = "/Users/admin1/Haskell/PROJECTS/L4/src/GirlfriendCaps.txt"
+--rsFandS2 = "/Users/admin1/Haskell/PROJECTS/L4/src/GirlfriendCaps.txt"
+rsFandS2 = "GirlfriendCaps.txt"
 --import System.IO     
 --import Data.Char      
 func21main = do     
     contents <- readFile rsFandS1     
     writeFile rsFandS2 (map toUpper contents)
 
-rsFandSDir = "/Users/admin1/Haskell/PROJECTS/L4/src/"
+--rsFandSDir = "/Users/admin1/Haskell/PROJECTS/L4/src/"
+rsFandSDir = ""
 rsFandS3   = rsFandSDir ++ "todo.txt" 
 --- appendFile --- 
 --import System.IO  
@@ -4591,7 +4597,8 @@ func22main fileP = do
 
 --      Here's our previous piece of code, only it doesn't read it line by line but reads the 
 --      whole file in chunks of 2048 bytes.
-rsFandS4 = "/Users/admin1/Haskell/PROJECTS/L4/src/Shapes.hs"
+--rsFandS4 = "/Users/admin1/Haskell/PROJECTS/L4/src/Shapes.hs"
+rsFandS4 = "LICENSE"
 func23main = do   
     withFile rsFandS4 ReadMode (\handle -> do  
         hSetBuffering handle $ BlockBuffering (Just 2048)  
@@ -5233,8 +5240,11 @@ handler1 _ = putStrLn "Some other error..."
 
 
 -------------
-fN1 = "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/todo.txt"
-fN2 = "~/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+--fN1 = "/Users/admin1/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+--fN2 = "~/Haskell/PROJECTS/L4/stand_alone/todo.txt"
+fN1 = "todo.txt"
+fN2 = "todo.txt"
+
 ------------------------
 --main = toTry2 `catch` handler2
 func36main = toTry2 `catch` handler2
