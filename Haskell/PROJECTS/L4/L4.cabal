@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: eed85ac694e6cc862685791fb9f17778199d25d901ed298475efa014466805ce
+-- hash: 80d4d166d1c2a88d2685dcdb9325137912d490f4aa4ed2a48de5f832c3e6f75b
 
 name:           L4
 version:        0.1.0.0
@@ -55,6 +55,7 @@ library
     , array
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
+    , code-page
     , containers
     , deepseq
     , directory
@@ -88,6 +89,7 @@ executable L4-exe
     , array
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
+    , code-page
     , containers
     , deepseq
     , directory
@@ -122,6 +124,7 @@ test-suite L4-test
     , array
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
+    , code-page
     , containers
     , deepseq
     , directory

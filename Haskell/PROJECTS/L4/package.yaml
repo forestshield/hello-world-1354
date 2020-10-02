@@ -46,6 +46,7 @@ dependencies:
 - GLUT
 - array 
 #- 3d-graphics-examples
+- code-page
 
 default-extensions:
 #- NoImplicitPrelude
