@@ -1,3 +1,9 @@
+-- N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console eception
+-- "*** Exception: <stdout>: hPutChar: invalid argument (invalid character)"
+-- type "chcp 65001" in powershell before using ghci !!!
+-- use ConEmu on Windows, "https://www.fosshub.com/ConEmu.html"
+
+
 {-
 module Lib 
     (someFunc
@@ -24,6 +30,11 @@ import System.Directory
 --someFunc
 someFunc :: IO ()
 someFunc = do
+  putStrLn "N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console eception\
+           \*** Exception: <stdout>: hPutChar: invalid argument (invalid character)\
+           \type \"chcp 65001\" in powershell before using ghci !!!\
+           \use ConEmu on Windows, \"https://www.fosshub.com/ConEmu.html\"\n"
+
   putStrLn "================================= Lib ==================================="
   funcCheckOS
   
@@ -192,11 +203,14 @@ someFunc2 = do
       bAndVal = True && True            -- True
       bOrVal = False && True            -- True
   putStr (show bVal)                    -- False
-  putStrLn " λλλ, ['a', 'b'] > ['b', 'a']" -- λλλ, ['a', 'b'] > ['b', 'a']    
+  --putStrLn " λλλ, ['a', 'b'] > ['b', 'a']" -- λλλ, ['a', 'b'] > ['b', 'a']    
+  -- Windows shell or PowerShell creates an exception when Unicode symbol is used
+  -- There is a work around, we will do it later on
+  putStrLn "['a', 'b'] > ['b', 'a']" -- ['a', 'b'] > ['b', 'a']    
   putStr (show bVal1)                   -- False
-  putStrLn " λλλ True, not bVal1"       -- λλλ, True    
-  putStrLn " λλλ True, True && True"    -- True
-  putStrLn " λλλ True, False || True"   -- True
+  putStrLn "True, not bVal1"       -- True    
+  putStrLn "True, True && True"    -- True
+  putStrLn "True, False || True"   -- True
 
 --someFunc3
 someFunc3 :: IO ()
@@ -206,7 +220,7 @@ someFunc3 = do
       sr = (if True then bt else bf)
 
   putStr ("bt = '" ++ sr ++ "'")
-  putStrLn " λλλ , if True then bt else bf"   -- Truthin
+  putStrLn "if True then bt else bf"   -- Truthin
 
 --someFunc4
 someFunc4 :: IO ()
@@ -214,7 +228,8 @@ someFunc4 = putStrLn str where
   bt = "Truthin"
   bf = "Falsein"
   sr = if True then bt else bf
-  str = " λλλ " ++ sr ++ ", if True then bt else bf"   -- Truthin
+  --str = " λλλ " ++ sr ++ ", if True then bt else bf"   -- Truthin
+  str = " Test " ++ sr ++ ", if True then bt else bf"   -- Truthin
 
 --funcChekIfCool
 funcChekIfCool :: String -> IO ()
@@ -399,9 +414,9 @@ showResChMood = do
   let str1 = show $ changeMood nInp1
       str2 = show $ changeMood nInp2    
   putStr str1
-  putStrLn " λλλ changeMood 5"
+  putStrLn " changeMood 5"
   putStr str2
-  putStrLn " λλλ changeMood Woot"
+  putStrLn " changeMood Woot"
 
 --addZero
 addZero :: String -> String
