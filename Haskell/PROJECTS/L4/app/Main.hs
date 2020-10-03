@@ -2,6 +2,7 @@
 -- "*** Exception: <stdout>: hPutChar: invalid argument (invalid character)"
 -- type "chcp 65001" in powershell before using ghci !!!
 -- use ConEmu on Windows, "https://www.fosshub.com/ConEmu.html"
+-- It is also done programaticaly in main function
 
 module Main where
 
