@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 80d4d166d1c2a88d2685dcdb9325137912d490f4aa4ed2a48de5f832c3e6f75b
+-- hash: dbf16e53bd427a451af445026b267386af2898590b80a36939b464007b9cbe31
 
 name:           L4
 version:        0.1.0.0
@@ -61,16 +61,21 @@ library
     , directory
     , extensible-exceptions >=0.1.1.0
     , filepath
+    , happstack-server
+    , hjsmin
+    , http-conduit
     , lens
     , lens-aeson
     , mtl
     , pretty-simple
+    , process
     , random >=1.1
     , safe-exceptions
     , text
     , time
     , time-lens
     , unordered-containers
+    , yesod
   default-language: Haskell2010
 
 executable L4-exe
@@ -95,16 +100,21 @@ executable L4-exe
     , directory
     , extensible-exceptions >=0.1.1.0
     , filepath
+    , happstack-server
+    , hjsmin
+    , http-conduit
     , lens
     , lens-aeson
     , mtl
     , pretty-simple
+    , process
     , random >=1.1
     , safe-exceptions
     , text
     , time
     , time-lens
     , unordered-containers
+    , yesod
   default-language: Haskell2010
 
 test-suite L4-test
@@ -130,14 +140,19 @@ test-suite L4-test
     , directory
     , extensible-exceptions >=0.1.1.0
     , filepath
+    , happstack-server
+    , hjsmin
+    , http-conduit
     , lens
     , lens-aeson
     , mtl
     , pretty-simple
+    , process
     , random >=1.1
     , safe-exceptions
     , text
     , time
     , time-lens
     , unordered-containers
+    , yesod
   default-language: Haskell2010
