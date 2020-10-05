@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dbf16e53bd427a451af445026b267386af2898590b80a36939b464007b9cbe31
+-- hash: 375a880f28a0475d9b50735ad3d6e510095677b32f566bb2bf7f9fff7523993a
 
 name:           L4
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Cards
+      ExTT
       FunctionWithLet
       FunctionWithWhere
       Geometry
