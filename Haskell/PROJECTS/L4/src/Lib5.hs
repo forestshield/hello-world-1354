@@ -13,6 +13,7 @@ import System.Info
 --import System.Info.Extra
 --import System.Directory (getHomeDirectory)
 
+import Control.Exception
 import System.Directory 
 import System.FilePath (joinPath, splitPath)
 import System.Environment
@@ -21,42 +22,39 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Data.Array
 import Data.Complex
-import Data.Graph
+import qualified Data.Graph as DG
 import qualified Data.HashSet as HS 
 import qualified Data.HashMap.Lazy as HML
 import Data.Version
+import Happstack.Server
+import System.Process 
+import qualified Yesod as Y
+import Text.Jasmine
+import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.ByteString.Lazy as L
+import Network.HTTP.Conduit
+import Control.Monad.IO.Class (liftIO)
 
---import Happstack.Server.Env
---import System.Environment
 
+
+--import Happstack.Server.Env, this one is used only inside "School of Haskell"
 {-
-import System.Environment
-import System.Directory
-import Data.Time
-import Happstack.Server.Env
 import Network.HTTP.Conduit
 import qualified Data.ByteString.Lazy as L
 import Control.Monad.IO.Class (liftIO)
-import Yesod
 -}
 
 
 {-
 import Data.Function
-import Data.Char
 import qualified GHC.Unicode as U 
-import qualified Data.Map as Map 
-import qualified Data.Set as Set
 import Data.String
 import Data.Int
 --import GHC.Int
 import Data.Char (toUpper)
 import Control.Monad 
 import System.IO
-import System.Directory
-import System.Environment
 import System.Random
-import System.IO.Error
 import Control.Exception
 --import Control.Exception.Base
 --import Data.Array
@@ -94,8 +92,18 @@ someFuncLib5 = do
   putStrLn "https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples#simple-application"
   putStrLn "\n--- getCurrentTime >>= print ---"
   func54main
+  specSh2 (func50C_main) "" "\n--- Yesod version ---" 
   putStrLn "\ngetCurrentDirectory >>= print\ngetHomeDirectory >>= print\ngetUserDocumentsDirectory >>= print"
-  func55main
+  func55main 
+  putStrLn "\n ----------------- getEnvironment  -------------------"
+  specSh2 (getEnvironment >>= print) "" ""  
+
+  putStrLn "\n ----------------- Happstack.Server  -------------------"
+  --callCommand  ("curl -v http://localhost")  
+  --specSh2 (callCommand  ("\ncurl http://localhost")) "" "using \"curl http://localhost\""
+  callCommand  ("curl -v http://b-ok.cc")  
+  specSh2 (callCommand  ("\ncurl http://b-ok.cc")) "" "using \"curl http://b-ok.cc\""
+
   putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
   func56main
   putStrLn "\n ------------- Tuples, tuple = (1, 2), tuple3 = (1, 2, 3) ----------"
@@ -123,19 +131,11 @@ someFuncLib5 = do
   putStrLn "κόσμε"
   putStrLn "→"
   putStrLn "☀☁☂☃☄"
+  specSh2 (func5D_main) "" " JavaScript minification "
+  specSh2 (func5E_main) "http://localhost" " Simple HTTP conduit "
 
 --  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
 --  func59main
-
-
-
-
-
-
-
-
-
-
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
@@ -470,7 +470,6 @@ func48main = do
     print compilerName
     print compilerVersion
 
-
 {-
 "darwin"
 "x86_64"
@@ -500,7 +499,12 @@ getHomeDir = do
   homeDir <- getHomeDirectory
   return homeDir
 
-
+-- ================= to run shell script =========================
+--import System.Process 
+func5A_main = callCommand "ls -la"
+--func5B_main = callCommand "curl -v http://localhost"
+--- trying here not to call localhost, because it might be not runnoing
+func5B_main = callCommand "curl -v http://b-ok.cc"
 
 -- ================================ Simple Examples =====================================
 -- https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples
@@ -521,23 +525,38 @@ func51main = do
     getEnvironment >>= print    
 
 --- System environment for web application
-{-
-import Happstack.Server.Env
-import System.Environment
-func52main = do
+--import Happstack.Server.Env
+--import System.Environment
+func52main = do 
     environment <- getEnvironment
     simpleHTTP nullConf $ ok $ show environment
--}
+
+--- Simple HTTP conduit ---
+--import Network.HTTP.Conduit
+--import qualified Data.ByteString.Lazy as L
+func5E_main = simpleHttp "http://www.winsoft.sk" >>= L.putStr
+--func5E_main = simpleHttp "http://localhost" >>= L.putStr
 
 {-
 --- Streaming HTTP conduit
-import Network.HTTP.Conduit
-import Control.Monad.IO.Class (liftIO)
+--import Network.HTTP.Conduit
+--import Control.Monad.IO.Class (liftIO)
 func53main = withManager $ \manager -> do
     request <- parseUrl "http://www.winsoft.sk"
     liftIO $ print request
     response <- httpLbs request manager
     liftIO $ print response      
+-}
+{-
+import Data.Conduit.Binary (sinkFile)
+import Network.HTTP.Conduit
+import qualified Data.Conduit as C
+main :: IO ()
+main = do
+    request <- parseUrl "http://google.com/"
+    withManager $ \manager -> do
+        Response _ _ bsrc <- http request manager
+        bsrc C.$$ sinkFile "google.html"
 -}
 
 --import Data.Time
@@ -550,11 +569,9 @@ func55main = do
     getHomeDirectory >>= print
     getUserDocumentsDirectory >>= print
 
-{-
 --- Yesod version
-import Yesod
-main = putStrLn yesodVersion
--}
+--import Yesod
+func50C_main = putStrLn Y.yesodVersion
 
 {-
 --- Yesod application
@@ -593,19 +610,15 @@ import Happstack.Server.Env
 main = simpleHTTP nullConf $ ok "Hello, world!"
 -}
 
-{-
+
 --- JavaScript minification
-{-# LANGUAGE OverloadedStrings #-}
-
-import Text.Jasmine
-import Data.ByteString.Lazy.Char8
-
-main = print $ unpack $ minify "function test() { alert('Hello, world!'); }"
--}
+--{-# LANGUAGE OverloadedStrings #-}
+--import Text.Jasmine
+--import Data.ByteString.Lazy.Char8
+func5D_main = print $ BL.unpack $ minify "function test() { alert('Hello, world!'); }"
 
 --- Lists ---------
 list = [1, 2, 3, 4, 5]
-
 func56main = do
     print list
 
@@ -817,28 +830,28 @@ func65main = do
 
 --- Data.Graph ---
 --import Data.Graph
-graph = buildG (1, 6) [(1, 2), (1, 3), (2, 4), (5, 6)]
+graph = DG.buildG (1, 6) [(1, 2), (1, 3), (2, 4), (5, 6)]
 func66main = do
     print graph
-    print $ vertices graph
-    print $ edges graph
-    print $ edges $ transposeG graph
+    print $ DG.vertices graph
+    print $ DG.edges graph
+    print $ DG.edges $ DG.transposeG graph
 
-    print $ outdegree graph
-    print $ indegree graph
+    print $ DG.outdegree graph
+    print $ DG.indegree graph
 
-    print $ topSort graph
-    print $ reachable graph 1
+    print $ DG.topSort graph
+    print $ DG.reachable graph 1
 
-    print $ path graph 1 4
-    print $ path graph 1 5
+    print $ DG.path graph 1 4
+    print $ DG.path graph 1 5
 
-    print $ components graph
-    print $ scc graph
-    print $ bcc graph
+    print $ DG.components graph
+    print $ DG.scc graph
+    print $ DG.bcc graph
 
-    print $ dff graph
-    print $ dfs graph [2]
+    print $ DG.dff graph
+    print $ DG.dfs graph [2]
 
 --- Data.Version ---
 --import Data.Version
