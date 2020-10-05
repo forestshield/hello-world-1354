@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e21ec3fcd7a98d1eada68b4d99220e988f26d0e0cd0c4b67b54b7ad9bec50eb4
+-- hash: 86bdcd34cb3c77d215906fb72d3d9397f2d8d89f844bece1b085753fa2ed812f
 
 name:           L4
 version:        0.1.0.0
@@ -48,13 +48,15 @@ library
       Paths_L4
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings FlexibleContexts
+  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric
   build-depends:
       GLUT
     , OpenGL
     , aeson
     , array
     , base >=4.7 && <5
+    , base16-bytestring
+    , base64-bytestring
     , bytestring >=0.10.10.0
     , code-page
     , conduit
@@ -62,6 +64,7 @@ library
     , containers
     , deepseq
     , directory
+    , email-validate
     , extensible-exceptions >=0.1.1.0
     , filepath
     , happstack-server
@@ -89,7 +92,7 @@ executable L4-exe
       Paths_L4
   hs-source-dirs:
       app
-  default-extensions: OverloadedStrings FlexibleContexts
+  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       GLUT
@@ -98,6 +101,8 @@ executable L4-exe
     , aeson
     , array
     , base >=4.7 && <5
+    , base16-bytestring
+    , base64-bytestring
     , bytestring >=0.10.10.0
     , code-page
     , conduit
@@ -105,6 +110,7 @@ executable L4-exe
     , containers
     , deepseq
     , directory
+    , email-validate
     , extensible-exceptions >=0.1.1.0
     , filepath
     , happstack-server
@@ -133,7 +139,7 @@ test-suite L4-test
       Paths_L4
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings FlexibleContexts
+  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       GLUT
@@ -142,6 +148,8 @@ test-suite L4-test
     , aeson
     , array
     , base >=4.7 && <5
+    , base16-bytestring
+    , base64-bytestring
     , bytestring >=0.10.10.0
     , code-page
     , conduit
@@ -149,6 +157,7 @@ test-suite L4-test
     , containers
     , deepseq
     , directory
+    , email-validate
     , extensible-exceptions >=0.1.1.0
     , filepath
     , happstack-server
