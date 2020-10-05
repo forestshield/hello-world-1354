@@ -40,6 +40,14 @@ import Control.Monad.IO.Class (liftIO)
 import Snap.Http.Server
 import Snap.Core
 import System.IO 
+import System.Random
+import qualified Data.ByteString.Base16 as BS16
+import qualified Data.ByteString.Char8  as BC8
+import qualified Data.ByteString.Base64 as BS64 
+import Data.Aeson
+import GHC.Generics
+import Control.Applicative
+import Text.Email.Validate
 
 --import Data.Conduit.Binary (sinkFile)
 --import Network.HTTP.Conduit
@@ -147,6 +155,12 @@ someFuncLib5 = do
   specSh2 (testExceptionType (func5G_main)) "http://localhost" " Simple HTTP conduit "
   specSh2 (func81main) "" "show and read"
   specSh2 (func8A_main) "func8A_main" "...Files..."
+  specSh2 (func89main) "(randomRIO (1, 100)" "...Random..."
+  specSh2 (func90main) "unpack encode decode" "...Data.ByteString.Base16..."
+  specSh2 (func91main) "unpack encode decode" "...Data.ByteString.Base64..."  
+  specSh2 (func92main) "instance FromJSON instance ToJSON" "...JSON..."
+  specSh2 (func93main) "instance FromJSON instance ToJSON" "...JSON..."  
+  specSh2 (func94main) "eriksalaj@gmail.com" "Email validation"
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
@@ -990,3 +1004,72 @@ func87main = withFile "file.txt" ReadMode $ \handle -> do
 func88main = do
     writeFile "file.txt" "Hello, world!"
     readFile "file.txt" >>= print
+
+--- Random numbers ---
+--import System.Random
+func89main = (randomRIO (1, 100) :: IO Int) >>= print
+
+--- Base16 encoding ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.ByteString.Base16
+--import Data.ByteString.Char8
+func90main = do
+    print $ BC8.unpack $ BS16.encode "Hello, world!"
+    print $ BS16.decode "48656c6c6f2c20776f726c6421"
+
+--- Base64 encoding ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.ByteString.Base64
+--import Data.ByteString.Char8
+func91main = do
+    print $ BC8.unpack $ BS64.encode "Hello, world!"
+    print $ BS64.decode "SGVsbG8sIHdvcmxkIQ=="
+
+
+--- JSON ---
+--{-# LANGUAGE OverloadedStrings #-}
+--{-# LANGUAGE DeriveGeneric #-}
+--import Data.Aeson
+--import Data.ByteString.Lazy.Char8
+--import GHC.Generics
+
+data MyData = MyData { text :: String, number1 :: Int } deriving (Show, Generic)
+instance FromJSON MyData
+instance ToJSON MyData
+myData = MyData "Hello" 123
+func92main = do
+    print myData
+    print $ BL.unpack $ encode myData
+    print $ (decode "{ \"number1\" : 123, \"text\" : \"Hello\" }" :: Maybe MyData)
+
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.Aeson
+--import Control.Applicative
+--import Data.ByteString.Lazy.Char8 hiding (empty)
+
+data MyData2 = MyData2 { text2 :: String, number2 :: Int } deriving Show
+instance ToJSON MyData2 where
+    toJSON (MyData2 text2 number2) = object ["text" .= text2, "number2" .= number2]
+instance FromJSON MyData2 where
+    parseJSON (Object v) = MyData2 <$> v .: "text" <*> v .: "number2"
+    parseJSON _          = empty
+myData2 = MyData2 "Hello" 123
+func93main = do
+    print myData2
+    print $ BL.unpack $ encode myData2
+    print $ (decode "{ \"number2\" : 123, \"text2\" : \"Hello\" }" :: Maybe MyData2)
+
+--- Email validation ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Text.Email.Validate
+email = "eriksalaj@gmail.com"
+func94main = do
+    print $ isValid email
+    print $ validate email
+    print $ emailAddress email
+    print $ canonicalizeEmail email
+
+    let Just address = emailAddress email
+    print $ localPart address
+    print $ domainPart address
+    
