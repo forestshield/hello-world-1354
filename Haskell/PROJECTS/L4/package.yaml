@@ -52,6 +52,12 @@ dependencies:
 - yesod
 - hjsmin
 - http-conduit
+- conduit
+- conduit-extra
+- snap-server
+- snap-core
+
+
 
 
 default-extensions:

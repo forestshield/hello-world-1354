@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 375a880f28a0475d9b50735ad3d6e510095677b32f566bb2bf7f9fff7523993a
+-- hash: e21ec3fcd7a98d1eada68b4d99220e988f26d0e0cd0c4b67b54b7ad9bec50eb4
 
 name:           L4
 version:        0.1.0.0
@@ -57,6 +57,8 @@ library
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , code-page
+    , conduit
+    , conduit-extra
     , containers
     , deepseq
     , directory
@@ -72,6 +74,8 @@ library
     , process
     , random >=1.1
     , safe-exceptions
+    , snap-core
+    , snap-server
     , text
     , time
     , time-lens
@@ -96,6 +100,8 @@ executable L4-exe
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , code-page
+    , conduit
+    , conduit-extra
     , containers
     , deepseq
     , directory
@@ -111,6 +117,8 @@ executable L4-exe
     , process
     , random >=1.1
     , safe-exceptions
+    , snap-core
+    , snap-server
     , text
     , time
     , time-lens
@@ -136,6 +144,8 @@ test-suite L4-test
     , base >=4.7 && <5
     , bytestring >=0.10.10.0
     , code-page
+    , conduit
+    , conduit-extra
     , containers
     , deepseq
     , directory
@@ -151,6 +161,8 @@ test-suite L4-test
     , process
     , random >=1.1
     , safe-exceptions
+    , snap-core
+    , snap-server
     , text
     , time
     , time-lens
