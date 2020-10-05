@@ -50,7 +50,8 @@ import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString as S 
 
 import Data.Maybe
-import Data.Typeable          (TypeRep, Typeable, typeRep)
+import Data.Typeable (TypeRep, Typeable, typeRep)
+import Data.Typeable (typeOf)
 
 import Text.Read (readMaybe)
 import qualified ValidateUser as VU
@@ -1143,6 +1144,8 @@ someFuncLib4 = do
 
   funcSI1main
   putStrLn "funcSI1main\n"
+
+  specSh2 (funcExcTstmain) "Exception Tester\n\n" "funcExcTstmain, Exception Tester"
 
   --- getHomeDirectory is not a function but an IO action so you have to unpack it 
   --- within another IO action first.
@@ -5867,4 +5870,27 @@ handler45 e
                                  Nothing -> putStrLn "Whoops 45! File does not exist at unknown location!"
     | otherwise = ioError e     
 
+-- ====================== Exception Tester =============================
+testExceptionType :: IO () -> IO ()
+testExceptionType thunk =  catch thunk handler
+  where
+    -- Catch All Exceptions -- It is not recommended in real life.
+    handler :: SomeException -> IO ()
+    handler (SomeException e) = putStrLn $ "I caught an exception.\nMessage =  \
+    \" ++ show e ++ "\nType of exception = " ++ show (typeOf e)
 
+funcExcTstmain :: IO ()
+funcExcTstmain = do
+  testExceptionType (print $ div 10 0)
+  print "---"
+  testExceptionType (error "Fatal kernel error")
+  print "---"
+  testExceptionType (readFile "/etc/shadow" >>= putStrLn)
+  print "---"
+  testExceptionType (print $ head ([] :: [Int]))
+  print "---"
+  --testExceptionType (print $ head [])
+  --testExceptionType (head [])
+  testExceptionType (print $ head [1, 2, 3])
+  print "---"
+  --testExceptionType (putStrLn "Insert a line" >> getLine >>= putStrLn)

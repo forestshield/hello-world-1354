@@ -4,6 +4,7 @@ module Lib5
 --    , pathFileTwo
     ) where
 
+import ExTT 
 import Lib
 import Lib4
 import Data.List
@@ -14,6 +15,7 @@ import System.Info
 --import System.Directory (getHomeDirectory)
 
 import Control.Exception
+import Data.Typeable (typeOf)
 import System.Directory 
 import System.FilePath (joinPath, splitPath)
 import System.Environment
@@ -132,7 +134,10 @@ someFuncLib5 = do
   putStrLn "→"
   putStrLn "☀☁☂☃☄"
   specSh2 (func5D_main) "" " JavaScript minification "
-  specSh2 (func5E_main) "http://localhost" " Simple HTTP conduit "
+  specSh2 (func5E_main) "http://www.winsoft.sk" " Simple HTTP conduit "
+  putStrLn "\n"
+  specSh2 (testExceptionType (func5H_main)) "http://doesNotExist" " Simple HTTP conduit "
+  specSh2 (testExceptionType (func5G_main)) "http://localhost" " Simple HTTP conduit "
 
 --  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
 --  func59main
@@ -535,7 +540,25 @@ func52main = do
 --import Network.HTTP.Conduit
 --import qualified Data.ByteString.Lazy as L
 func5E_main = simpleHttp "http://www.winsoft.sk" >>= L.putStr
---func5E_main = simpleHttp "http://localhost" >>= L.putStr
+func5G_main = simpleHttp "http://localhost" >>= L.putStr
+func5H_main = simpleHttp "http://doesNotExist" >>= L.putStr
+
+-- ====================== Exception Type Tester =========================
+-- See file ExTT.hs
+{-
+testExceptionType :: IO () -> IO ()
+testExceptionType thunk =  catch thunk handler
+  where
+    -- Catch All Exceptions -- It is not recommended in real life.
+    handler :: SomeException -> IO ()
+    handler (SomeException e) = putStrLn $ "I caught an exception.\nMessage =  " ++ show e ++ "\
+    \\nType of exception = " ++ show (typeOf e)
+-}
+--- 
+func5F_dangerous = do
+    func5G_main             -- simpleHttp "http://localhost" >>= L.putStr
+    testExceptionType (func5G_main)
+
 
 {-
 --- Streaming HTTP conduit
