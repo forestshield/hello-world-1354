@@ -48,6 +48,9 @@ import Data.Aeson
 import GHC.Generics
 import Control.Applicative
 import Text.Email.Validate
+import Control.Concurrent
+import System.CPUTime
+import Debug.Trace
 
 --import Data.Conduit.Binary (sinkFile)
 --import Network.HTTP.Conduit
@@ -161,6 +164,19 @@ someFuncLib5 = do
   specSh2 (func92main) "instance FromJSON instance ToJSON" "...JSON..."
   specSh2 (func93main) "instance FromJSON instance ToJSON" "...JSON..."  
   specSh2 (func94main) "eriksalaj@gmail.com" "Email validation"
+  specSh2 (func95main) "" "Functor"
+  specSh2 (func96main) "" "Applicative"  
+  specSh2 (func97main) "" "Type class"
+
+  specSh2 (func98main) "" "Threads"
+  specSh2 (func99main) "" "CPU time"
+  specSh2 (func100main) "" "External command"  
+  specSh2 (func102main) "print $ (1 /) 2\nprint $ (/ 1) 2" "Section"
+  specSh2 ((func101main))
+           "\nprint $ trace \"Calling 1 + 1\" (1 + 1)\ntraceIO \"Calling 1 + 1\"\nprint $ traceShow (x, x + x) (x + x)"           
+           "Debug.Trace"
+
+  --specSh2 (func10main) "" ""
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
@@ -945,7 +961,7 @@ func83main = do
 
     stmt <- prepare conn "CREATE TABLE IF NOT EXISTS MyTable (Name VARCHAR(20));"
     step stmt
-   finalize stmt
+    finalize stmt
 
     stmt <- prepare conn "INSERT INTO MyTable(Name) VALUES('Erik');"
     step stmt
@@ -1073,3 +1089,120 @@ func94main = do
     print $ localPart address
     print $ domainPart address
     
+--- Functor ---
+func95main = do
+    print $ fmap (+ 1) Nothing
+    print $ fmap (+ 1) $ Just 2
+
+    print $ fmap (+ 1) [1, 2, 3]
+    print $ fmap (* 2) (+ 5) 2 
+
+--- Applicative ---
+--import Control.Applicative
+func96main = do
+    print $ (pure 1 :: Maybe Int)
+
+    print $ Just (+ 1) <*> Nothing
+    print $ Just (+ 1) <*> Just 2
+
+    print $ [(+ 1), (* 2)] <*> []
+    print $ [(+ 1), (* 2)] <*> [1, 2, 3]
+
+    print $ Just 1 <* Just 2
+    print $ Just 1 *> Just 2
+
+    print $ (+ 1) <$> Nothing
+    print $ (+ 1) <$> Just 2
+
+    print $ 1 <$ Nothing
+    print $ 1 <$ Just 2
+
+    print $ Nothing <**> Just (+ 2)
+    print $ Just 1 <**> Just (+ 2)
+
+    print $ liftA (+ 1) Nothing
+    print $ liftA (+ 1) $ Just 2
+
+    print $ liftA2 (+) Nothing Nothing
+    print $ liftA2 (+) (Just 1) (Just 2)
+
+    print $ (+) <$> Just 1 <*> Nothing
+    print $ (+) <$> Just 1 <*> Just 2
+   
+--- Type class ---
+class MyClass a where
+    myFunc :: a -> String
+
+instance MyClass Bool where
+    myFunc n = "Bool: " ++ show n
+instance MyClass Char where
+    myFunc n = "Char: " ++ show n
+
+myShow :: MyClass a => a -> String
+myShow n = myFunc n
+
+func97main = do
+    print $ myFunc True
+    print $ myFunc 'a'
+
+    print $ myShow True
+    print $ myShow 'a'
+
+--- Record ---
+data Person = Person { firstName :: String, lastName :: String } deriving Show
+person = Person "Erik" "Salaj"
+main = do
+    print person
+    print Person { firstName = "Erik", lastName = "Salaj" }
+    print $ firstName person
+    print $ lastName person
+
+--- Threads ---
+--import Control.Concurrent
+func98main = do
+    getNumCapabilities >>= print
+    print rtsSupportsBoundThreads
+
+    forkIO $ sequence_ $ replicate 3 $ do { print "Thread 1"; threadDelay 1 }
+    forkIO $ sequence_ $ replicate 3 $ do { print "Thread 2"; threadDelay 1 }
+    forkIO $ sequence_ $ replicate 3 $ do { print "Thread 3"; threadDelay 1 }
+    threadDelay 10000
+
+--- CPU time ---
+--import System.CPUTime
+func99main = do
+    print cpuTimePrecision
+    getCPUTime >>= print
+
+--- External command ---
+--import System.Process
+func100main = do
+    system "echo Hello, world!"
+
+    system "uname -a"
+    system "cat /proc/version"
+    system "cat /proc/cpuinfo"
+    system "lsb_release -a"
+
+    system "ghc --version"
+    system "cc --version"
+    --system "java -version"
+    system "ls -la"
+    system "python --version"
+
+--- Trace ---
+--import Debug.Trace
+func101main = do
+    print $ trace "Calling 1 + 1" (1 + 1)
+
+    traceIO "Calling 1 + 1"
+    print $ 1 + 1
+
+    let x = 1
+    print $ traceShow (x, x + x) (x + x)
+
+--- Sections ---
+func102main = do
+    print $ (1 /) 2
+    print $ (/ 1) 2
+
