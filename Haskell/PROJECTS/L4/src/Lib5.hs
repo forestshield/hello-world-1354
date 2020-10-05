@@ -34,9 +34,16 @@ import qualified Yesod as Y
 import Text.Jasmine
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.ByteString.Lazy as L
-import Network.HTTP.Conduit
+import Network.HTTP.Conduit 
 import Control.Monad.IO.Class (liftIO)
+--import Snap.Http.Server.Env
+import Snap.Http.Server
+import Snap.Core
+import System.IO 
 
+--import Data.Conduit.Binary (sinkFile)
+--import Network.HTTP.Conduit
+--import qualified Data.Conduit as C
 
 
 --import Happstack.Server.Env, this one is used only inside "School of Haskell"
@@ -138,9 +145,8 @@ someFuncLib5 = do
   putStrLn "\n"
   specSh2 (testExceptionType (func5H_main)) "http://doesNotExist" " Simple HTTP conduit "
   specSh2 (testExceptionType (func5G_main)) "http://localhost" " Simple HTTP conduit "
-
---  putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
---  func59main
+  specSh2 (func81main) "" "show and read"
+  specSh2 (func8A_main) "func8A_main" "...Files..."
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
@@ -570,15 +576,16 @@ func53main = withManager $ \manager -> do
     response <- httpLbs request manager
     liftIO $ print response      
 -}
+
 {-
-import Data.Conduit.Binary (sinkFile)
-import Network.HTTP.Conduit
-import qualified Data.Conduit as C
-main :: IO ()
-main = do
+--import Data.Conduit.Binary (sinkFile)
+--import Network.HTTP.Conduit
+--import qualified Data.Conduit as C
+func70main :: IO ()
+func70main = do
     request <- parseUrl "http://google.com/"
     withManager $ \manager -> do
-        Response _ _ bsrc <- http request manager
+        Response _ _ bsrc <- Network.HTTP.Conduit.http request manager
         bsrc C.$$ sinkFile "google.html"
 -}
 
@@ -619,20 +626,30 @@ getHomeR = defaultLayout [whamlet|
 main = warpEnv WebApp
 -}
 
-{-
+
 --- Snap application
-{-# LANGUAGE OverloadedStrings #-}
+--{-# LANGUAGE OverloadedStrings #-}
+--import Snap.Http.Server.Env
+--import Snap.Core
+func82main = httpServe defaultConfig $ writeBS "Hello, world!"
+{-
+-- this is output from ghci
+λ> func82main
+no port specified, defaulting to port 8000
+Listening on http://0.0.0.0:8000
+Can't open log file "log/access.log".
+Can't open log file "log/error.log".
+Exception: log/access.log: openFile: does not exist (No such file or directory)
+Exception: log/error.log: openFile: does not exist (No such file or directory)
+Logging to stderr instead. **THIS IS BAD, YOU OUGHT TO FIX THIS**
 
-import Snap.Http.Server.Env
-import Snap.Core
+Logging to stderr instead. **THIS IS BAD, YOU OUGHT TO FIX THIS**
 
-main = httpServe defaultConfig $ writeBS "Hello, world!"
-Happstack application
-import Happstack.Server.Env
 
-main = simpleHTTP nullConf $ ok "Hello, world!"
+^C
+Shutting down..
+Interrupted.
 -}
-
 
 --- JavaScript minification
 --{-# LANGUAGE OverloadedStrings #-}
@@ -883,3 +900,93 @@ func676main = print $ showVersion
         versionBranch = [1, 2, 3, 4],
         versionTags = ["Tag1", "Tag2", "Tag3"] -- Deprecated: "See GHC ticket #2496"
     }
+
+--- show and read
+func81main = do
+    print $ show 3
+    print $ show [1, 2, 3]
+    print $ show (1, False)
+    print $ (read "34" :: Int)
+    print $ (read "(1, False)" :: (Int, Bool))
+
+{-
+--- SQLite database ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Database.Sqlite
+printRows stmt = do
+    row <- step stmt
+    if row == Done then
+        return ()
+    else do
+        col <- column stmt 0
+        print col
+        printRows stmt
+---
+func83main = do
+    conn <- open "database.db"
+
+    stmt <- prepare conn "DROP TABLE IF EXISTS MyTable;"
+    step stmt
+    finalize stmt
+
+    stmt <- prepare conn "CREATE TABLE IF NOT EXISTS MyTable (Name VARCHAR(20));"
+    step stmt
+   finalize stmt
+
+    stmt <- prepare conn "INSERT INTO MyTable(Name) VALUES('Erik');"
+    step stmt
+    finalize stmt
+
+    stmt <- prepare conn "INSERT INTO MyTable(Name) VALUES('Patrik');"
+    step stmt
+    finalize stmt
+
+    stmt <- prepare conn "SELECT * FROM MyTable;"
+    printRows stmt
+    finalize stmt
+
+    close conn
+-}
+
+-- ================================ Files ================================= --
+func8A_main = do
+    writeFile "file.txt" "Hello, world!"
+    readFile "file.txt" >>= print
+
+--{-# START_FILE main.hs #-}            --  warning: [-Wunrecognised-pragmas]
+func84main = readFile "file.txt" >>= putStr
+
+--{-# START_FILE file.txt #-}
+--Hello, world!
+
+--{-# START_FILE main.hs #-}
+func85main = do
+    contents <- readFile "file.txt"
+    putStr contents
+
+--{-# START_FILE file.txt #-}
+--Hello, world!
+
+--{-# START_FILE main.hs #-}
+--import System.IO
+func86main = do
+    handle <- openFile "file.txt" ReadMode
+    contents <- hGetContents handle
+    putStr contents
+    hClose handle
+
+--{-# START_FILE file.txt #-}
+--Hello, world!
+
+--{-# START_FILE main.hs #-}
+--import System.IO
+func87main = withFile "file.txt" ReadMode $ \handle -> do
+    contents <- hGetContents handle
+    putStr contents
+
+--{-# START_FILE file.txt #-}
+--Hello, world!
+
+func88main = do
+    writeFile "file.txt" "Hello, world!"
+    readFile "file.txt" >>= print
