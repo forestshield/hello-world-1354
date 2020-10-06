@@ -21,3 +21,7 @@ Many Thanks for that
 N.B. file ghci.conf goes to this directory ~./ghc  
 It sets ghci prompt to red and Lambda.   (at least it works on MacOS)
 
+-------------
+N.B. Subdirectory L4/RUN has all the files, needed to run executable L4-exe.
+Replace L4-exe with newly built.
+
