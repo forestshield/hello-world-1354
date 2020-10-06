@@ -175,7 +175,8 @@ someFuncLib5 = do
   specSh2 ((func101main))
            "\nprint $ trace \"Calling 1 + 1\" (1 + 1)\ntraceIO \"Calling 1 + 1\"\nprint $ traceShow (x, x + x) (x + x)"           
            "Debug.Trace"
-  specSh2 (func103main) "N.B. Place 'main.c' file in the same folder where L4-exe is." "Compiling and running C application"
+  specSh2 (func103main) "N.B. Place 'main.c' file in the same folder where L4-exe is." "Compiling and running C application, main.c"
+  specSh2 (func104main) "N.B. Place 'Main.java' file in the same folder where L4-exe is." "Compiling and running Java application, Main.java"
   
   --specSh2 (func10main) "" ""
 
@@ -1225,10 +1226,24 @@ func102main = do
 func103main = do
     system "cc main.c"
     system "./a.out"
-
+-- N.B. Place 'main.c' file in the same folder where L4-exe is.
 --  {-# START_FILE main.c #-}
 --  #include <stdio.h>
 --  int main() {
 --     printf("Hello, world!\n");
 --     return 0;
 --  }
+
+--- Java application ---
+--{-# START_FILE main.hs #-}
+--import System.Process
+func104main = do
+    system "javac Main.java"
+    system "java Main"
+-- N.B. Place 'Main.java' file in the same folder where L4-exe is.
+-- {-# START_FILE Main.java #-}
+-- public class Main {
+--    public static void main(String[] args) {
+--        System.out.println("Hello, world!");
+--    }
+-- }
