@@ -120,9 +120,9 @@ someFuncLib5 = do
 
   putStrLn "\n ----------------- Happstack.Server  -------------------"
   --callCommand  ("curl -v http://localhost")  
-  --specSh2 (callCommand  ("\ncurl http://localhost")) "" "using \"curl http://localhost\""
-  callCommand  ("curl -v http://b-ok.cc")  
-  specSh2 (callCommand  ("\ncurl http://b-ok.cc")) "" "using \"curl http://b-ok.cc\""
+  specSh2 (testExceptionType (callCommand  ("\ncurl http://localhost"))) "" "using \"curl http://localhost\""
+  --callCommand  ("curl -v http://b-ok.cc")  
+  --specSh2 (testExceptionType (callCommand  ("\ncurl http://b-ok.cc"))) "" "using \"curl http://b-ok.cc\""
 
   putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
   func56main
@@ -175,7 +175,8 @@ someFuncLib5 = do
   specSh2 ((func101main))
            "\nprint $ trace \"Calling 1 + 1\" (1 + 1)\ntraceIO \"Calling 1 + 1\"\nprint $ traceShow (x, x + x) (x + x)"           
            "Debug.Trace"
-
+  specSh2 (func103main) "N.B. Place 'main.c' file in the same folder where L4-exe is." "Compiling and running C application"
+  
   --specSh2 (func10main) "" ""
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -979,6 +980,18 @@ func83main = do
 -}
 
 -- ================================ Files ================================= --
+-- stack new PACKAGE_NAME myfiles.hsfiles will create those files (and all directories automatically) 
+-- according to your layout, if myfiles.hsfiles contains:
+-- {-# START_FILE {{name}}.cabal #-}
+-- name:                {{name}}
+-- version:             0.1.0.0
+-- or
+-- {-# START_FILE package.yaml #-}
+-- name:                {{name}}
+-- version:             0.1.0.0
+-- See some examples in this repository:
+-- https://github.com/commercialhaskell/stack-templates
+
 func8A_main = do
     writeFile "file.txt" "Hello, world!"
     readFile "file.txt" >>= print
@@ -1206,3 +1219,16 @@ func102main = do
     print $ (1 /) 2
     print $ (/ 1) 2
 
+--- C application
+--{-# START_FILE main.hs #-}
+--import System.Process
+func103main = do
+    system "cc main.c"
+    system "./a.out"
+
+--  {-# START_FILE main.c #-}
+--  #include <stdio.h>
+--  int main() {
+--     printf("Hello, world!\n");
+--     return 0;
+--  }
