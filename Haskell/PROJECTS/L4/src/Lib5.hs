@@ -51,6 +51,7 @@ import Text.Email.Validate
 import Control.Concurrent
 import System.CPUTime
 import Debug.Trace
+import Data.Unique
 
 --import Data.Conduit.Binary (sinkFile)
 --import Network.HTTP.Conduit
@@ -176,8 +177,9 @@ someFuncLib5 = do
            "\nprint $ trace \"Calling 1 + 1\" (1 + 1)\ntraceIO \"Calling 1 + 1\"\nprint $ traceShow (x, x + x) (x + x)"           
            "Debug.Trace"
   specSh2 (func103main) "N.B. Place 'main.c' file in the same folder where L4-exe is." "Compiling and running C application, main.c"
-  specSh2 (func104main) "N.B. Place 'Main.java' file in the same folder where L4-exe is." "Compiling and running Java application, Main.java"
-  
+  specSh2 (func104main) "N.B. Place 'Main.java' file in the same folder where L4-exe is." "'Compiling' and running Java application, Main.java"
+  specSh2 (func105main) "N.B. Place 'hello.py' file in the same folder where L4-exe is." "'Compiling' and running Python application, hello.py"
+  specSh2 (func106main) "" "Unuque values"
   --specSh2 (func10main) "" ""
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -1247,3 +1249,24 @@ func104main = do
 --        System.out.println("Hello, world!");
 --    }
 -- }
+
+--- Python application ---
+--{-# START_FILE main.hs #-}
+--import System.Process
+-- N.B. Place 'helo.py' file in the same folder where L4-exe is.
+func105main = system "python hello.py"
+-- {-# START_FILE hello.py #-}
+-- print "Hello, world!"
+
+--- Unique values ---
+--import Data.Unique
+func106main = do
+    unique <- newUnique
+    print $ hashUnique unique
+
+    unique <- newUnique
+    print $ hashUnique unique
+
+    unique <- newUnique
+    print $ hashUnique unique
+
