@@ -410,3 +410,36 @@ because I did not added coressponding package to package.yaml file. HOW TO FIGUR
 
 ----------------------------------------------------------------
 Answer. QUESTION deleted by author
+
+====================================
+#8. October 7, 20       Solved by 
+====================================
+
+Where I can find a list of corresponding names for Stack's package.yaml, knowing package name from Import sentence in a code in Haskell
+---
+
+How we can find a "name" of package to include in package.yaml in list of dependences, which is corresponds to a particular "import" sentence in a haskell source file? For instance. In a hs source code I need to have something like
+
+import Systm.Arch
+What the name of the package to put into the package.yaml file in the list of dependences? It should be something like:
+
+... 
+dependences:
+- base >= 4.7 && < 5
+- <package_name_corresponding_to "import System.Arch">
+Where can I find such a list, suiteable for package.yaml or cabal file? Thank you in advance. 
+
+P.S. For instance, if I had in hs code
+
+import Data.Time
+
+in package.yaml, I have this sting
+
+- time 
+
+-----------------------------------------------------------------
+Answer. by Sir4urOn
+
+Use Hoogle. E.g. if you look for Data.Map, you see it is in the containers 
+package (green text below the result): 
+https://hoogle.haskell.org/?hoogle=Data.Map&scope=set%3Astackage
