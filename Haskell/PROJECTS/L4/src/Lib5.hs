@@ -64,11 +64,24 @@ import qualified Control.Concurrent.STM as CCSTM
 import Data.Tuple
 import System.ByteOrder 
 import qualified Text.Bytedump as TBD
+import System.Arch
+import System.Endian
+import Network.HostName
+import Prelude hiding (null)
+import Data.UUID
+import Data.UUID.V1
+import Data.UUID.V3 as V3
+import Data.UUID.V4
+import Data.UUID.V5 as V5
+import Data.Digest.Pure.SHA
+import Data.Digest.Pure.MD5
+--import Data.ByteString.Lazy.Char8
+--import qualified Data.Text.Punycode as PY -- not on Stackage
+
 
 --import Data.Conduit.Binary (sinkFile)
 --import Network.HTTP.Conduit
 --import qualified Data.Conduit as C
-
 
 --import Happstack.Server.Env, this one is used only inside "School of Haskell"
 {-
@@ -202,6 +215,12 @@ someFuncLib5 = do
   specSh2 (func115main) "" "import Control.Concurrent.STM, - stm"
   specSh2 (func117main) "" "import System.ByteOrder, - byteorder"
   specSh2 (func118main) "" "import Text.Bytedump, - bytedump"
+  specSh2 (func119main) "" "Data.UUID, Data.UUID.V1, Data.UUID.V1, Data.UUID.V3, Data.UUID.V4, Data.UUID.V5, - uuid"
+  specSh2 (func120main) "" "import System.Arch, import System.Endian, - cpu"
+  specSh2 (func121main) "" "import Network.HostName, - hostname"
+  specSh2 (func122main) "" "import Data.Digest.Pure.SHA, - SHA"
+  specSh2 (func123main) "" "import Data.Digest.Pure.MD5, - pureMD5"
+  --specSh2 (func124main) "" "import Data.Text.Punycode, - punycode" -- not on Stackage
 
   --specSh2 (func10main) "" ""
 
@@ -728,7 +747,7 @@ func56main = do
     print $ elem 3 list
 
     print $ length list
-    print $ null list
+    print $ Data.List.null list
     print $ reverse list
 
     print $ take 2 list
@@ -1451,7 +1470,7 @@ func118main = do
     print $ TBD.hexString 100
     print $ TBD.dumpRawS "Hello, world!"
     print $ TBD.dumpS "Hello, world!"
-{-
+
 --- UUID ---
 --import Prelude hiding (null)
 --import Data.UUID
@@ -1461,7 +1480,7 @@ func118main = do
 --import Data.UUID.V5 as V5
 func119main = do
     print nil
-    print $ null nil
+    print $ Data.UUID.null nil
     print $ toWords nil
     print $ fromWords 1 2 3 4
     print $ toString nil
@@ -1518,5 +1537,12 @@ func122main = do
 --{-# LANGUAGE OverloadedStrings #-}
 --import Data.Digest.Pure.MD5
 --import Data.ByteString.Lazy.Char8
-func123main = print $ md5 "Hello, world!"
--}
+func123main = print $ md5 "Hello, world!"       -- 6cd3556deb0da54bca060b4c39479839
+
+--- Punycode ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.Text.Punycode
+--import Data.ByteString.Char8
+--func124main = do
+--    print $ PY.encode "Slovenský jazyk"
+--    print $ PY.decode "Slovensk jazyk-2sb"
