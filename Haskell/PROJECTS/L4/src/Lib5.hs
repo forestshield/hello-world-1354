@@ -15,7 +15,7 @@ import System.Info
 --import System.Directory (getHomeDirectory)
 
 import Control.Exception
-import Data.Typeable (typeOf)
+--import Data.Typeable (typeOf)
 import System.Directory 
 import System.FilePath (joinPath, splitPath)
 import System.Environment
@@ -52,6 +52,18 @@ import Control.Concurrent
 import System.CPUTime
 import Debug.Trace
 import Data.Unique
+import Test.QuickCheck
+import qualified Data.ByteString.UTF8 as UTF8
+import Data.Typeable
+import qualified Data.Serialize as SRZ
+import Data.Word
+import Data.Tree
+import Numeric
+import Data.IORef
+import qualified Control.Concurrent.STM as CCSTM
+import Data.Tuple
+import System.ByteOrder 
+import qualified Text.Bytedump as TBD
 
 --import Data.Conduit.Binary (sinkFile)
 --import Network.HTTP.Conduit
@@ -168,7 +180,6 @@ someFuncLib5 = do
   specSh2 (func95main) "" "Functor"
   specSh2 (func96main) "" "Applicative"  
   specSh2 (func97main) "" "Type class"
-
   specSh2 (func98main) "" "Threads"
   specSh2 (func99main) "" "CPU time"
   specSh2 (func100main) "" "External command"  
@@ -180,6 +191,18 @@ someFuncLib5 = do
   specSh2 (func104main) "N.B. Place 'Main.java' file in the same folder where L4-exe is." "'Compiling' and running Java application, Main.java"
   specSh2 (func105main) "N.B. Place 'hello.py' file in the same folder where L4-exe is." "'Compiling' and running Python application, hello.py"
   specSh2 (func106main) "" "Unuque values"
+  specSh2 (func107main) "" "Test.QuickCheck"
+  specSh2 (func108main) "" "Data.ByteString.UTF8"
+  specSh2 (func109main) "" "Type representations, import Data.Typeable"
+  specSh2 (func110main) "" "import Numeric"
+  specSh2 (func111main) "" "import Data.Tree"
+  specSh2 (func112main) "" "Binary serialization, - serialize, - cereal"
+  specSh2 (func113main) "" "Integral"
+  specSh2 (func114main) "" "Data.IORef"
+  specSh2 (func115main) "" "import Control.Concurrent.STM, - stm"
+  specSh2 (func117main) "" "import System.ByteOrder, - byteorder"
+  specSh2 (func118main) "" "import Text.Bytedump, - bytedump"
+
   --specSh2 (func10main) "" ""
 
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -353,14 +376,14 @@ rsRPN19 = solveRPNB "43.2425 0.5 ^"              -- 6.575903
 --      how long it is and which node it points to. For instance, the first part of the road 
 --      on the A main road would be Road 50 a1 where a1 would be a node Node x y, where x and 
 --      y are roads that point to B1 and A2
-data Node = Node Road Road | EndNode Road
-data Road = Road Int Node
+data Node1 = Node1 Road Road | EndNode1 Road
+data Road = Road Int Node1
 
 --      Another way would be to use Maybe for the road parts that point forward. Each node has 
 --      a road part that point to the opposite road, but only those nodes that aren't the end 
 --      ones have road parts that point forward
---data Node = Node Road (Maybe Road)  
---data Road = Road Int Node
+--data Node1 = Node1 Road (Maybe Road)  
+--data Road = Road Int Node1
 ---
 -- sections 50,10,30,  5,90,20,  40,2,25, and 10,8,0
 data Section = Section { getA :: Int, getB :: Int, getC :: Int } deriving (Show)  
@@ -1270,3 +1293,230 @@ func106main = do
     unique <- newUnique
     print $ hashUnique unique
 
+--- Automatic testing ---
+--import Test.QuickCheck
+check x = x == (reverse . reverse) x
+func107main = do
+    print stdArgs
+    sample (vector 3 :: Gen [Int])
+    sample (orderedList :: Gen [Int])
+
+    quickCheck (check :: [Int] -> Bool)
+    verboseCheck (check :: [Int] -> Bool)
+
+--- UTF-8 ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import qualified Data.ByteString.UTF8 as UTF8
+--import Data.ByteString.Char8
+
+func108main = do
+    print "áéí"
+    print $ UTF8.fromString "áéí"
+    print $ UTF8.length "\195\161\195\169\195\173"
+    print $ UTF8.toString "\195\161\195\169\195\173"
+    putStrLn "áéí"
+    putStrLn "→"
+    putStrLn "λ>"
+    
+--- Type representations ---
+--import Data.Typeable
+func109main = do
+    print $ typeOf 'a'
+    print $ typeOf ("Hello, world!" :: String)
+    print $ typeOf putStrLn
+    print $ (cast True :: Maybe Int)
+    print $ (cast True :: Maybe Bool)
+
+--- Modules ---
+{-
+{-# START_FILE main.hs #-}
+import Test
+main = helloWorld
+
+{-# START_FILE Test.hs #-}
+module Test where
+helloWorld = putStrLn "Hello, world!"
+-}
+
+--- Numeric ---
+--import Numeric
+--import Data.Char
+func110main = do
+    print $ showInt 123 ""
+    print $ showHex 123 ""
+    print $ showOct 123 ""
+    print $ showIntAtBase 2 intToDigit 123 ""
+
+    print $ showFloat 123.456 ""
+    print $ showEFloat (Just 2) 123.456 ""
+    print $ showFFloat (Just 2) 123.456 ""
+    print $ showGFloat (Just 2) 123.456 ""
+    print $ floatToDigits 10 123.456
+    print $ floatToDigits 16 123.456
+
+--- Data.Tree ---
+--import Data.Tree
+tree = Node "A" [Node "B" [], Node "C" [Node "D" [], Node "E" []]]
+func111main = do
+    print tree
+    putStrLn $ drawTree tree
+    putStrLn $ drawForest $ subForest tree
+
+    print $ Data.Tree.flatten tree
+    print $ levels tree
+
+--- Binary serialization ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.Serialize
+--import Data.Word
+--import Data.ByteString.Char8
+func112main = do
+    print $ SRZ.encode (123 :: Word8)
+    print $ (SRZ.decode "{" :: Either String Word8)
+
+    print $ SRZ.encode (123 :: Word16)
+    print $ (SRZ.decode "\NUL{" :: Either String Word16)
+
+    print $ SRZ.encode 'a'
+    print $ (SRZ.decode "a" :: Either String Char)
+
+    print $ SRZ.encode ("abc" :: String)
+    print $ (SRZ.decode "\NUL\NUL\NUL\NUL\NUL\NUL\NUL\ETXabc" :: Either String String)
+
+--- Integral ---
+func113main = do
+    print $ 123 `quot` 4
+    print $ 123 `quot` (-4)
+
+    print $ 123 `div` 4
+    print $ 123 `div` (-4)
+
+    print $ 123 `mod` 4
+    print $ 123 `mod` (-4)
+
+    print $ 123 `quotRem` 4
+    print $ 123 `quotRem` (-4)
+
+    print $ 123 `divMod` 4
+    print $ 123 `divMod` (-4)
+
+--- Data.IORef ---
+--import Data.IORef
+func114main = do
+    ref <- newIORef 0
+    value <- readIORef ref
+    print value
+
+    writeIORef ref $ value + 1
+    readIORef ref >>= print
+
+    modifyIORef ref (+ 2)
+    readIORef ref >>= print
+
+--- Transactions ---
+--import Control.Concurrent.STM
+type Account = CCSTM.TVar Integer
+credit account amount = do
+    current <- CCSTM.readTVar account
+    CCSTM.writeTVar account (current + amount)
+debit account amount = do
+    current <- CCSTM.readTVar account
+    CCSTM.writeTVar account (current - amount)
+transfer from to amount =
+    CCSTM.atomically $ do
+        debit from amount
+        credit to amount
+--
+func115main = do
+    account1 <- CCSTM.atomically $ CCSTM.newTVar 10
+    account2 <- CCSTM.atomically $ CCSTM.newTVar 20
+
+    transfer account1 account2 5
+    balance1 <- CCSTM.atomically $ CCSTM.readTVar account1
+    balance2 <- CCSTM.atomically $ CCSTM.readTVar account2
+    print balance1
+    print balance2
+
+--- Data.Tuple ---
+--import Data.Tuple
+func116main = print $ swap (1, 2)
+
+--- Byte order ---
+--import System.ByteOrder
+func117main = print byteOrder
+
+--- Byte dump ---
+--import Text.Bytedump
+func118main = do
+    print $ TBD.hexString 100
+    print $ TBD.dumpRawS "Hello, world!"
+    print $ TBD.dumpS "Hello, world!"
+{-
+--- UUID ---
+--import Prelude hiding (null)
+--import Data.UUID
+--import Data.UUID.V1
+--import Data.UUID.V3 as V3
+--import Data.UUID.V4
+--import Data.UUID.V5 as V5
+func119main = do
+    print nil
+    print $ null nil
+    print $ toWords nil
+    print $ fromWords 1 2 3 4
+    print $ toString nil
+    print $ fromString "00000000-0000-0000-0000-000000000000"
+
+    uuid <- nextUUID
+    print uuid
+
+    random <- nextRandom
+    print random
+
+    print $ V3.namespaceDNS
+    print $ V3.namespaceURL
+    print $ V3.namespaceOID
+    print $ V3.namespaceX500
+    print $ V3.generateNamed V3.namespaceDNS [1, 2, 3]
+
+    print $ V5.namespaceDNS
+    print $ V5.namespaceURL
+    print $ V5.namespaceOID
+    print $ V5.namespaceX500
+    print $ V5.generateNamed V5.namespaceDNS [1, 2, 3]
+
+--- CPU information ---
+--import System.Arch
+--import System.Endian
+func120main = do
+    print $ getSystemArch
+    print $ getSystemEndianness
+    print $ toBE32 0xFF000000
+
+--- HostName ---
+--import Network.HostName
+func121main = getHostName >>= print
+
+--- SHA ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.Digest.Pure.SHA
+--import Data.ByteString.Lazy.Char8
+func122main = do
+    print $ sha1 "Hello, world!"
+    print $ sha224 "Hello, world!"
+    print $ sha256 "Hello, world!"
+    print $ sha384 "Hello, world!"
+    print $ sha512 "Hello, world!"
+
+    print $ hmacSha1 "key" "Hello, world!"
+    print $ hmacSha224 "key" "Hello, world!"
+    print $ hmacSha256 "key" "Hello, world!"
+    print $ hmacSha384 "key" "Hello, world!"
+    print $ hmacSha512 "key" "Hello, world!"
+
+--- MD5 ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Data.Digest.Pure.MD5
+--import Data.ByteString.Lazy.Char8
+func123main = print $ md5 "Hello, world!"
+-}
