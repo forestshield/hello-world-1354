@@ -67,6 +67,12 @@ dependencies:
 #- byte-order
 - byteorder
 - bytedump
+- cpu 
+- hostname
+- uuid
+- SHA
+- pureMD5
+#- punycode
 
 
 default-extensions:
