@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 86bdcd34cb3c77d215906fb72d3d9397f2d8d89f844bece1b085753fa2ed812f
+-- hash: c4b62d3634d1581c35b0a7f705607d49d03978338343d47bc828c92a09211b78
 
 name:           L4
 version:        0.1.0.0
@@ -52,12 +52,16 @@ library
   build-depends:
       GLUT
     , OpenGL
+    , QuickCheck
     , aeson
     , array
     , base >=4.7 && <5
     , base16-bytestring
     , base64-bytestring
+    , bytedump
+    , byteorder
     , bytestring >=0.10.10.0
+    , cereal
     , code-page
     , conduit
     , conduit-extra
@@ -77,12 +81,15 @@ library
     , process
     , random >=1.1
     , safe-exceptions
+    , serialise
     , snap-core
     , snap-server
+    , stm
     , text
     , time
     , time-lens
     , unordered-containers
+    , utf8-string
     , yesod
   default-language: Haskell2010
 
@@ -98,12 +105,16 @@ executable L4-exe
       GLUT
     , L4
     , OpenGL
+    , QuickCheck
     , aeson
     , array
     , base >=4.7 && <5
     , base16-bytestring
     , base64-bytestring
+    , bytedump
+    , byteorder
     , bytestring >=0.10.10.0
+    , cereal
     , code-page
     , conduit
     , conduit-extra
@@ -123,12 +134,15 @@ executable L4-exe
     , process
     , random >=1.1
     , safe-exceptions
+    , serialise
     , snap-core
     , snap-server
+    , stm
     , text
     , time
     , time-lens
     , unordered-containers
+    , utf8-string
     , yesod
   default-language: Haskell2010
 
@@ -145,12 +159,16 @@ test-suite L4-test
       GLUT
     , L4
     , OpenGL
+    , QuickCheck
     , aeson
     , array
     , base >=4.7 && <5
     , base16-bytestring
     , base64-bytestring
+    , bytedump
+    , byteorder
     , bytestring >=0.10.10.0
+    , cereal
     , code-page
     , conduit
     , conduit-extra
@@ -170,11 +188,14 @@ test-suite L4-test
     , process
     , random >=1.1
     , safe-exceptions
+    , serialise
     , snap-core
     , snap-server
+    , stm
     , text
     , time
     , time-lens
     , unordered-containers
+    , utf8-string
     , yesod
   default-language: Haskell2010

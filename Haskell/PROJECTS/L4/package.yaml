@@ -59,8 +59,14 @@ dependencies:
 - base16-bytestring
 - base64-bytestring
 - email-validate
-
-
+- QuickCheck
+- utf8-string
+- serialise
+- cereal
+- stm
+#- byte-order
+- byteorder
+- bytedump
 
 
 default-extensions:
