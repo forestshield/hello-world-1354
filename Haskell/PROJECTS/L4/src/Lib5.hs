@@ -90,37 +90,13 @@ import Crypto.Hash.Tiger as Tiger
 import Crypto.Hash.Whirlpool as Whirlpool
 import Data.Algorithm.Diff
 import Data.Algorithm.DiffOutput
+import Codec.Compression.Zlib
+import Codec.Compression.GZip
+import qualified Linear as LN 
+import qualified Data.Matrix as DM 
+--import qualified Numeric.LinearAlgebra as NLA
+import Physics.Learn.QuantumMat
 
-
---import Data.ByteString.Base16
---import Data.ByteString.Lazy.Char8
---import qualified Data.Text.Punycode as PY -- not on Stackage
---import qualified Numeric.Units.Dimensional.Prelude as NUDP
---import Numeric.Units.Dimensional.Prelude
---import qualified Prelude
---import Language.Java.Lexer
---import Language.Java.Parser
---import Language.Java.Pretty
---import Data.Conduit.Binary (sinkFile)
---import Network.HTTP.Conduit
---import qualified Data.Conduit as C
---import Happstack.Server.Env, this one is used only inside "School of Haskell"
---import Network.HTTP.Conduit
---import qualified Data.ByteString.Lazy as L
---import Control.Monad.IO.Class (liftIO)
---import Data.Function
---import qualified GHC.Unicode as U 
---import Data.String
---import Data.Int
---import GHC.Int
---import Data.Char (toUpper)
---import Control.Monad 
---import System.IO
---import System.Random
---import Control.Exception
---import Control.Exception.Base
---import Data.Array
---import Data.Maybe
 
 -----------------------------
 someFuncLib5 :: IO ()
@@ -240,24 +216,14 @@ someFuncLib5 = do
   specSh2 (func129main) "" "import Crypto.Hash, - cryptohash"
   specSh2 (testExceptionType (func130main)) "" "import Data.Algorithm.DiffOutput, \
     \import Data.Algorithm.Diff - Diff"
+  specSh2 (func131main) "" "import Codec.Compression.Zlib, - zlib"
+  specSh2 (func132main) "" "import Codec.Compression.GZip, - zlib"
+  specSh2 (func133main) "" "import Linear, -import Linear Algebra, - linear"
+
 
   --specSh2 (func10main) "" ""
-
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
-{-  
-  putStrLn "\n------------- fromIntegral ---------------------" 
-  putStr $ show $ fromIntegral (minBound :: Int16) + 3.2       -- -32764.8
-  putStrLn ", fromIntegral (minBound :: Int16) + 3.2"
-  putStrLn "But, (minBound :: Int16) + 3.2 -- compiler error"
-  
-  specShow (fromIntegral (minBound :: Int16) + 3.2)
-           ", fromIntegral (minBound :: Int16) + 3.2 \n\
-           \But, (minBound :: Int16) + 3.2 -- compiler error"
-           "fromIntegral"
-  putStrLn "\n==================== import Data.List ===================="
-  specSh2 (func28main) "\nfunc28main, it also using its own IO output" "non repetivive results of 2 sets, every time new, using 2 generators"
--}
 {-
   specShow (()
            ,()
@@ -821,7 +787,7 @@ func57main = do
 func58main = do
     print $ intersperse '.' "Erik"
     print $ intercalate " " ["abc","efg","x"]
-    print $ transpose ["abc","efg"]
+    print $ Data.List.transpose ["abc","efg"]
     print $ subsequences "abc"
     print $ permutations "abc"
     print $ foldl' (+) 0 [1..1000000]
@@ -1257,7 +1223,7 @@ func100main = do
 --- Trace ---
 --import Debug.Trace
 func101main = do
-    print $ trace "Calling 1 + 1" (1 + 1)
+    print $ Debug.Trace.trace "Calling 1 + 1" (1 + 1)
 
     traceIO "Calling 1 + 1"
     print $ 1 + 1
@@ -1655,3 +1621,130 @@ func130main = do
 --first line
 --hello
 --third line
+
+--- Zlib ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Codec.Compression.Zlib
+--import Data.ByteString.Lazy.Char8
+func131main = do
+    print $ Codec.Compression.Zlib.compress "Hello, world!"
+    print $ Codec.Compression.Zlib.decompress "x\156\243H\205\201\201\215Q(\207/\202IQ\EOT\NUL ^\EOT\138"
+
+--- GZip ---
+--{-# LANGUAGE OverloadedStrings #-}
+--import Codec.Compression.GZip
+--import Data.ByteString.Lazy.Char8
+func132main = do
+    print $ Codec.Compression.GZip.compress "Hello, world!"
+    print $ Codec.Compression.GZip.decompress "\US\139\b\NUL\NUL\NUL\NUL\NUL\NUL\ETX\243H\205\201\201\215Q(\207/\202IQ\EOT\NUL\230\198\230\235\r\NUL\NUL\NUL"    
+
+--- Linear Algebra ---
+--import Linear
+func133main = do
+    print $ LN.V0
+
+    print $ LN.V1 1
+    print $ LN.V1 1 + LN.V1 2
+    print $ LN.V1 1 - LN.V1 2
+    print $ LN.V1 1 * LN.V1 2
+    print $ LN.V1 1 / LN.V1 2
+
+    print $ LN.V2 1 2
+    print $ LN.V2 1 2 + LN.V2 3 4
+    print $ LN.V2 1 2 - LN.V2 3 4
+    print $ LN.V2 1 2 * LN.V2 3 4
+    print $ LN.V2 1 2 / LN.V2 3 4
+    print $ LN.perp $ LN.V2 0 1
+
+    print $ LN.V3 1 2 3
+    print $ LN.V3 1 2 3 + LN.V3 4 5 6
+    print $ LN.V3 1 2 3 - LN.V3 4 5 6
+    print $ LN.V3 1 2 3 * LN.V3 4 5 6
+    print $ LN.V3 1 2 3 / LN.V3 4 5 6
+    print $ LN.cross (LN.V3 1 2 3) (LN.V3 4 5 6)
+
+    print $ LN.V4 1 2 3 4
+    print $ LN.V4 1 2 3 4 + LN.V4 5 6 7 8
+    print $ LN.V4 1 2 3 4 - LN.V4 5 6 7 8
+    print $ LN.V4 1 2 3 4 * LN.V4 5 6 7 8
+    print $ LN.V4 1 2 3 4 / LN.V4 5 6 7 8
+    print $ LN.vector $ LN.V3 1 2 3
+    print $ LN.point $ LN.V3 1 2 3
+
+    print $ (LN.zero :: LN.V3 Double)
+    print $ LN.negated $ LN.V3 1 2 3
+    print $ LN.V3 1 2 3 LN.^* LN.V3 4 5 6
+    print $ LN.V3 1 2 3 LN.*^ LN.V3 4 5 6
+    print $ LN.V3 1 2 3 LN.^/ 2
+    print $ LN.sumV [LN.V3 1 2 3, LN.V3 4 5 6, LN.V3 7 8 9]
+    print $ (LN.basis :: [LN.V3 Int])
+    print $ LN.basisFor $ LN.V3 1 2 3
+    --print $ NLA.kronecker $ LN.V3 1 2 3
+    print $ LN.outer (LN.V3 1 2 3) (LN.V3 4 5 6)
+
+    print $ LN.nearZero (1e-10 :: Double)
+    print $ LN.nearZero (1e-15 :: Double)
+
+    print $ LN.trace $ LN.V3 (LN.V3 1 2 3) (LN.V3 4 5 6) (LN.V3 7 8 9)
+    print $ LN.diagonal $ LN.V3 (LN.V3 1 2 3) (LN.V3 4 5 6) (LN.V3 7 8 9)
+
+    print $ LN.dot (LN.V3 1 2 3) (LN.V3 4 5 6)
+    print $ LN.quadrance $ LN.V3 1 2 3
+    print $ LN.qd (LN.V3 1 2 3) (LN.V3 4 5 6)
+    print $ LN.distance (LN.V3 1 2 3) (LN.V3 4 5 6)
+    print $ LN.norm $ LN.V3 1 2 3
+    print $ LN.signorm $ LN.V3 1 2 3
+    print $ LN.normalize (LN.V3 1 2 3 :: LN.V3 Double)
+{-
+--- Data.Matrix ---
+--import Data.Matrix
+
+m1 = matrix 3 4 $ \(r, c) -> 4 * (r - 1) + c
+m2 = fromList 3 4 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+m3 = fromLists [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+
+func134main = do
+    print m1
+    print m2
+    print m3
+
+    print $ zero 3 4
+    print $ identity 3
+    print $ permMatrix 3 1 2
+
+    print $ nrows m1
+    print $ ncols m1
+
+    print $ getElem 2 3 m1
+    print $ m1 ! (2, 3)
+    print $ getRow 2 m1
+    print $ getCol 3 m1
+    print $ getDiag m1
+
+    print $ setElem 13 (2, 3) m1
+    print $ transpose m1
+    print $ extendTo 0 4 8 m1
+    print $ mapRow (\c x -> 2 * x) 3 m1
+
+    print $ submatrix 2 3 1 2 m1
+    print $ minorMatrix 1 2 m1
+    print $ splitBlocks 2 3 m1
+
+    print $ m1 <|> zero 3 2
+    print $ m1 <-> zero 2 4
+
+    print $ multStd m1 (identity 4)
+
+    print $ scaleMatrix 2 m1
+    print $ scaleRow 2 3 m1
+    print $ combineRows 3 2 1 m1
+    print $ switchRows 1 2 m1
+
+    print $ luDecomp $ fromLists [[1.0, 2.0], [3.0, 4.0]]
+    print $ trace m1
+    print $ diagProd m1
+
+    print $ detLaplace $ identity 3
+    print $ detLU $ fromLists [[1.0, 2.0], [3.0, 4.0]]
+-}
+--- Towers of Hanoi ---
