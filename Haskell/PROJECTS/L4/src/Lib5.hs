@@ -30,7 +30,8 @@ import qualified Data.HashMap.Lazy as HML
 import Data.Version
 import Happstack.Server
 import System.Process 
-import qualified Yesod as Y
+--import qualified Yesod as Y
+import Yesod
 import Text.Jasmine
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.ByteString.Lazy as L
@@ -75,37 +76,51 @@ import Data.UUID.V4
 import Data.UUID.V5 as V5
 import Data.Digest.Pure.SHA
 import Data.Digest.Pure.MD5
+import Language.JavaScript.Parser
+import Crypto.Hash.MD2 as MD2
+import Crypto.Hash.MD4 as MD4
+import Crypto.Hash.MD5 as MD5
+import Crypto.Hash.RIPEMD160 as RIPEMD160
+import Crypto.Hash.SHA1 as SHA1
+import Crypto.Hash.SHA224 as SHA224
+import Crypto.Hash.SHA256 as SHA256
+import Crypto.Hash.SHA384 as SHA384
+import Crypto.Hash.SHA512 as SHA512
+import Crypto.Hash.Tiger as Tiger
+import Crypto.Hash.Whirlpool as Whirlpool
+import Data.Algorithm.Diff
+import Data.Algorithm.DiffOutput
+
+
+--import Data.ByteString.Base16
 --import Data.ByteString.Lazy.Char8
 --import qualified Data.Text.Punycode as PY -- not on Stackage
-
-
+--import qualified Numeric.Units.Dimensional.Prelude as NUDP
+--import Numeric.Units.Dimensional.Prelude
+--import qualified Prelude
+--import Language.Java.Lexer
+--import Language.Java.Parser
+--import Language.Java.Pretty
 --import Data.Conduit.Binary (sinkFile)
 --import Network.HTTP.Conduit
 --import qualified Data.Conduit as C
-
 --import Happstack.Server.Env, this one is used only inside "School of Haskell"
-{-
-import Network.HTTP.Conduit
-import qualified Data.ByteString.Lazy as L
-import Control.Monad.IO.Class (liftIO)
--}
-
-
-{-
-import Data.Function
-import qualified GHC.Unicode as U 
-import Data.String
-import Data.Int
+--import Network.HTTP.Conduit
+--import qualified Data.ByteString.Lazy as L
+--import Control.Monad.IO.Class (liftIO)
+--import Data.Function
+--import qualified GHC.Unicode as U 
+--import Data.String
+--import Data.Int
 --import GHC.Int
-import Data.Char (toUpper)
-import Control.Monad 
-import System.IO
-import System.Random
-import Control.Exception
+--import Data.Char (toUpper)
+--import Control.Monad 
+--import System.IO
+--import System.Random
+--import Control.Exception
 --import Control.Exception.Base
 --import Data.Array
-import Data.Maybe
--}
+--import Data.Maybe
 
 -----------------------------
 someFuncLib5 :: IO ()
@@ -221,6 +236,10 @@ someFuncLib5 = do
   specSh2 (func122main) "" "import Data.Digest.Pure.SHA, - SHA"
   specSh2 (func123main) "" "import Data.Digest.Pure.MD5, - pureMD5"
   --specSh2 (func124main) "" "import Data.Text.Punycode, - punycode" -- not on Stackage
+  specSh2 (testExceptionType (func128main)) "JavaScript Parser done" "import Language.JavaScript.Parser, - language-javascript"
+  specSh2 (func129main) "" "import Crypto.Hash, - cryptohash"
+  specSh2 (testExceptionType (func130main)) "" "import Data.Algorithm.DiffOutput, \
+    \import Data.Algorithm.Diff - Diff"
 
   --specSh2 (func10main) "" ""
 
@@ -552,17 +571,10 @@ func47main = do line <- fmap reverse getLine
 
 -- ================================ System Info =====================================
 func48main = do
-    print os
-    print arch
-    print compilerName
-    print compilerVersion
-
-{-
-"darwin"
-"x86_64"
-"ghc"
-Version {versionBranch = [8,8], versionTags = []}
--}
+    print os               -- "darwin"                                                                                                    
+    print arch             -- "x86_64"                                                                                                         
+    print compilerName     -- "ghc"                                                                                                              
+    print compilerVersion  -- Version {versionBranch = [8,8], versionTags = []}                                                                      
 
 --rsSI1 = isWindows
 --rsSI2 = isMac
@@ -578,7 +590,7 @@ getFullPath :: String -> IO FilePath
 getFullPath s = do
   homeDir <- getHomeDirectory
   if "~" `isPrefixOf` s
-    then return (joinPath [homeDir, tail s])
+    then return (System.FilePath.joinPath [homeDir, tail s])
   else return s
 
 --getHomeDir :: IO FilePath
@@ -677,31 +689,25 @@ func55main = do
 
 --- Yesod version
 --import Yesod
-func50C_main = putStrLn Y.yesodVersion
+func50C_main = putStrLn yesodVersion
 
 {-
 --- Yesod application
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-import Yesod
+--{-# LANGUAGE OverloadedStrings #-}
+--{-# LANGUAGE TypeFamilies #-}
+--{-# LANGUAGE QuasiQuotes #-}
+--{-# LANGUAGE TemplateHaskell #-}
+--{-# LANGUAGE MultiParamTypeClasses #-}
 data WebApp = WebApp
-
 instance Yesod WebApp
-
 mkYesod "WebApp" [parseRoutes|
   / HomeR GET
-|]
-
+|]            
 getHomeR = defaultLayout [whamlet|
   <div>Hello, world!
 |]
-
-main = warpEnv WebApp
+func125main = warpEnv WebApp
 -}
-
 
 --- Snap application
 --{-# LANGUAGE OverloadedStrings #-}
@@ -741,7 +747,7 @@ func56main = do
     print $ head list
     print $ tail list
     print $ last list
-    print $ init list
+    print $ Prelude.init list
 
     print $ list !! 3
     print $ elem 3 list
@@ -882,7 +888,7 @@ func61main = do
 
 --- Data.Array ---
 --import Data.Array
-myArray = array (1, 3) [(1, "a"), (2, "b"), (3, "c")]
+myArray = Data.Array.array (1, 3) [(1, "a"), (2, "b"), (3, "c")]
 func62main = do
     print myArray
     print $ myArray ! 2
@@ -1320,8 +1326,8 @@ func107main = do
     sample (vector 3 :: Gen [Int])
     sample (orderedList :: Gen [Int])
 
-    quickCheck (check :: [Int] -> Bool)
-    verboseCheck (check :: [Int] -> Bool)
+    quickCheck (Lib5.check :: [Int] -> Bool)
+    verboseCheck (Lib5.check :: [Int] -> Bool)
 
 --- UTF-8 ---
 --{-# LANGUAGE OverloadedStrings #-}
@@ -1540,9 +1546,112 @@ func122main = do
 func123main = print $ md5 "Hello, world!"       -- 6cd3556deb0da54bca060b4c39479839
 
 --- Punycode ---
+-- N.B. punycode is not included yet in Stackage
 --{-# LANGUAGE OverloadedStrings #-}
 --import Data.Text.Punycode
 --import Data.ByteString.Char8
 --func124main = do
 --    print $ PY.encode "Slovenský jazyk"
 --    print $ PY.decode "Slovensk jazyk-2sb"
+
+--- Dimensional ---
+-- see stand_alone/Dimentional.hs
+--import Numeric.Units.Dimensional.Prelude
+--import qualified Prelude
+{-
+func126main = do
+    print $ 1 *~  kilo meter
+    print $ 1 *~ (kilo meter / hour)
+    print $ 1 *~  newton
+    print $ 1 *~  pascal
+-}
+{-
+--- Java parser ---
+- see stand_alone/JavaParser.hs
+--{-# START_FILE main.hs #-}
+--import Language.Java.Lexer
+--import Language.Java.Parser
+--import Language.Java.Pretty
+func127main = do
+    source <- readFile "Main.java"
+    print $ lexer source
+    print $ parser compilationUnit source
+
+    let result = parser compilationUnit source
+    case result of
+        Left error -> print error
+        Right ast -> putStrLn $ prettyPrint ast
+-- {-# START_FILE Main.java #-}
+-- public class Main {
+--     public static void main(String[] args) {
+--         System.out.println("Hello, world!");
+--     }
+-- }
+--}
+
+--- JavaScript parser ---
+--{-# START_FILE main.hs #-}
+--import Language.JavaScript.Parser
+func128main = do
+    source <- readFile "Main.js"
+    print $ parse source "Main.js"
+
+    let result = parse source "Main.js"
+    case result of
+        Left error -> print error
+        Right ast -> putStrLn $ renderToString ast
+-- {-# START_FILE Main.js #-}
+-- function test() {
+--    alert('Hello, world!');
+-- }
+
+
+--- Crypto.Hash ---
+--{-# LANGUAGE OverloadedStrings #-}
+{-
+import Crypto.Hash.MD2 as MD2
+import Crypto.Hash.MD4 as MD4
+import Crypto.Hash.MD5 as MD5
+import Crypto.Hash.RIPEMD160 as RIPEMD160
+import Crypto.Hash.SHA1 as SHA1
+import Crypto.Hash.SHA224 as SHA224
+import Crypto.Hash.SHA256 as SHA256
+import Crypto.Hash.SHA384 as SHA384
+import Crypto.Hash.SHA512 as SHA512
+import Crypto.Hash.Tiger as Tiger
+import Crypto.Hash.Whirlpool as Whirlpool
+import Data.ByteString.Base16
+-}
+func129main = do
+    print $ BS16.encode $ MD2.hash "Hello, world!"
+    print $ BS16.encode $ MD4.hash "Hello, world!"
+    print $ BS16.encode $ MD5.hash "Hello, world!"
+    print $ BS16.encode $ RIPEMD160.hash "Hello, world!"    
+    print $ BS16.encode $ SHA1.hash "Hello, world!"
+    print $ BS16.encode $ SHA224.hash "Hello, world!"
+    print $ BS16.encode $ SHA256.hash "Hello, world!"
+    print $ BS16.encode $ SHA384.hash "Hello, world!"
+    print $ BS16.encode $ SHA512.hash "Hello, world!"
+    print $ BS16.encode $ Tiger.hash "Hello, world!"
+    print $ BS16.encode $ Whirlpool.hash "Hello, world!"
+
+--- Diff ---
+--{-# START_FILE main.hs #-}
+--import Data.Algorithm.Diff
+--import Data.Algorithm.DiffOutput
+func130main = do
+    file1 <- readFile "file1.txt"
+    file2 <- readFile "file2.txt"
+    let
+        lines1 = lines file1
+        lines2 = lines file2
+    print $ getDiff lines1 lines2
+    print $ getGroupedDiff lines1 lines2
+    putStrLn $ ppDiff $ getGroupedDiff lines1 lines2
+--{-# START_FILE file1.txt #-}
+--first line
+--second line
+--{-# START_FILE file2.txt #-}
+--first line
+--hello
+--third line

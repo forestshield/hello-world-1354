@@ -32,9 +32,9 @@ import System.Directory
 someFunc :: IO ()
 someFunc = do
   putStrLn "N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console eception\
-           \*** Exception: <stdout>: hPutChar: invalid argument (invalid character)\
-           \type \"chcp 65001\" in powershell before using ghci !!!\
-           \use ConEmu on Windows, \"https://www.fosshub.com/ConEmu.html\"\n"
+           \\n*** Exception: <stdout>: hPutChar: invalid argument (invalid character)\
+           \\ntype \"chcp 65001\" in powershell before using ghci !!!\
+           \\nuse ConEmu on Windows, \"https://www.fosshub.com/ConEmu.html\"\n"
 
   putStrLn "================================= Lib ==================================="
   funcCheckOS
