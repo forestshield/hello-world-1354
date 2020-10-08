@@ -73,16 +73,25 @@ dependencies:
 - SHA
 - pureMD5
 #- punycode
+- dimensional 
+- language-java
+- language-javascript
+#- Language.Java.Lexer
+- cryptohash
+- Diff
 
 
 default-extensions:
 #- NoImplicitPrelude
 - OverloadedStrings
-#- XScopedTypeVariables
-#- QuasiQuotes
-#- TemplateHaskell
 - FlexibleContexts
 - DeriveGeneric
+#- XScopedTypeVariables
+- TemplateHaskell
+- TypeFamilies
+- QuasiQuotes
+- MultiParamTypeClasses
+
 
 library:
   source-dirs: src

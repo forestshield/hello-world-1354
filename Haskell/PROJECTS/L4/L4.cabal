@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5ac9cbf28c867d00b1979cbbf36acf988f1c693c2f0df891a07cad00ed66b440
+-- hash: 44c52e1da46cfd8bc626bc5c98016423cd15eab389017d91176bbf7cf0f19b35
 
 name:           L4
 version:        0.1.0.0
@@ -48,9 +48,10 @@ library
       Paths_L4
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric
+  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric TemplateHaskell TypeFamilies QuasiQuotes MultiParamTypeClasses
   build-depends:
-      GLUT
+      Diff
+    , GLUT
     , OpenGL
     , QuickCheck
     , SHA
@@ -68,7 +69,9 @@ library
     , conduit-extra
     , containers
     , cpu
+    , cryptohash
     , deepseq
+    , dimensional
     , directory
     , email-validate
     , extensible-exceptions >=0.1.1.0
@@ -77,6 +80,8 @@ library
     , hjsmin
     , hostname
     , http-conduit
+    , language-java
+    , language-javascript
     , lens
     , lens-aeson
     , mtl
@@ -104,10 +109,11 @@ executable L4-exe
       Paths_L4
   hs-source-dirs:
       app
-  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric
+  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric TemplateHaskell TypeFamilies QuasiQuotes MultiParamTypeClasses
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      GLUT
+      Diff
+    , GLUT
     , L4
     , OpenGL
     , QuickCheck
@@ -126,7 +132,9 @@ executable L4-exe
     , conduit-extra
     , containers
     , cpu
+    , cryptohash
     , deepseq
+    , dimensional
     , directory
     , email-validate
     , extensible-exceptions >=0.1.1.0
@@ -135,6 +143,8 @@ executable L4-exe
     , hjsmin
     , hostname
     , http-conduit
+    , language-java
+    , language-javascript
     , lens
     , lens-aeson
     , mtl
@@ -163,10 +173,11 @@ test-suite L4-test
       Paths_L4
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric
+  default-extensions: OverloadedStrings FlexibleContexts DeriveGeneric TemplateHaskell TypeFamilies QuasiQuotes MultiParamTypeClasses
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      GLUT
+      Diff
+    , GLUT
     , L4
     , OpenGL
     , QuickCheck
@@ -185,7 +196,9 @@ test-suite L4-test
     , conduit-extra
     , containers
     , cpu
+    , cryptohash
     , deepseq
+    , dimensional
     , directory
     , email-validate
     , extensible-exceptions >=0.1.1.0
@@ -194,6 +207,8 @@ test-suite L4-test
     , hjsmin
     , hostname
     , http-conduit
+    , language-java
+    , language-javascript
     , lens
     , lens-aeson
     , mtl
