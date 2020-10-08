@@ -79,7 +79,11 @@ dependencies:
 #- Language.Java.Lexer
 - cryptohash
 - Diff
-
+- zlib
+- linear
+- matrix
+#- hmatrix
+- learn-physics
 
 default-extensions:
 #- NoImplicitPrelude

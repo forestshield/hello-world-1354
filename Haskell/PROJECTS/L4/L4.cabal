@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 44c52e1da46cfd8bc626bc5c98016423cd15eab389017d91176bbf7cf0f19b35
+-- hash: 8bfc31def1f439c7badeca4c421ca293c6e5dde78d79d96cb278ec26c12b5fee
 
 name:           L4
 version:        0.1.0.0
@@ -82,8 +82,11 @@ library
     , http-conduit
     , language-java
     , language-javascript
+    , learn-physics
     , lens
     , lens-aeson
+    , linear
+    , matrix
     , mtl
     , pretty-simple
     , process
@@ -101,6 +104,7 @@ library
     , utf8-string
     , uuid
     , yesod
+    , zlib
   default-language: Haskell2010
 
 executable L4-exe
@@ -145,8 +149,11 @@ executable L4-exe
     , http-conduit
     , language-java
     , language-javascript
+    , learn-physics
     , lens
     , lens-aeson
+    , linear
+    , matrix
     , mtl
     , pretty-simple
     , process
@@ -164,6 +171,7 @@ executable L4-exe
     , utf8-string
     , uuid
     , yesod
+    , zlib
   default-language: Haskell2010
 
 test-suite L4-test
@@ -209,8 +217,11 @@ test-suite L4-test
     , http-conduit
     , language-java
     , language-javascript
+    , learn-physics
     , lens
     , lens-aeson
+    , linear
+    , matrix
     , mtl
     , pretty-simple
     , process
@@ -228,4 +239,5 @@ test-suite L4-test
     , utf8-string
     , uuid
     , yesod
+    , zlib
   default-language: Haskell2010
