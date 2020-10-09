@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5f14a14c2afa96a2c06bec8e88fc90e3a8e128dc5bfb80c9da5b1c31b40e173d
+-- hash: 50b693c8ac7b7aa16c713ade09c66e94435546561c7bb21f9b3698f89ce60d37
 
 name:           L4
 version:        0.1.0.0
@@ -44,6 +44,7 @@ library
       Lib5
       PackageImports
       Print3flipped
+      RegEx
       Shapes
       TopLevelFunction
       ValidateUser
