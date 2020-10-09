@@ -1,0 +1,12 @@
+-- output beyond L4-output.txt
+| => stack exec L4-exe > L4-output.txt
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (52) Empty reply from server
+cat: /proc/version: No such file or directory
+cat: /proc/cpuinfo: No such file or directory
+/bin/sh: lsb_release: command not found
+Python 2.7.10
+Calling 1 + 1
+Calling 1 + 1
+(1,2)
