@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8bfc31def1f439c7badeca4c421ca293c6e5dde78d79d96cb278ec26c12b5fee
+-- hash: d4aada1f1003672a8acc343f512e5c5c8c36fda72a94b37eff870b94da1a93ad
 
 name:           L4
 version:        0.1.0.0
@@ -35,6 +35,7 @@ library
       Geometry.Cube
       Geometry.Cuboid
       Geometry.Sphere
+      GHCOptions
       Lib
       Lib2
       Lib3
@@ -80,9 +81,9 @@ library
     , hjsmin
     , hostname
     , http-conduit
+    , language-c
     , language-java
     , language-javascript
-    , learn-physics
     , lens
     , lens-aeson
     , linear
@@ -147,9 +148,9 @@ executable L4-exe
     , hjsmin
     , hostname
     , http-conduit
+    , language-c
     , language-java
     , language-javascript
-    , learn-physics
     , lens
     , lens-aeson
     , linear
@@ -215,9 +216,9 @@ test-suite L4-test
     , hjsmin
     , hostname
     , http-conduit
+    , language-c
     , language-java
     , language-javascript
-    , learn-physics
     , lens
     , lens-aeson
     , linear

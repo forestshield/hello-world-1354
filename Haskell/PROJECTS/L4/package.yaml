@@ -83,7 +83,9 @@ dependencies:
 - linear
 - matrix
 #- hmatrix
-- learn-physics
+#- learn-physics
+#- lapack -- does not match version
+- language-c
 
 default-extensions:
 #- NoImplicitPrelude
