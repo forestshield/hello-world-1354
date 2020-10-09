@@ -8,6 +8,9 @@ import ExTT
 import Lib
 import Lib4
 import GHCOptions
+import PackageImports
+import DataVector
+
 import Data.List
 import Data.Char
 import System.Info 
@@ -106,7 +109,10 @@ import Data.Either
 import Prelude hiding (error)
 --import Data.List
 import Data.Ord
-
+--import "unordered-containers" Data.HashSet
+import Data.Monoid
+--import Prelude PHfuncs hiding (replicate, enumFromTo, enumFromThenTo, length, null)
+--import Data.Vector
 
 -----------------------------
 someFuncLib5 :: IO ()
@@ -241,8 +247,13 @@ someFuncLib5 = do
   specSh2 (func144main) "" "Coin change, version 2" 
   specSh2 (func145main) "" "Coin change, version 3" 
   specSh2 (func146main) "" "Queens" 
-  -- function with GHCOptions --
+  -- function with {-# OPTIONS_GHC -fwarn-missing-signatures #-} --
   funcGHCOptions1
+  -- function with {-# LANGUAGE PackageImports #-} --
+  funcPackageImports1
+  specSh2 (func149main) "" "import Data.Monoid\n"
+  funcDataVectormain
+  specSh2 (func151main) "" "Cellular automation" 
 
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -1952,6 +1963,91 @@ func146main = mapM_ showSolution $ queens 4
 
 
 --- GHC options ---
+-- see file src/GHCOptions.hs 
 --{-# OPTIONS_GHC -fwarn-missing-signatures #-}
 --func147main = putStrLn "Hello, world!"
 
+--- PackageImports
+-- see file src/PackageImports.hs
+--{-# LANGUAGE PackageImports #-}
+--import "unordered-containers" Data.HashSet
+--func148main = print $ singleton 'a'
+
+--- Monoid
+--import Data.Monoid
+func149main = do
+    print $ Sum 10
+    print $ getSum $ Sum 10
+    print $ (mempty :: Sum Int)
+    print $ mappend (Sum 10) (Sum 20)
+    print $ Sum 10 <> Sum 20
+    print $ mconcat [Sum 10, Sum 20, Sum 30]
+
+    print $ Product 10
+    print $ getProduct $ Product 10
+    print $ Product 10 <> Product 20
+
+    print $ Data.Monoid.First (Just 10) <> Data.Monoid.First (Just 20)
+    print $ Data.Monoid.First Nothing <> Data.Monoid.First (Just 20)
+
+    print $ Data.Monoid.Last (Just 10) <> Data.Monoid.Last (Just 20)
+    print $ Data.Monoid.Last Nothing <> Data.Monoid.Last (Just 20)
+
+    print $ Any False <> Any False
+    print $ Any False <> Any True
+
+    print $ All False <> All True
+    print $ All True <> All True
+
+    print $ Dual (Data.Monoid.First (Just 10)) <> Dual (Data.Monoid.First (Just 20))
+    print $ Dual (Data.Monoid.First (Just 20)) <> Dual (Data.Monoid.First (Just 10))
+
+    print $ appEndo (Endo (+ 10)) 1
+    print $ appEndo (Endo (+ 10) <> (Endo (+ 20))) 2
+{-
+--- Data.Vector ---
+-- see file src/DataVectro.hs
+--import Prelude hiding (replicate, enumFromTo, enumFromThenTo, length, null)
+--import Data.Vector
+func150main = do
+    print $ (empty :: Vector Char)
+    print $ singleton 'a'
+    print $ replicate 10 'b'
+    print $ generate 10 (* 2)
+    print $ iterateN 10 (+ 1) 100
+    print $ enumFromN 10 5
+    print $ enumFromStepN 2 3 10
+    print $ enumFromTo 10 20
+    print $ enumFromThenTo 10 12 20
+
+    print $ fromList [1..5]
+    print $ fromListN 3 [1..5]
+    print $ toList $ replicate 10 'c'
+
+    let vector = fromList [1..10]
+
+    print $ length vector
+    print $ null vector
+    print $ null $ fromList []
+
+    print $ vector ! 0
+    print $ vector !? 0
+    print $ vector !? 10
+-}
+
+--- Cellular automaton ---
+rule ' ' ' ' ' ' = ' '
+rule ' ' ' ' 'X' = 'X'
+rule ' ' 'X' ' ' = ' '
+rule ' ' 'X' 'X' = 'X'
+rule 'X' ' ' ' ' = 'X'
+rule 'X' ' ' 'X' = ' '
+rule 'X' 'X' ' ' = 'X'
+rule 'X' 'X' 'X' = ' '
+
+start n = replicate n ' ' ++ "X" ++ replicate n ' '
+next (a : b : c : rest) = rule a b c : Lib5.next (b : c : rest)
+next _ = " "
+rows n = take n $ iterate (\x -> ' ' : Lib5.next x) $ start n
+
+func151main = mapM_ putStrLn $ rows 32
