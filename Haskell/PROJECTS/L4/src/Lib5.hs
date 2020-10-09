@@ -10,6 +10,7 @@ import Lib4
 import GHCOptions
 import PackageImports
 import DataVector
+import qualified RegEx as RGEX 
 
 import Data.List
 import Data.Char
@@ -284,6 +285,8 @@ someFuncLib5 = do
   specSh2 (func165main) "" "Church numerals"
   putStrLn "===================== Simple Examples Done =================="
   putStrLn "https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples#simple-application"
+  specSh2 (RGEX.regExTest) "" "Custom Module RegEx"
+
 
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -1620,6 +1623,7 @@ func127main = do
 --}
 
 --- JavaScript parser ---
+-- see also stand_alone/JavaParser.hs
 --{-# START_FILE main.hs #-}
 --import Language.JavaScript.Parser
 func128main = do
@@ -1703,6 +1707,7 @@ func132main = do
     print $ Codec.Compression.GZip.decompress "\US\139\b\NUL\NUL\NUL\NUL\NUL\NUL\ETX\243H\205\201\201\215Q(\207/\202IQ\EOT\NUL\230\198\230\235\r\NUL\NUL\NUL"    
 
 --- Linear Algebra ---
+-- see also stand_alone/TestLinear.hs
 --import Linear
 func133main = do
     print $ LN.V0
@@ -2383,3 +2388,64 @@ func165main = do
     print $ add four six ('*':) ""
     print $ mul four six ('*':) ""
     print $ Lib5.exp two five ('*':) ""
+
+{-
+--- Regular expressions ---
+-- see file src/RegEx.hs
+-- https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/a-regular-expression-matcher
+--{-# LANGUAGE OverloadedStrings #-}
+--import GHC.Exts (IsString(..))
+data Regexp = Zero                  -- empty
+            | One                   -- epsilon
+            | Lit Char              -- single character
+            | Plus Regexp Regexp    -- union (+)
+            | Cat  Regexp Regexp    -- concatenation (.)
+            | Many Regexp           -- repetition (*)
+            deriving Show
+
+infixl 6 <+>
+infixl 7 <>
+
+(<+>) :: Regexp -> Regexp -> Regexp
+Zero <+> e = e
+e <+> Zero = e
+e1 <+> e2  = Plus e1 e2
+
+(<>) :: Regexp -> Regexp -> Regexp
+Zero <> _   = Zero
+_ <> Zero   = Zero
+One <> e    = e
+e <> One    = e
+e1 <> e2    = Cat e1 e2
+
+many :: Regexp -> Regexp 
+many Zero     = One
+many One       = One
+many (Many e)  = Many e
+many e         = Many e
+
+type Cont= String -> Bool
+
+accept :: Regexp -> String -> Cont -> Bool  -- worker function
+accept Zero    cs      k = False
+accept One     cs      k = k cs
+accept (Lit c) (c':cs) k = c==c' && k cs
+accept (Lit c) []      k = False
+accept (Cat e1 e2) cs  k = accept e1 cs (\cs' -> accept e2 cs' k)
+accept (Plus e1 e2) cs k = accept e1 cs k || accept e2 cs k
+accept (Many e) cs k     = acceptMany e cs k
+  where 
+     acceptMany e cs k 
+       = k cs || accept e cs (\cs' -> cs'/=cs && acceptMany e cs' k)
+
+
+match :: Regexp -> String -> Bool
+match re s = accept re s null
+
+instance IsString Regexp where
+  fromString cs = foldr ((<>) . Lit) One cs
+
+-- show
+func166main = print (match ("ab" <> many "ba") "abbaba")
+-- /show
+-}
