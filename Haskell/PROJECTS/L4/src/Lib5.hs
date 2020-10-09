@@ -7,6 +7,7 @@ module Lib5
 import ExTT 
 import Lib
 import Lib4
+import GHCOptions
 import Data.List
 import Data.Char
 import System.Info 
@@ -93,9 +94,18 @@ import Data.Algorithm.DiffOutput
 import Codec.Compression.Zlib
 import Codec.Compression.GZip
 import qualified Linear as LN 
-import qualified Data.Matrix as DM 
+--import qualified Data.Matrix as DM 
 --import qualified Numeric.LinearAlgebra as NLA
-import Physics.Learn.QuantumMat
+--import Numeric.LinearAlgebra
+--import Physics.Learn.QuantumMat
+import Data.Matrix
+import Language.C
+import Data.Maybe
+--import Data.Char
+import Data.Either
+import Prelude hiding (error)
+--import Data.List
+import Data.Ord
 
 
 -----------------------------
@@ -219,7 +229,20 @@ someFuncLib5 = do
   specSh2 (func131main) "" "import Codec.Compression.Zlib, - zlib"
   specSh2 (func132main) "" "import Codec.Compression.GZip, - zlib"
   specSh2 (func133main) "" "import Linear, -import Linear Algebra, - linear"
-
+  specSh2 (func134main) "" "import Data.Matrix, - matrix"
+  specSh2 (func135main) "" "Tower of Hanoi"
+  specSh2 (func136main) "It does not parse '//', '#', '/*' !!!" "C Parser, import Language.C, - language-c"
+  specSh2 (func142main) "" "Fibonacci version: 1" 
+  specSh2 (func139main) "" "Fibonacci version: 2" 
+  specSh2 (func140main) "" "Fibonacci version: 3" 
+  specSh2 (func141main) "" "Fibonacci version: 4" 
+  specSh2 (func137main) "" "import Data.Either, import Prelude hiding (error)" 
+  specSh2 (func143main) "" "Coin change, version 1" 
+  specSh2 (func144main) "" "Coin change, version 2" 
+  specSh2 (func145main) "" "Coin change, version 3" 
+  specSh2 (func146main) "" "Queens" 
+  -- function with GHCOptions --
+  funcGHCOptions1
 
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -805,7 +828,7 @@ func58main = do
     print $ isPrefixOf "ab" "abcdefg"
     print $ elem 'c' ("abcdefg" :: String)
     print $ lookup 'c' [('a', 1), ('b', 2), ('c', 3)]
-    print $ find (> 2) [1..]
+    print $ Data.List.find (> 2) [1..]
     print $ partition (> 2) [1..10]
     print $ nub [1, 1, 3, 2, 1, 2, 4, 6]
     print $ sort [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -857,7 +880,7 @@ func61main = do
 myArray = Data.Array.array (1, 3) [(1, "a"), (2, "b"), (3, "c")]
 func62main = do
     print myArray
-    print $ myArray ! 2
+    print $ myArray Data.Array.! 2
     print $ bounds myArray
     print $ indices myArray
     print $ elems myArray
@@ -1289,7 +1312,7 @@ func106main = do
 check x = x == (reverse . reverse) x
 func107main = do
     print stdArgs
-    sample (vector 3 :: Gen [Int])
+    sample (Test.QuickCheck.vector 3 :: Gen [Int])
     sample (orderedList :: Gen [Int])
 
     quickCheck (Lib5.check :: [Int] -> Bool)
@@ -1679,7 +1702,11 @@ func133main = do
     print $ LN.sumV [LN.V3 1 2 3, LN.V3 4 5 6, LN.V3 7 8 9]
     print $ (LN.basis :: [LN.V3 Int])
     print $ LN.basisFor $ LN.V3 1 2 3
-    --print $ NLA.kronecker $ LN.V3 1 2 3
+    
+    -- Variable not in scope: kronecker :: V3 Integer -> a0
+    -- Perhaps you meant ‘NLA.kronecker’ (imported from Numeric.LinearAlgebra)
+    --print $ NLA.kronecker $ V3 1 2 3      -- Kronecker product of two matrices.
+
     print $ LN.outer (LN.V3 1 2 3) (LN.V3 4 5 6)
 
     print $ LN.nearZero (1e-10 :: Double)
@@ -1695,13 +1722,12 @@ func133main = do
     print $ LN.norm $ LN.V3 1 2 3
     print $ LN.signorm $ LN.V3 1 2 3
     print $ LN.normalize (LN.V3 1 2 3 :: LN.V3 Double)
-{-
+
 --- Data.Matrix ---
 --import Data.Matrix
-
-m1 = matrix 3 4 $ \(r, c) -> 4 * (r - 1) + c
-m2 = fromList 3 4 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-m3 = fromLists [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+m1 = Data.Matrix.matrix 3 4 $ \(r, c) -> 4 * (r - 1) + c
+m2 = Data.Matrix.fromList 3 4 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+m3 = Data.Matrix.fromLists [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
 
 func134main = do
     print m1
@@ -1716,13 +1742,13 @@ func134main = do
     print $ ncols m1
 
     print $ getElem 2 3 m1
-    print $ m1 ! (2, 3)
+    print $ m1 Data.Matrix.! (2, 3)
     print $ getRow 2 m1
     print $ getCol 3 m1
     print $ getDiag m1
 
     print $ setElem 13 (2, 3) m1
-    print $ transpose m1
+    print $ Data.Matrix.transpose m1
     print $ extendTo 0 4 8 m1
     print $ mapRow (\c x -> 2 * x) 3 m1
 
@@ -1730,7 +1756,7 @@ func134main = do
     print $ minorMatrix 1 2 m1
     print $ splitBlocks 2 3 m1
 
-    print $ m1 <|> zero 3 2
+    print $ m1 Data.Matrix.<|> zero 3 2
     print $ m1 <-> zero 2 4
 
     print $ multStd m1 (identity 4)
@@ -1740,11 +1766,192 @@ func134main = do
     print $ combineRows 3 2 1 m1
     print $ switchRows 1 2 m1
 
-    print $ luDecomp $ fromLists [[1.0, 2.0], [3.0, 4.0]]
-    print $ trace m1
+    print $ luDecomp $ Data.Matrix.fromLists [[1.0, 2.0], [3.0, 4.0]]
+    print $ Data.Matrix.trace m1
     print $ diagProd m1
 
     print $ detLaplace $ identity 3
-    print $ detLU $ fromLists [[1.0, 2.0], [3.0, 4.0]]
--}
+    print $ detLU $ Data.Matrix.fromLists [[1.0, 2.0], [3.0, 4.0]]
+
+    -- kronecker
+    --print $ NLA.kronecker m4 m5
+    --print $ NLA.kronecker m1 m2
+
 --- Towers of Hanoi ---
+data Tower = Tower1 | Tower2 | Tower3 deriving Show
+move 0 from to temp = []
+move n from to temp = move (n - 1) from temp to ++ [(from, to)] ++ move (n - 1) temp to from
+func135main = print $ move 3 Tower1 Tower2 Tower3
+
+--- C parser ---
+--{-# START_FILE main.hs #-}
+--import Language.C
+func136main = do
+    result <- parseCFilePre "test.c"
+    case result of
+        Left error -> print error
+        Right ast -> do
+            print ast
+            print $ pretty ast
+-- {-# START_FILE test.c #-}
+-- It does not parse "//", "#", "/*" !!!
+-- int main() {
+--     printf("Hello, world!\n");
+--     return 0;
+-- }
+
+--- Data.Either ---
+--import Data.Either
+--import Prelude hiding (error)
+type ErrorOrValue = Either String Int
+error = Left "MyError" :: ErrorOrValue
+value = Right 123 :: ErrorOrValue
+func137main = do
+    print Lib5.error
+    print value
+
+    print $ isLeft Lib5.error
+    print $ isLeft value
+
+    print $ isRight Lib5.error
+    print $ isRight value
+
+    case Lib5.error of
+        Left x -> print $ "Error: " ++ x
+        Right x -> print $ "Value: " ++ show x
+
+    case value of
+        Left x -> print $ "Error: " ++ x
+        Right x -> print $ "Value: " ++ show x
+
+    print $ either show (show.(+ 1)) Lib5.error
+    print $ either show (show.(+ 1)) value
+
+    print $ either (\_ -> 0) id Lib5.error
+    print $ either (\_ -> 0) id value
+
+    print $ lefts [Lib5.error, value]
+    print $ rights [Lib5.error, value]
+    print $ partitionEithers [Lib5.error, value]
+
+--- Data.Maybe ---
+--import Data.Maybe
+--import Data.Char
+nothing = Nothing :: Maybe String
+just = Just "Hello, world!" :: Maybe String
+func138main = do
+    print nothing
+    print just
+
+    print $ isNothing nothing
+    print $ isNothing just
+
+    print $ isJust nothing
+    print $ isJust just
+
+    case nothing of
+        Nothing -> print "Nothing"
+        Just x -> print x
+
+    case just of
+        Nothing -> print "Nothing"
+        Just x -> print x
+
+    print $ maybe "Default" (map toUpper) nothing
+    print $ maybe "Default" (map toUpper) just
+
+    print $ fromJust just
+
+    print $ fromMaybe "Default" nothing
+    print $ fromMaybe "Default" just
+
+    print $ listToMaybe ([] :: [Int])
+    print $ listToMaybe [1, 2, 3]
+
+    print $ maybeToList nothing
+    print $ maybeToList just
+
+    print $ catMaybes [nothing, just]
+
+    print $ mapMaybe (\_ -> (Nothing :: Maybe Int)) [1, 2, 3]
+    print $ mapMaybe (\x -> Just x) [1, 2, 3]
+
+--- Fibonacci versions: 1, 2, 3, 4 ---
+fibonacci = 0 : 1 : zipWith (+) fibonacci (tail fibonacci)
+func142main = print $ take 20 fibonacci
+fib a b = a : fib b (a + b)
+---
+fibonacci' = fib 0 1
+func139main = print $ take 20 fibonacci'
+fib' n m a b
+    | n == m = a
+    | otherwise = fib' n (m + 1) b (a + b)
+---
+fibonacci'' n = fib' n 0 0 1
+func140main = print [fibonacci'' n | n <- [0..19]]
+fib'' 0 a b = a
+fib'' n a b = fib'' (n - 1) b (a + b)
+---
+fibonacci''' n = fib'' n 0 1
+func141main = print [fibonacci''' n | n <- [0..19]]
+
+--- Coin changes ---
+changeCount 0 _ = 1
+changeCount _ [] = 0
+changeCount n (coin : coins)
+    | n > 0 = changeCount (n - coin) (coin : coins) + changeCount n coins
+    | otherwise = 0
+func143main = print $ changeCount 10 [8, 5, 1]
+
+---
+--import Data.List
+--import Data.Ord
+allChanges 0 _ = [[]]
+allChanges _ [] = []
+allChanges n (coin : coins)
+    | n > 0 = map (coin :) (allChanges (n - coin) (coin : coins)) ++ allChanges n coins
+    | otherwise = []
+
+shortest = minimumBy $ comparing length
+optimalChange n coins = shortest $ allChanges n coins
+
+func144main = do
+    print $ allChanges 10 [8, 5, 1]
+    print $ optimalChange 10 [8, 5, 1]
+
+---
+bestChange 0 _ = Just []
+bestChange _ [] = Nothing
+bestChange n (coin : coins)
+    | n > 0 = shorter (fmap (coin :) (bestChange (n - coin) (coin : coins))) (bestChange n coins)
+    | otherwise = Nothing
+
+shorter Nothing Nothing = Nothing
+shorter (Just a) Nothing = Just a
+shorter Nothing (Just b) = Just b
+shorter (Just a) (Just b) = if length a < length b then Just a else Just b
+
+func145main = print $ bestChange 10 [8, 5, 1]
+
+
+--- Queens ---
+queens n = queens' n n
+
+queens' n 0 = [[]]
+queens' n k = [x:xs | xs <- queens' n (k - 1), x <- [1..n], isSafeColumn x xs, isSafeDiagonal x xs]
+
+isSafeColumn x xs = not $ elem x xs
+
+isSafeDiagonal x xs = all (\(a, b) -> abs(x - a) /= b) $ zip xs [1..]
+
+showLine n k = replicate (k - 1) '.' ++ "X" ++ replicate (n - k) '.'
+
+showSolution s = (mapM_ putStrLn [showLine (length s) k | k <- s]) >> putStrLn ""
+
+func146main = mapM_ showSolution $ queens 4
+
+
+--- GHC options ---
+--{-# OPTIONS_GHC -fwarn-missing-signatures #-}
+--func147main = putStrLn "Hello, world!"
+
