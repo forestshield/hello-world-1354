@@ -87,7 +87,8 @@ dependencies:
 #- lapack -- does not match version
 - language-c
 - vector
-
+- math-functions
+- statistics
 
 default-extensions:
 #- NoImplicitPrelude

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bd24ab38672b189ef3c24a6e70bb7a16b0cd5287e73b47aecec3e1828ff8d333
+-- hash: 5f14a14c2afa96a2c06bec8e88fc90e3a8e128dc5bfb80c9da5b1c31b40e173d
 
 name:           L4
 version:        0.1.0.0
@@ -89,6 +89,7 @@ library
     , lens
     , lens-aeson
     , linear
+    , math-functions
     , matrix
     , mtl
     , pretty-simple
@@ -99,6 +100,7 @@ library
     , serialise
     , snap-core
     , snap-server
+    , statistics
     , stm
     , text
     , time
@@ -157,6 +159,7 @@ executable L4-exe
     , lens
     , lens-aeson
     , linear
+    , math-functions
     , matrix
     , mtl
     , pretty-simple
@@ -167,6 +170,7 @@ executable L4-exe
     , serialise
     , snap-core
     , snap-server
+    , statistics
     , stm
     , text
     , time
@@ -226,6 +230,7 @@ test-suite L4-test
     , lens
     , lens-aeson
     , linear
+    , math-functions
     , matrix
     , mtl
     , pretty-simple
@@ -236,6 +241,7 @@ test-suite L4-test
     , serialise
     , snap-core
     , snap-server
+    , statistics
     , stm
     , text
     , time
