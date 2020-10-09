@@ -113,6 +113,20 @@ import Data.Ord
 import Data.Monoid
 --import Prelude PHfuncs hiding (replicate, enumFromTo, enumFromThenTo, length, null)
 --import Data.Vector
+import Data.Int
+--import Data.Word
+import Data.Bits
+import Numeric.MathFunctions.Constants
+import Numeric.Polynomial
+import qualified Data.Vector as DV
+import Statistics.Sample
+--import Data.Vector
+import qualified Statistics.Distribution as D
+import Statistics.Distribution.Normal
+import Control.Monad.State
+import Control.Monad.Reader
+import Control.Monad.Writer
+import Prelude hiding(succ, exp)
 
 -----------------------------
 someFuncLib5 :: IO ()
@@ -254,6 +268,22 @@ someFuncLib5 = do
   specSh2 (func149main) "" "import Data.Monoid\n"
   funcDataVectormain
   specSh2 (func151main) "" "Cellular automation" 
+  specSh2 (func152main) "" "Enum" 
+  specSh2 (func153main) "" "SKI calculus" 
+  specSh2 (func154main) "" "Sieve of Eratosthenes" 
+  specSh2 (func155main) "" "Bounded, import Data.Int, Data.Word" 
+  specSh2 (func156main) "" "import Data.Bits" 
+  specSh2 (func157main) "" "Numeric.MathFunctions.Constants, - math-functions" 
+  specSh2 (func158main) "" "Numeric.Polynomial, - math-functions"   
+  specSh2 (func159main) "" "Statistics, -statistics" 
+  specSh2 (func160main) "" "Collatz sequence"
+  specSh2 (func161main) "" "Monad" 
+  specSh2 (func162main) "" "State monad, import Control.Monad.State"
+  specSh2 (func163main) "" "Reader monad, import Control.Monad.Reader"
+  specSh2 (func164main) "" "Writer monad, import Control.Monad.Writer"
+  specSh2 (func165main) "" "Church numerals"
+  putStrLn "===================== Simple Examples Done =================="
+  putStrLn "https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples#simple-application"
 
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -1745,7 +1775,7 @@ func134main = do
     print m2
     print m3
 
-    print $ zero 3 4
+    print $ Data.Matrix.zero 3 4
     print $ identity 3
     print $ permMatrix 3 1 2
 
@@ -1767,8 +1797,8 @@ func134main = do
     print $ minorMatrix 1 2 m1
     print $ splitBlocks 2 3 m1
 
-    print $ m1 Data.Matrix.<|> zero 3 2
-    print $ m1 <-> zero 2 4
+    print $ m1 Data.Matrix.<|> Data.Matrix.zero 3 2
+    print $ m1 <-> Data.Matrix.zero 2 4
 
     print $ multStd m1 (identity 4)
 
@@ -2051,3 +2081,305 @@ next _ = " "
 rows n = take n $ iterate (\x -> ' ' : Lib5.next x) $ start n
 
 func151main = mapM_ putStrLn $ rows 32
+
+--- Enum ---
+func152main = do
+    print $ Prelude.succ 'a'
+    print $ pred 'b'
+    print $ (toEnum 65 :: Char)
+    print $ fromEnum 'B'
+
+    print $ take 10 $ enumFrom 'a'
+    print $ take 10 $ ['a'..]
+
+    print $ take 10 $ enumFromThen 'a' 'c'
+    print $ take 10 $ ['a', 'c'..]
+
+    print $ enumFromTo 'a' 'e'
+    print $ ['a'..'e']
+
+    print $ enumFromThenTo 'a' 'c' 's'
+    print $ ['a', 'c'..'s']
+
+    
+--- SKI calculus ---
+data SKI = S | K | I | App SKI SKI | Var String deriving (Show, Eq)
+
+eval (App I x) = eval x
+eval (App (App K x) y) = eval x
+eval (App (App (App S x) y) z) = eval (App (App x z) (App y z))
+eval (App x y) =
+    if (App x y) == app then
+        app
+    else
+        eval app
+    where
+        app = App (eval x) (eval y)
+eval x = x
+
+func153main = do
+    print $ eval $ App I $ Var "x"
+    print $ eval $ App (App K $ App I $ Var "x") $ Var "y"
+    print $ eval $ App (App (App S I) I) $ Var "x"
+    print $ eval $ App (App I I) (Var "x")
+
+
+--- Sieve of Eratosthenes ---
+sieve (p : xs) = p : sieve [x | x <- xs, x `mod` p /= 0]
+primes = sieve [2..]
+
+func154main = print $ take 20 primes
+
+
+--- Bounded --- 
+--import Data.Int
+--import Data.Word
+func155main = do
+    print $ (minBound :: Bool)
+    print $ (maxBound :: Bool)
+
+    print $ (minBound :: Char)
+    print $ (maxBound :: Char)
+
+    print $ (minBound :: Int)
+    print $ (maxBound :: Int)
+
+    print $ (minBound :: Int8)
+    print $ (maxBound :: Int8)
+
+    print $ (minBound :: Word8)
+    print $ (maxBound :: Word8)
+  
+--- Data.Bits ---
+--import Data.Bits
+func156main = do
+    print $ bitSizeMaybe (0 :: Int)
+    print $ isSigned (0 :: Int)
+
+    print $ (2 Data.Bits..&. 3 :: Int)
+    print $ (2 .|. 3 :: Int)
+    print $ (xor 2 3 :: Int)
+    print $ complement (2 :: Int)
+
+    print $ (bit 2 :: Int)
+    print $ popCount (123 :: Int)
+    print $ testBit (2 :: Int) 1
+    print $ setBit (2 :: Int) 0
+    print $ clearBit (2 :: Int) 1
+    print $ complementBit (2 :: Int) 1
+
+    print $ shift (2 :: Int) 10
+    print $ shift (2 :: Int) (-10)
+    print $ shiftL (2 :: Int) 10
+    testExceptionType (print $ shiftL (2 :: Int) (-10))   -- ArithException
+    --print $ shiftL (2 :: Int) (-10)                         -- ArithException
+
+    print $ shiftR (2 :: Int) 10
+    
+    testExceptionType (print $ shiftR (2 :: Int) (-10))   -- ArithException
+    --print $ shiftR (2 :: Int) (-10)                         -- ArithException
+
+    print $ rotate (2 :: Int) 10
+    print $ rotate (2 :: Int) (-10)
+    print $ rotateL (2 :: Int) 10
+    print $ rotateL (2 :: Int) (-10)
+    print $ rotateR (2 :: Int) 10
+    print $ rotateR (2 :: Int) (-10)
+    print "Data.Bits done"
+    
+--- Math constants ---
+--import Numeric.MathFunctions.Constants
+func157main = do
+    print m_epsilon
+    print m_huge
+    print m_tiny
+    print m_max_exp
+    print m_pos_inf
+    print m_neg_inf
+    print m_NaN
+
+    print m_1_sqrt_2
+    print m_2_sqrt_pi
+    print m_ln_sqrt_2_pi
+    print m_sqrt_2
+    print m_sqrt_2_pi
+    print m_eulerMascheroni
+
+
+--- Polynomial ---
+--import Numeric.Polynomial
+--import Data.Vector
+polynomial = DV.fromList [1, 2, 3]
+func158main = do
+    print polynomial
+    print $ evaluatePolynomial 10 polynomial
+    print $ evaluateOddPolynomial 10 polynomial
+    print $ evaluateEvenPolynomial 10 polynomial
+
+--- Statistics ---
+--import Statistics.Sample
+--import Data.Vector
+--import qualified Statistics.Distribution as D
+--import Statistics.Distribution.Normal
+
+sample1 = DV.fromList [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+weightedSample = DV.fromList [(1, 10), (2, 1), (3, 1), (4, 1), (5, 1)]
+
+func159main = do
+    print sample1
+    print weightedSample
+
+    print $ Statistics.Sample.range sample1
+
+    print $ mean sample1
+    print $ meanWeighted weightedSample
+    print $ harmonicMean sample1
+    print $ geometricMean sample1
+
+    print $ variance sample1
+    print $ fastVariance sample1
+    print $ varianceWeighted weightedSample
+    print $ varianceUnbiased sample1
+    print $ fastVarianceUnbiased sample1
+    print $ meanVariance sample1
+    print $ meanVarianceUnb sample1
+
+    print $ stdDev sample1
+    print $ fastStdDev sample1
+
+    print $ standard
+    print $ normalDistr 10 5
+
+    print $ D.cumulative standard 0
+    print $ D.quantile standard 0.5
+    print $ D.density standard 0
+    print $ D.mean standard
+    print $ D.variance standard
+    print $ D.stdDev standard
+
+--- Collatz sequence ---
+collatz 1 = [1]
+collatz n
+    | n `mod` 2 == 0 = n : collatz (n `div` 2)
+    | otherwise = n : collatz (3 * n + 1)
+    
+func160main = do
+    print $ collatz 5
+    print $ collatz 17
+
+--- Monad ---
+inc n = Just (n + 1)
+add1 n = [n + 1]
+
+func161main = do
+    print $ Nothing >> (Just 0)
+    print $ (Just 0) >> (Nothing :: Maybe Int)
+    print $ (Just 0) >> Nothing >> (Just 1)
+    print $ (Just 0) >> (Just 1) >> (Just 2)
+
+    print $ Nothing >>= inc >>= inc >>= inc
+    print $ (Just 0) >>= inc >>= inc >>= inc
+
+    print $ [] >> [1, 2]
+    print $ [1, 2] >> ([] :: [Int])
+    print $ [1] >> [3, 4, 5]
+    print $ [1, 2] >> [3, 4, 5]
+    print $ [1, 2, 3] >> [3, 4, 5]
+
+    print $ [] >>= add1 >>= add1 >>= add1
+    print $ [1, 2, 3] >>= add1
+    print $ [1, 2, 3] >>= add1 >>= add1
+    print $ [1, 2, 3] >>= add1 >>= add1 >>= add1
+
+--- State monad ---
+--import Control.Monad.State
+
+inc1 :: State Int Int
+inc1 = do
+    n <- Control.Monad.State.get
+    put (n + 1)
+    return n
+
+incBy :: Int -> State Int Int
+incBy x = do
+    n <- Control.Monad.State.get
+    modify (+x)
+    return n
+
+func162main = do
+    print $ evalState inc1 1
+    print $ execState inc1 1
+    print $ runState inc1 1
+    print $ runState (withState (+3) inc1) 1
+    print $ runState (mapState (\(a, s) -> (a + 3, s + 4)) inc1) 1
+
+    print $ runState (incBy 5) 10
+
+--- Reader monad ---
+--import Control.Monad.Reader
+
+data Environment = Environment { text1 :: String, text3 :: String }
+
+getText :: Reader Environment String
+getText = do
+    text1 <- asks text1
+    text3 <- asks text3
+    return $ text1 ++ ", " ++ text3
+
+func163main = print $ runReader getText $ Environment "Hello" "world!"
+
+--- Writer monad ---
+--import Control.Monad.Writer
+
+write :: Int -> Writer [Int] String
+write n = do
+    tell [1..n]
+    return "Done"
+
+func164main = do
+    print $ runWriter $ write 10
+    print $ execWriter $ write 10
+
+--- Church numerals ---
+--import Prelude hiding(succ, exp)
+zero s z = z
+one s z = s z
+two s z = s $ s z
+three s z = s $ s $ s z
+four s z = s $ s $ s $ s z
+
+five s z = s $ four s z
+six s z = s $ five s z
+seven s z = s $ six s z
+
+succ x s z = s $ x s z
+add x y s z = x s $ y s z
+mul x y s z = x (y s) z
+exp x y s z = (y x) s z
+
+func165main = do
+    print $ Lib5.zero (+1) 0
+    print $ one (+1) 0
+    print $ two (+1) 0
+    print $ three (+1) 0
+    print $ four (+1) 0
+    print $ five (+1) 0
+    print $ six (+1) 0
+    print $ seven (+1) 0
+    print $ Lib5.succ seven (+1) 0
+    print $ add four six (+1) 0
+    print $ mul four six (+1) 0
+    print $ Lib5.exp two five (+1) 0
+
+    print $ Lib5.zero ('*':) ""
+    print $ one ('*':) ""
+    print $ two ('*':) ""
+    print $ three ('*':) ""
+    print $ four ('*':) ""
+    print $ five ('*':) ""
+    print $ six ('*':) ""
+    print $ seven ('*':) ""
+    print $ Lib5.succ seven ('*':) ""
+    print $ add four six ('*':) ""
+    print $ mul four six ('*':) ""
+    print $ Lib5.exp two five ('*':) ""
