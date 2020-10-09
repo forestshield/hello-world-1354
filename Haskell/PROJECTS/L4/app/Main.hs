@@ -37,6 +37,8 @@ main = do
 
 codePageFunc :: IO ()
 codePageFunc = do 
+  putStrLn "############ Console Output Starts here ############"
+  putStrLn "N.B. Some outputs, produced by exteranl apps, like Main.c, Main.java etc."
   someFunc
   someFunc2
   someFunc3
@@ -66,5 +68,7 @@ codePageFunc = do
   someFuncLib4
   someFuncLib5
   putStrLn "............................"
+  putStrLn "############ Console Output Ends here ############"
+  putStrLn "N.B. Some outputs, produced by exteranl apps, like Main.c, Main.java etc., See L4-output-extra.txt"
   --someFunc
     
