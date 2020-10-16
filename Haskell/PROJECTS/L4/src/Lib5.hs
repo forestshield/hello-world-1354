@@ -288,6 +288,8 @@ someFuncLib5 = do
   specSh2 (RGEX.regExTest) "" "Custom Module RegEx"
 
 
+  putStrLn "===================== Lib5 Done =================="
+
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
 --  putStrLn ",  \"Abrakadabra\" `compare` \"Zebra\"" -- LT
@@ -2449,3 +2451,15 @@ instance IsString Regexp where
 func166main = print (match ("ab" <> many "ba") "abbaba")
 -- /show
 -}
+
+{-
+--- 1 Problem, 8 Programming Languages (C++ vs Rust vs Clojure vs ...
+--  https://www.youtube.com/watch?v=zrOIQEN3Wkk
+maxDeth :: String -> Int 
+maxDeth = maximum 
+        . scanl1 (+)
+        . map (\ c -> if c == '(' then 1 else -1)
+        . filter ((flip elem) "()")
+-}
+
+
