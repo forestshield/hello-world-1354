@@ -1,3 +1,24 @@
+====================================
+Oct 10, 20
+stack ghc -- --version
+The Glorious Glasgow Haskell Compilation System, version 8.8.3
+---
+stack --version
+Version 2.5.1, Git revision d6ab861544918185236cf826cb2028abb266d6d5 x86_64 hpack-0.33.0
+---
+llvm-gcc -v
+Apple LLVM version 8.0.0 (clang-800.0.42.1)
+Target: x86_64-apple-darwin15.6.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+---
+
+stack upgrade
+stack update
+
+
+
+
 ---------------------------
 -- N.B. !!! To print properly Unocode strings on Windows PowerShell and avoid console exception
 -- "*** Exception: <stdout>: hPutChar: invalid argument (invalid character)"
