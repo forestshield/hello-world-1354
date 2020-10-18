@@ -45,6 +45,9 @@ someFunc5 = do
   TIO.putStrLn bgText   -- श्रेयान्स्वधर्मो विगुणः परधर्मात्स्वनुष्ठितात्।स्वधर्मे निधनं श्रेयः परधर्मो
   TIO.putStrLn $ highlight dharma bgText -- श्रेयान्स्व{धर्म}ो विगुणः पर{धर्म}ात्स्वनुष्ठितात्।स्व{धर्म}े निधनं श्रेयः पर{धर्म}ो
 
+  putStrLn "===================== Lib2 Done =================="
+
+
 highlight :: T.Text -> T.Text -> T.Text
 highlight query fullText = T.intercalate highlighted pieces
     where pieces = T.splitOn query fullText

@@ -477,6 +477,8 @@ printUnicodeStrings = do
   print 'λ'                         -- '\955'
   putStrLn "abc"                    -- abc
   putStrLn ['^', '$', '&', 'λ', '>', 'a']   -- ^$&λ>a
+  
+  putStrLn "===================== Modul Lib is Done =================="
 
 aWord0 = "Cheese"
 aWord1 = "Хорошего нам всем века, года, месяца, дня, жизни! :)"
@@ -484,6 +486,7 @@ aWord2 = "哈斯克尔7.6.1"
 dharma = "धर्म"
 bgText = " श्रेयान्स्वधर्मो विगुणः परधर्मात्स्वनुष्ठितात्।स्वधर्मे निधनं श्रेयः परधर्मो"
 lambdT = "TIO.putStrLn Lambda: λ"
+
 
 
 

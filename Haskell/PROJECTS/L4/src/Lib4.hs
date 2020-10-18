@@ -61,7 +61,7 @@ import System.Info
 -----------------------------
 someFuncLib4 :: IO ()
 someFuncLib4 = do
-  putStrLn "\n----------- Lib4 -------------------------\n"
+  putStrLn "\n=============================== Lib4 ==========================\n"
   
   funcSI1main
   putStrLn "funcSI1main\n"
@@ -1170,6 +1170,8 @@ someFuncLib4 = do
 -- some cool stuff
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
+
+  putStrLn "===================== Modul Lib4 is Done =================="
 {-
   specShow (()
            ,()

@@ -288,7 +288,7 @@ someFuncLib5 = do
   specSh2 (RGEX.regExTest) "" "Custom Module RegEx"
 
 
-  putStrLn "===================== Lib5 Done =================="
+  putStrLn "===================== Modul Lib5 is Done =================="
 
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
