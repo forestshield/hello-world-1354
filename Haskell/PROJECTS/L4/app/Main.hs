@@ -7,6 +7,7 @@
 module Main where
 
 import System.IO.CodePage
+import System.Process 
 
 import Lib
 import Lib2
@@ -38,7 +39,8 @@ main = do
 codePageFunc :: IO ()
 codePageFunc = do 
   putStrLn "############ Console Output Starts here ############"
-  putStrLn "N.B. Some outputs, produced by exteranl apps, like Main.c, Main.java etc."
+  putStrLn "N.B. See file \"L4-output-extra.txt\" for some outputs, produced by \nexteranl apps,\
+            \like Main.c, Main.java etc."
   someFunc
   someFunc2
   someFunc3
@@ -68,7 +70,11 @@ codePageFunc = do
   someFuncLib4
   someFuncLib5
   putStrLn "............................"
-  putStrLn "############ Console Output Ends here ############"
-  putStrLn "N.B. Some outputs, produced by exteranl apps, like Main.c, Main.java etc., See L4-output-extra.txt"
-  --someFunc
-    
+  putStrLn "N.B. See file \"L4-output-extra.txt\" for some outputs, produced by \nexteranl apps,\
+            \like Main.c, Main.java etc."
+  putStrLn "============= This is a content of file \"L4-output-extra.txt\" =========="
+  funcReadExternal
+  putStrLn "\n############ Console Output Ends here ############\n"
+  
+funcReadExternal = do
+    system "cat L4-output-extra.txt"
