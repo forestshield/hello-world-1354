@@ -167,10 +167,11 @@ someFuncLib5 = do
   specSh2 (getEnvironment >>= print) "" ""  
 
   putStrLn "\n ----------------- Happstack.Server  -------------------"
+  
   --callCommand  ("curl -v http://localhost")  
   specSh2 (testExceptionType (callCommand  ("\ncurl http://localhost"))) "" "using \"curl http://localhost\""
-  --callCommand  ("curl -v http://b-ok.cc")  
-  --specSh2 (testExceptionType (callCommand  ("\ncurl http://b-ok.cc"))) "" "using \"curl http://b-ok.cc\""
+  specSh2 (testExceptionType (callCommand  ("\ncurl -vs -o /dev/null http://localhost"))) "" "using \"curl -vs -0 /dev/null http://localhost\",\
+                                            \\n call -vs -0 /dev/null is suppressing the progerss meter and send stdout to /dev/null"
 
   putStrLn "\n ----------------- Lists, list = [1,2,3,4,5]  -------------------"
   func56main
