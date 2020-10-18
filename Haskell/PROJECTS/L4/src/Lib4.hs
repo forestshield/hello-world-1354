@@ -1171,7 +1171,7 @@ someFuncLib4 = do
   putStrLn $ show $ sum' []
   putStrLn $ show $ length ("abcdef" :: String)           
 
-  putStrLn "===================== Modul Lib4 is Done =================="
+  putStrLn "===================== Module Lib4 is Done =================="
 {-
   specShow (()
            ,()

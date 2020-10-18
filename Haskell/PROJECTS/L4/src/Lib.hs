@@ -478,7 +478,7 @@ printUnicodeStrings = do
   putStrLn "abc"                    -- abc
   putStrLn ['^', '$', '&', 'λ', '>', 'a']   -- ^$&λ>a
   
-  putStrLn "===================== Modul Lib is Done =================="
+  putStrLn "===================== Module Lib is Done =================="
 
 aWord0 = "Cheese"
 aWord1 = "Хорошего нам всем века, года, месяца, дня, жизни! :)"

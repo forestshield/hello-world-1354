@@ -128,6 +128,7 @@ import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Writer
 import Prelude hiding(succ, exp)
+import GHC.Conc (numCapabilities)
 
 -----------------------------
 someFuncLib5 :: IO ()
@@ -284,12 +285,13 @@ someFuncLib5 = do
   specSh2 (func163main) "" "Reader monad, import Control.Monad.Reader"
   specSh2 (func164main) "" "Writer monad, import Control.Monad.Writer"
   specSh2 (func165main) "" "Church numerals"
+  specSh2 (func166main) "" "Number of Cores"
   putStrLn "===================== Simple Examples Done =================="
   putStrLn "https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/Simple%20examples#simple-application"
   specSh2 (RGEX.regExTest) "" "Custom Module RegEx"
 
 
-  putStrLn "===================== Modul Lib5 is Done =================="
+  putStrLn "===================== Module Lib5 is Done =================="
 
   --specSh2 (func10main) "" ""
 --  putStr $ show $ "Abrakadabra" `compare` "Zebra"
@@ -2462,5 +2464,8 @@ maxDeth = maximum
         . map (\ c -> if c == '(' then 1 else -1)
         . filter ((flip elem) "()")
 -}
+
+--- how many cores
+func166main = putStrLn $ "number of cores: " ++ show numCapabilities
 
 
