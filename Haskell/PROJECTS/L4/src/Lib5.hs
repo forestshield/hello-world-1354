@@ -129,6 +129,7 @@ import Control.Monad.Reader
 import Control.Monad.Writer
 import Prelude hiding(succ, exp)
 import GHC.Conc (numCapabilities)
+import Database.Sqlite
 
 -----------------------------
 someFuncLib5 :: IO ()
@@ -207,6 +208,7 @@ someFuncLib5 = do
   specSh2 (testExceptionType (func5H_main)) "http://doesNotExist" " Simple HTTP conduit "
   specSh2 (testExceptionType (func5G_main)) "http://localhost" " Simple HTTP conduit "
   specSh2 (func81main) "" "show and read"
+  specSh2 (testExceptionType (func83main)) "---droping and creating db sqlite ---" "Database.Sqlite"
   specSh2 (func8A_main) "func8A_main" "...Files..."
   specSh2 (func89main) "(randomRIO (1, 100)" "...Random..."
   specSh2 (func90main) "unpack encode decode" "...Data.ByteString.Base16..."
@@ -218,7 +220,7 @@ someFuncLib5 = do
   specSh2 (func96main) "" "Applicative"  
   specSh2 (func97main) "" "Type class"
   specSh2 (func98main) "" "Threads"
-  specSh2 (func99main) "" "CPU time"
+  specSh2 (func99main) "--- cpuTimePrecision --- getCPUTime ---" "CPU time"
   specSh2 (func100main) "" "External command"  
   specSh2 (func102main) "print $ (1 /) 2\nprint $ (/ 1) 2" "Section"
   specSh2 ((func101main))
@@ -1029,7 +1031,7 @@ func81main = do
     print $ (read "34" :: Int)
     print $ (read "(1, False)" :: (Int, Bool))
 
-{-
+
 --- SQLite database ---
 --{-# LANGUAGE OverloadedStrings #-}
 --import Database.Sqlite
@@ -1047,26 +1049,26 @@ func83main = do
 
     stmt <- prepare conn "DROP TABLE IF EXISTS MyTable;"
     step stmt
-    finalize stmt
+    Database.Sqlite.finalize stmt
 
     stmt <- prepare conn "CREATE TABLE IF NOT EXISTS MyTable (Name VARCHAR(20));"
     step stmt
-    finalize stmt
+    Database.Sqlite.finalize stmt
 
     stmt <- prepare conn "INSERT INTO MyTable(Name) VALUES('Erik');"
     step stmt
-    finalize stmt
+    Database.Sqlite.finalize stmt
 
     stmt <- prepare conn "INSERT INTO MyTable(Name) VALUES('Patrik');"
     step stmt
-    finalize stmt
+    Database.Sqlite.finalize stmt
 
     stmt <- prepare conn "SELECT * FROM MyTable;"
     printRows stmt
-    finalize stmt
+    Database.Sqlite.finalize stmt
 
     close conn
--}
+
 
 -- ================================ Files ================================= --
 -- stack new PACKAGE_NAME myfiles.hsfiles will create those files (and all directories automatically) 
@@ -2465,7 +2467,8 @@ maxDeth = maximum
         . filter ((flip elem) "()")
 -}
 
---- how many cores
+--- Number of Cores
+-- import GHC.Conc (numCapabilities)
 func166main = putStrLn $ "number of cores: " ++ show numCapabilities
 
 
