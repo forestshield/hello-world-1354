@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 50b693c8ac7b7aa16c713ade09c66e94435546561c7bb21f9b3698f89ce60d37
+-- hash: bd1ef413dd06d364a166add7ad081e6aae4b34d7de5f05849cea06f12e525b8a
 
 name:           L4
 version:        0.1.0.0
@@ -93,6 +93,7 @@ library
     , math-functions
     , matrix
     , mtl
+    , persistent-sqlite
     , pretty-simple
     , process
     , pureMD5
@@ -163,6 +164,7 @@ executable L4-exe
     , math-functions
     , matrix
     , mtl
+    , persistent-sqlite
     , pretty-simple
     , process
     , pureMD5
@@ -234,6 +236,7 @@ test-suite L4-test
     , math-functions
     , matrix
     , mtl
+    , persistent-sqlite
     , pretty-simple
     , process
     , pureMD5

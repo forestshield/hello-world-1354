@@ -89,6 +89,7 @@ dependencies:
 - vector
 - math-functions
 - statistics
+- persistent-sqlite
 
 default-extensions:
 #- NoImplicitPrelude
