@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bd1ef413dd06d364a166add7ad081e6aae4b34d7de5f05849cea06f12e525b8a
+-- hash: f81b28afdcc28b71e2e64a7bbe6bd16320dbbf6f0c9bfba9d2a539d0817aadcd
 
 name:           L4
 version:        0.1.0.0
@@ -100,8 +100,6 @@ library
     , random >=1.1
     , safe-exceptions
     , serialise
-    , snap-core
-    , snap-server
     , statistics
     , stm
     , text
@@ -171,8 +169,6 @@ executable L4-exe
     , random >=1.1
     , safe-exceptions
     , serialise
-    , snap-core
-    , snap-server
     , statistics
     , stm
     , text
@@ -243,8 +239,6 @@ test-suite L4-test
     , random >=1.1
     , safe-exceptions
     , serialise
-    , snap-core
-    , snap-server
     , statistics
     , stm
     , text
