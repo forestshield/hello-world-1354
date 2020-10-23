@@ -42,9 +42,9 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.ByteString.Lazy as L
 import Network.HTTP.Conduit 
 import Control.Monad.IO.Class (liftIO)
---import Snap.Http.Server.Env
-import Snap.Http.Server
-import Snap.Core
+-- see package.yaml, these two do not build on Windows
+--import Snap.Http.Server
+--import Snap.Core
 import System.IO 
 import System.Random
 import qualified Data.ByteString.Base16 as BS16
@@ -749,11 +749,15 @@ getHomeR = defaultLayout [whamlet|
 func125main = warpEnv WebApp
 -}
 
+{-
+-- see package.yaml, doesn not build on Windows
 --- Snap application
 --{-# LANGUAGE OverloadedStrings #-}
 --import Snap.Http.Server.Env
 --import Snap.Core
 func82main = httpServe defaultConfig $ writeBS "Hello, world!"
+-}
+
 {-
 -- this is output from ghci
 λ> func82main
