@@ -33,6 +33,9 @@ https://discussions.apple.com/docs/DOC-11237
 sudo /usr/sbin/apachectl stop
 sudo /usr/sbin/apachectl start
 sudo launchctl load -w /System/Library/LaunchDaemons/org.apache.httpd.plist
+---
+root of the site page is located : /Library/WebServer/Documents
+
 
 ———————————————————————————-
 stop/start apache2 server on windows 10
@@ -40,6 +43,7 @@ https://httpd.apache.org/docs/2.4/platform/windows.html
 C:\Apache24\bin\httpd.exe -k stop
 C:\Apache24\bin\httpd.exe -k start
 C:\Apache24\bin\httpd.exe -k install -- install apache2 as a service
+root of the site page is located : ?
 
 ———————————————————————————-
 VSCode copy paste rect block
