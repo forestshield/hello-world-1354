@@ -1,0 +1,8 @@
+===========================================================================
+stop/start apache2 server on mac (MacOSX 10.10.5 and 10.11)
+Setting up a local web server on OS X 10.11 "El Capitan"
+https://discussions.apple.com/docs/DOC-11237
+root of the site page is located: /Library/WebServer/Documents
+sudo /usr/sbin/apachectl stop
+sudo /usr/sbin/apachectl start
+sudo launchctl load -w /System/Library/LaunchDaemons/org.apache.httpd.plist

@@ -1,0 +1,7 @@
+===========================================================================
+stop/start apache2 server on windows 10
+https://httpd.apache.org/docs/2.4/platform/windows.html
+root of the site page is located:  
+C:\Apache24\bin\httpd.exe -k stop
+C:\Apache24\bin\httpd.exe -k start
+C:\Apache24\bin\httpd.exe -k install -- install apache2 as a service

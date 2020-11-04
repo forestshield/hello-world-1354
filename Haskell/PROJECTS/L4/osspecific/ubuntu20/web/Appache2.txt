@@ -1,0 +1,12 @@
+===========================================================================
+stop/start apache2 server on linux (Ubuntu2020lts)
+root of the site page is located: /var/wwww/html
+---
+/etc/init.d/apache2 stop/start/restart
+---
+## Start command ##
+systemctl start apache2.service
+## Stop command ##
+systemctl stop apache2.service
+## Restart command ##
+systemctl restart apache2.service
