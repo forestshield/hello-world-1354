@@ -1,7 +1,8 @@
 module Main where
 
 import Linear
-import Physics.Learn.QuantumMat
+--import Physics.Learn.QuantumMat
+--import qualified Numeric.LinearAlgebra as NLA
 
 main = do
     print $ V0
@@ -42,7 +43,11 @@ main = do
     print $ sumV [V3 1 2 3, V3 4 5 6, V3 7 8 9]
     print $ (basis :: [V3 Int])
     print $ basisFor $ V3 1 2 3
-    --print $ kronecker $ V3 1 2 3
+    
+    -- Variable not in scope: kronecker :: V3 Integer -> a0
+    -- Perhaps you meant ‘NLA.kronecker’ (imported from Numeric.LinearAlgebra)
+    --print $ NLA.kronecker $ V3 1 2 3      -- Kronecker product of two matrices.
+    
     print $ outer (V3 1 2 3) (V3 4 5 6)
 
     print $ nearZero (1e-10 :: Double)

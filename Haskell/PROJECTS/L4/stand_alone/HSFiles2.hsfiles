@@ -1,0 +1,7 @@
+{-# START_FILE main.hs #-}
+main = do
+    contents <- readFile "file.txt"
+    putStr contents
+
+{-# START_FILE file.txt #-}
+Hello, world!

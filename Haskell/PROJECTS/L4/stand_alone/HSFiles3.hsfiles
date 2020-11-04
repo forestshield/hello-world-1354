@@ -1,0 +1,11 @@
+{-# START_FILE main.hs #-}
+import System.IO
+
+main = do
+    handle <- openFile "file.txt" ReadMode
+    contents <- hGetContents handle
+    putStr contents
+    hClose handle
+
+{-# START_FILE file.txt #-}
+Hello, world!

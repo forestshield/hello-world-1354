@@ -1,0 +1,9 @@
+{-# START_FILE main.hs #-}
+import System.IO
+
+main = withFile "file.txt" ReadMode $ \handle -> do
+    contents <- hGetContents handle
+    putStr contents
+
+{-# START_FILE file.txt #-}
+Hello, world!
